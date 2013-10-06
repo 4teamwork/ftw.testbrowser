@@ -1,9 +1,11 @@
 from ftw.browser import browsing
 from ftw.browser.pages import plone
+from ftw.browser.tests.helpers import register_view
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
+from zope.publisher.browser import BrowserView
 
 
 class TestBrowserRequests(TestCase):
@@ -35,3 +37,14 @@ class TestBrowserRequests(TestCase):
                       '__ac_password': TEST_USER_PASSWORD,
                       'form.submitted': 1})
         self.assertTrue(plone.logged_in())
+
+    @browsing
+    def test_exceptions_are_passed_to_test(self, browser):
+        class FailingView(BrowserView):
+            def __call__(self):
+                raise ValueError('The value is wrong.')
+
+        with register_view(FailingView, 'failing-view'):
+            with self.assertRaises(ValueError) as cm:
+                browser.open(view='failing-view')
+            self.assertEquals(str(cm.exception), 'The value is wrong.')

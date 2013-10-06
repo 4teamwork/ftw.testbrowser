@@ -72,6 +72,8 @@ class Browser(object):
         self._verify_setup()
         if self.mechbrowser is None:
             self.mechbrowser = Zope2MechanizeBrowser(self.app)
+            self.get_mechbrowser().addheaders.append((
+                    'X-zope-handle-errors', 'False'))
         return self.mechbrowser
 
     def _verify_setup(self):
