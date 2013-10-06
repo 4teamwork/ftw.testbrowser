@@ -4,6 +4,7 @@ from lxml.cssselect import CSSSelector
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
+from zope.component.hooks import getSite
 from zope.interface import implements
 import lxml
 import tempfile
@@ -45,7 +46,7 @@ class Browser(object):
 
         self.reset()
 
-    def open(self, url_or_object, data=None, view=None):
+    def open(self, url_or_object=None, data=None, view=None):
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
         data = self._prepare_post_data(data)
@@ -79,6 +80,9 @@ class Browser(object):
         return True
 
     def _normalize_url(self, url_or_object, view=None):
+        if url_or_object is None:
+            url_or_object = getSite().absolute_url()
+
         if hasattr(url_or_object, 'absolute_url'):
             url = url_or_object.absolute_url()
         else:

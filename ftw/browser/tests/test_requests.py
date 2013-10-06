@@ -16,6 +16,16 @@ class TestBrowserRequests(TestCase):
         self.assertEquals('http://nohost/plone', browser.url)
 
     @browsing
+    def test_open_with_view_only(self, browser):
+        browser.open(view='login_form')
+        self.assertEquals('http://nohost/plone/login_form', browser.url)
+
+    @browsing
+    def test_open_site_root_by_default(self, browser):
+        browser.open()
+        self.assertEquals('http://nohost/plone', browser.url)
+
+    @browsing
     def test_post_request(self, browser):
         browser.open('http://nohost/plone/login_form')
         self.assertFalse(plone.logged_in())
