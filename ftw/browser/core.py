@@ -1,4 +1,5 @@
 from ftw.browser.exceptions import BrowserNotSetUpException
+from ftw.browser.form import Form
 from ftw.browser.interfaces import IBrowser
 from lxml.cssselect import CSSSelector
 from plone.app.testing import TEST_USER_NAME
@@ -67,6 +68,19 @@ class Browser(object):
 
     def xpath(self, xpath_selector):
         return self.document.xpath(xpath_selector)
+
+    @property
+    def root(self):
+        return self.document.getroot()
+
+    @property
+    def forms(self):
+        return dict([(form.attrib['id'], Form(form)) for form in self.root.forms
+                     if form.attrib.get('id', None)])
+
+    def fill(self, values):
+        form = Form.find_form_by_labels_or_names(*values.keys())
+        return form.fill(values)
 
     def get_mechbrowser(self):
         self._verify_setup()
