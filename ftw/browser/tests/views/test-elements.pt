@@ -1,0 +1,29 @@
+<html xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="context/main_template/macros/master"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="ftw.browser">
+    <body>
+
+        <div metal:fill-slot="main" >
+
+            <a href="link/target">A link</a>
+            <a href="link/target">A link <span>with sub</span> elements</a>
+
+            <form>
+                <label for="textfield">A text<span>field</span></label>
+                <input name="textfield" id="textfield" value="field value" />
+
+                <label for="textarea">A text<span>area</span></label>
+                <textarea name="textarea" id="textarea">Text area value</textarea>
+
+                <input type="checkbox" name="box" id="box" checked="checked" />
+                <label for="box">Check<span>box</span></label>
+
+                <input type="submit" value="A button" name="submit-button" />
+            </form>
+
+        </div>
+
+    </body>
+</html>

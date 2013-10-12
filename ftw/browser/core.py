@@ -1,4 +1,6 @@
+from ftw.browser.exceptions import AmbiguousFormFields
 from ftw.browser.exceptions import BrowserNotSetUpException
+from ftw.browser.exceptions import FormFieldNotFound
 from ftw.browser.form import Form
 from ftw.browser.interfaces import IBrowser
 from lxml.cssselect import CSSSelector
@@ -8,9 +10,14 @@ from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
 from zope.component.hooks import getSite
 from zope.interface import implements
 import lxml
+import re
 import tempfile
 import urllib
 import urlparse
+
+
+def normalize_spaces(text):
+    return re.sub(r'\s{1,}', ' ', text)
 
 
 class Browser(object):
@@ -78,12 +85,61 @@ class Browser(object):
 
     @property
     def forms(self):
-        return dict([(form.attrib['id'], Form(form)) for form in self.root.forms
-                     if form.attrib.get('id', None)])
+        forms = {}
+
+        for index, node in enumerate(self.css('form')):
+            key = node.attrib.get('id', node.attrib.get('name', 'form-%s' % index))
+            forms[key] = Form(node)
+
+        return forms
 
     def fill(self, values):
         form = Form.find_form_by_labels_or_names(*values.keys())
         return form.fill(values)
+
+    def find(self, text):
+        """Find an element by text.
+        """
+        link = self.find_link_by_text(text)
+        if link is not None:
+            return link
+
+        field = self.find_field_by_text(text)
+        if field is not None:
+            return field
+
+        button = self.find_button_by_label(text)
+        if button is not None:
+            return button
+
+    def find_link_by_text(self, text):
+        """Find a link by text.
+        """
+        text = normalize_spaces(text)
+
+        for link in self.css('a'):
+            if normalize_spaces(link.text_content()) == text:
+                return link
+
+        return None
+
+    def find_field_by_text(self, text):
+        """Finds a form field by text.
+        """
+        try:
+            form = Form.find_form_by_labels_or_names(text)
+        except (AmbiguousFormFields, FormFieldNotFound):
+            return None
+
+        return form.find_field(text)
+
+    def find_button_by_label(self, label):
+        """Finds a form button by its text label.
+        """
+        for form in self.forms.values():
+            button = form.find_button_by_label(label)
+            if button is not None:
+                return button
 
     def get_mechbrowser(self):
         self._verify_setup()

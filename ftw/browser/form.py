@@ -12,6 +12,22 @@ class Form(object):
     def values(self):
         return self.form_node.fields
 
+    def find_field(self, label_or_name):
+        return self.__class__.find_field_in_form(self.form_node, label_or_name)
+
+    def find_button_by_label(self, label):
+        for input in self.form_node.inputs:
+            try:
+                input_type = input.type
+            except AttributeError:
+                continue
+
+            if input_type not in ('submit', 'reset', 'button'):
+                continue
+
+            if input.value == label:
+                return input
+
     def fill(self, values):
         """Accepts a dict, where the key is the name or the label of a field and the
         value is its new value and fills the form with theese values.
@@ -74,8 +90,13 @@ class Form(object):
         for input in form.inputs:
             if input.name == label_or_name:
                 return input
-            elif input.label is not None and input.label.text == label_or_name:
+
+            if input.label is None:
+                continue
+
+            if input.label.text_content() == label_or_name:
                 return input
+
         return None
 
     def _submit_form(self, method, URL, values):
