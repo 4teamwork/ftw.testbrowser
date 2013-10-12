@@ -54,6 +54,9 @@ class Browser(object):
         self.response = self.get_mechbrowser().open(url, data=data)
         self.document = lxml.html.parse(self.response)
 
+    def visit(self, *args, **kwargs):
+        return self.open(*args, **kwargs)
+
     @property
     def url(self):
         return self.get_mechbrowser().geturl()
