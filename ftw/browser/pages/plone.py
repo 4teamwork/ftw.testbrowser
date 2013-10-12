@@ -1,4 +1,5 @@
 from ftw.browser import browser
+import re
 
 
 def logged_in():
@@ -11,3 +12,13 @@ def logged_in():
         return match[0].text.strip()
     else:
         return False
+
+
+def view():
+    """Returns the view, taken from the template class, of the current page.
+    """
+    classes = re.split(r'\s', browser.css('body')[0].attrib['class'].strip())
+    for cls in classes:
+        if cls.startswith('template-'):
+            return cls.split('-', 1)[1]
+    return None

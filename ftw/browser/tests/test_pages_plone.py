@@ -18,3 +18,13 @@ class TestPlonePageObject(TestCase):
     def test_logged_in(self, browser):
         browser.login().open('http://nohost/plone')
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_view_on_root(self, browser):
+        browser.open()
+        self.assertEquals('folder_listing', plone.view())
+
+    @browsing
+    def test_view_on_login_form(self, browser):
+        browser.open(view='login_form')
+        self.assertEquals('login_form', plone.view())
