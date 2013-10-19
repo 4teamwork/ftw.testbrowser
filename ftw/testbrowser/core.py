@@ -47,7 +47,8 @@ class Browser(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         if (exc_type or exc_value) and self.response:
-            _, path = tempfile.mkstemp(suffix='.html', prefix='ftw.testbrowser-')
+            _, path = tempfile.mkstemp(suffix='.html',
+                                       prefix='ftw.testbrowser-')
             with open(path, 'w+') as file_:
                 self.response.seek(0)
                 file_.write(self.response.read())
@@ -91,7 +92,8 @@ class Browser(object):
         forms = {}
 
         for index, node in enumerate(self.css('form')):
-            key = node.attrib.get('id', node.attrib.get('name', 'form-%s' % index))
+            key = node.attrib.get('id', node.attrib.get(
+                    'name', 'form-%s' % index))
             forms[key] = Form(node)
 
         return forms

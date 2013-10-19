@@ -151,7 +151,8 @@ class NodeWrapper(object):
         return self.xpath(CSSSelector(css_selector).path)
 
     def iterlinks(self, *args, **kwargs):
-        for element, attribute, link, pos in self.node.iterlinks(*args, **kwargs):
+        for element, attribute, link, pos in self.node.iterlinks(
+            *args, **kwargs):
             yield wrap_node(element), attribute, link, pos
 
 

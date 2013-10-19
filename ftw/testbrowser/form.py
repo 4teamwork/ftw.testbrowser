@@ -29,8 +29,8 @@ class Form(object):
                 return input
 
     def fill(self, values):
-        """Accepts a dict, where the key is the name or the label of a field and the
-        value is its new value and fills the form with theese values.
+        """Accepts a dict, where the key is the name or the label of a field
+        and the value is its new value and fills the form with theese values.
         """
         values = self.field_labels_to_names(values)
         lxml.html.formfill._fill_form(self.form_node, values)
@@ -39,7 +39,8 @@ class Form(object):
     def submit(self):
         """Submits the form.
         """
-        return lxml.html.submit_form(self.form_node, open_http=self._submit_form)
+        return lxml.html.submit_form(self.form_node,
+                                     open_http=self._submit_form)
 
     def field_labels_to_names(self, values):
         """Accepts a dict and converts its field labels (keys) to field names.
