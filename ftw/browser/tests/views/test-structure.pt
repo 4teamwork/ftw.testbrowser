@@ -1,0 +1,20 @@
+<html xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="context/main_template/macros/master"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="ftw.browser">
+    <body>
+
+        <div metal:fill-slot="main" >
+
+            <div class="foo">
+                <span class="bar">Bar in Foo</span>
+                <a href="#">Link in Foo</a>
+            </div>
+
+            <span class="bar">Bar</span>
+
+        </div>
+
+    </body>
+</html>

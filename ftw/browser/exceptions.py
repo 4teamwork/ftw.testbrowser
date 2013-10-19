@@ -27,3 +27,8 @@ class FormFieldNotFound(BrowserException):
 class AmbiguousFormFields(BrowserException):
     """Trying to change fields over multiple forms is not possible.
     """
+
+
+class NoElementFound(BrowserException):
+    """Empty result set has no elements.
+    """

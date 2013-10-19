@@ -3,6 +3,7 @@ from ftw.browser.exceptions import BrowserNotSetUpException
 from ftw.browser.exceptions import FormFieldNotFound
 from ftw.browser.form import Form
 from ftw.browser.interfaces import IBrowser
+from ftw.browser.nodes import wrapped_nodes
 from lxml.cssselect import CSSSelector
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -60,6 +61,7 @@ class Browser(object):
         data = self._prepare_post_data(data)
         self.response = self.get_mechbrowser().open(url, data=data)
         self.document = lxml.html.parse(self.response)
+        return self
 
     def visit(self, *args, **kwargs):
         return self.open(*args, **kwargs)
@@ -76,6 +78,7 @@ class Browser(object):
     def css(self, css_selector):
         return self.xpath(CSSSelector(css_selector).path)
 
+    @wrapped_nodes
     def xpath(self, xpath_selector):
         return self.document.xpath(xpath_selector)
 

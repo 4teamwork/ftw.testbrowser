@@ -9,4 +9,11 @@
         permission="zope.Public"
         />
 
+    <browser:page
+        name="test-structure"
+        template="test-structure.pt"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>
