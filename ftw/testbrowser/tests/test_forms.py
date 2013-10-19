@@ -3,6 +3,7 @@ from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.pages import plone
+from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -57,3 +58,28 @@ class TestBrowserForms(TestCase):
         browser.fill({'Login Name': TEST_USER_NAME,
                       'Password': TEST_USER_PASSWORD}).submit()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+
+class TestSubmittingForms(TestCase):
+
+    layer = BROWSER_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_submitting_form_should_not_contain_button_values(self, browser):
+        browser.visit(view='test-form')
+        browser.css('#test-form').first.submit()
+        self.assertEquals({'textfield': ''}, browser.json)
+
+    @browsing
+    def test_clicking_submit_contains_button_name_in_request(self, browser):
+        browser.visit(view='test-form')
+        browser.find('Submit').click()
+        self.assertEquals({'textfield': '',
+                           'submit-button': 'Submit'}, browser.json)
+
+    @browsing
+    def test_clicking_cancel_contains_button_name_in_request(self, browser):
+        browser.visit(view='test-form')
+        browser.find('Cancel').click()
+        self.assertEquals({'textfield': '',
+                           'cancel-button': 'Cancel'}, browser.json)

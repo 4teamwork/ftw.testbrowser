@@ -1,4 +1,5 @@
 from ftw.testbrowser import browsing
+from ftw.testbrowser.form import Form
 from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.pages import plone
@@ -89,6 +90,12 @@ class TestNodeWrappers(TestCase):
         browser.open(view='test-structure')
         link = browser.find('Link in Foo')
         self.assertEquals(LinkNode, type(link))
+
+    @browsing
+    def test_forms_are_wrapped_into_form_nodes(self, browser):
+        browser.open(view='test-elements')
+        form = browser.css('#content form').first
+        self.assertEquals(Form, type(form))
 
     @browsing
     def test_getparent_returns_wrapped_node(self, browser):

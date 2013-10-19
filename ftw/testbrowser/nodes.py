@@ -73,8 +73,15 @@ def wrap_node(node):
     if node.tag == 'a':
         return LinkNode(node)
 
-    else:
-        return NodeWrapper(node)
+    if node.tag == 'form':
+        from ftw.testbrowser.form import Form
+        return Form(node)
+
+    if node.tag == 'input' and node.attrib.get('type', None) == 'submit':
+        from ftw.testbrowser.form import SubmitButton
+        return SubmitButton(node)
+
+    return NodeWrapper(node)
 
 
 class Nodes(list):

@@ -1,25 +1,26 @@
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
 import lxml.html.formfill
 
 
-class Form(object):
+class Form(NodeWrapper):
 
-    def __init__(self, form_node):
-        self.form_node = form_node
+    def __init__(self, node):
+        self.node = node
 
     @property
     def values(self):
-        return self.form_node.fields
+        return self.node.fields
 
     @wrapped_nodes
     def find_field(self, label_or_name):
-        return self.__class__.find_field_in_form(self.form_node, label_or_name)
+        return self.__class__.find_field_in_form(self.node, label_or_name)
 
     @wrapped_nodes
     def find_button_by_label(self, label):
-        for input in self.form_node.inputs:
+        for input in self.node.inputs:
             try:
                 input_type = input.type
             except AttributeError:
@@ -36,13 +37,20 @@ class Form(object):
         and the value is its new value and fills the form with theese values.
         """
         values = self.field_labels_to_names(values)
-        lxml.html.formfill._fill_form(self.form_node, values)
+        lxml.html.formfill._fill_form(self.node, values)
         return self
 
-    def submit(self):
+    def submit(self, button=None):
         """Submits the form.
         """
-        return lxml.html.submit_form(self.form_node,
+
+        extra_values = None
+        if button and button.attrib.get('name', None) and \
+                button.attrib.get('value', None):
+            extra_values = {button.attrib['name']: button.attrib['value']}
+
+        return lxml.html.submit_form(self.node,
+                                     extra_values=extra_values,
                                      open_http=self._submit_form)
 
     def field_labels_to_names(self, values):
@@ -58,7 +66,7 @@ class Form(object):
         """Accepts a field label (or a field name) and returns the field name
         of the field.
         """
-        field = self.__class__.find_field_in_form(self.form_node, label)
+        field = self.__class__.find_field_in_form(self.node, label)
         if field is None:
             raise FormFieldNotFound(label)
         return field.name
@@ -106,3 +114,17 @@ class Form(object):
 
     def _submit_form(self, method, URL, values):
         self.__class__.get_browser().open(URL, data=values)
+
+
+class SubmitButton(NodeWrapper):
+
+    def click(self):
+        return self.form.submit(button=self)
+
+    @property
+    @wrapped_nodes
+    def form(self):
+        for node in self.iterancestors():
+            if node.tag == 'form':
+                return node
+        return None

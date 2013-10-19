@@ -1,0 +1,21 @@
+<html xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="context/main_template/macros/master"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="ftw.testbrowser">
+    <body>
+
+        <div metal:fill-slot="main" >
+
+            <form id="test-form" action="test-form-result">
+                <label for="textfield">Text field</label>
+                <input name="textfield" id="textfield" value="" />
+
+                <input type="submit" value="Submit" name="submit-button" />
+                <input type="submit" value="Cancel" name="cancel-button" />
+            </form>
+
+        </div>
+
+    </body>
+</html>

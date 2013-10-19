@@ -16,4 +16,18 @@
         permission="zope.Public"
         />
 
+    <browser:page
+        name="test-form"
+        template="test-form.pt"
+        for="*"
+        permission="zope.Public"
+        />
+
+    <browser:page
+        name="test-form-result"
+        class=".views.TestFormResult"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>
