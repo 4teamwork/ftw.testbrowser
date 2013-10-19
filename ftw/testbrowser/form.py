@@ -1,5 +1,6 @@
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.nodes import wrapped_nodes
 import lxml.html.formfill
 
 
@@ -12,9 +13,11 @@ class Form(object):
     def values(self):
         return self.form_node.fields
 
+    @wrapped_nodes
     def find_field(self, label_or_name):
         return self.__class__.find_field_in_form(self.form_node, label_or_name)
 
+    @wrapped_nodes
     def find_button_by_label(self, label):
         for input in self.form_node.inputs:
             try:
@@ -87,6 +90,7 @@ class Form(object):
         return None
 
     @classmethod
+    @wrapped_nodes
     def find_field_in_form(klass, form, label_or_name):
         for input in form.inputs:
             if input.name == label_or_name:

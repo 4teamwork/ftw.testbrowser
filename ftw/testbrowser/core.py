@@ -84,6 +84,7 @@ class Browser(object):
         return self.document.xpath(xpath_selector)
 
     @property
+    @wrapped_nodes
     def root(self):
         return self.document.getroot()
 
@@ -102,48 +103,60 @@ class Browser(object):
         form = Form.find_form_by_labels_or_names(*values.keys())
         return form.fill(values)
 
-    def find(self, text):
+    def find(self, text, within=None):
         """Find an element by text.
         """
-        link = self.find_link_by_text(text)
+        link = self.find_link_by_text(text, within=within)
         if link is not None:
             return link
 
-        field = self.find_field_by_text(text)
+        field = self.find_field_by_text(text, within=within)
         if field is not None:
             return field
 
-        button = self.find_button_by_label(text)
+        button = self.find_button_by_label(text, within=within)
         if button is not None:
             return button
 
-    def find_link_by_text(self, text):
+    def find_link_by_text(self, text, within=None):
         """Find a link by text.
         """
         text = normalize_spaces(text)
+        if within is None:
+            within = self
 
-        for link in self.css('a'):
+        for link in within.css('a'):
             if normalize_spaces(link.text_content()) == text:
                 return link
 
         return None
 
-    def find_field_by_text(self, text):
+    def find_field_by_text(self, text, within=None):
         """Finds a form field by text.
         """
+        if within is None:
+            within = self.root
+
         try:
             form = Form.find_form_by_labels_or_names(text)
         except (AmbiguousFormFields, FormFieldNotFound):
             return None
 
-        return form.find_field(text)
+        field = form.find_field(text)
+        if field is not None and field.within(within):
+            return field
+        else:
+            return None
 
-    def find_button_by_label(self, label):
+    def find_button_by_label(self, label, within=None):
         """Finds a form button by its text label.
         """
+        if within is None:
+            within = self.root
+
         for form in self.forms.values():
             button = form.find_button_by_label(label)
-            if button is not None:
+            if button is not None and button.within(within):
                 return button
 
     def get_mechbrowser(self):

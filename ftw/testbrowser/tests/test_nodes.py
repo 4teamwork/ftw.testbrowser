@@ -80,6 +80,11 @@ class TestNodeWrappers(TestCase):
         self.assertEquals(NodeWrapper, type(body))
 
     @browsing
+    def test_browser_root_is_wrapped(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(NodeWrapper, type(browser.root))
+
+    @browsing
     def test_find_returns_wrapped_nodes(self, browser):
         browser.open(view='test-structure')
         link = browser.find('Link in Foo')
@@ -117,13 +122,6 @@ class TestNodeWrappers(TestCase):
         browser.open(view='test-structure')
         body = browser.css('.foo').first.body
         self.assertEquals(NodeWrapper, type(body))
-
-    @browsing
-    def test_find_on_node_is_wrapped(self, browser):
-        browser.open(view='test-structure')
-        body = browser.css('body').first
-        node = body.find('*')
-        self.assertEquals(NodeWrapper, type(node))
 
     @browsing
     def test_findall_on_node_is_wrapped(self, browser):
@@ -187,6 +185,54 @@ class TestNodeWrappers(TestCase):
         foo = browser.css('.foo').first
         node = foo.itersiblings().first
         self.assertEquals(NodeWrapper, type(node))
+
+    @browsing
+    def test_find_link_on_node(self, browser):
+        browser.open(view='test-elements')
+        body = browser.css('body').first
+        link = body.find('A link with sub elements')
+        self.assertEquals('link/target', link.attrib['href'])
+
+    @browsing
+    def test_find_textfield_on_node_by_label(self, browser):
+        browser.visit(view='test-elements')
+        body = browser.css('body').first
+        self.assertEquals('field value', body.find('A textfield').value)
+
+    @browsing
+    def test_find_on_node_is_wrapped(self, browser):
+        browser.open(view='test-elements')
+        body = browser.css('body').first
+        self.assertEquals(LinkNode, type(body.find('A link')))
+
+    @browsing
+    def test_element_is_within_other_element(self, browser):
+        browser.open(view='test-structure')
+        link = browser.find('Link in Foo')
+        container = browser.css('.foo').first
+        self.assertTrue(link.within(container))
+
+    @browsing
+    def test_element_is_not_within_other_element(self, browser):
+        browser.open(view='test-structure')
+        link = browser.find('Link in Baz')
+        container = browser.css('.foo').first
+        self.assertFalse(link.within(container))
+
+    @browsing
+    def test_element_contains_other_element(self, browser):
+        browser.open(view='test-structure')
+        link = browser.find('Link in Foo')
+        container = browser.css('.foo').first
+        self.assertTrue(container.contains(link))
+
+    @browsing
+    def test_element_does_not_contain_other_element(self, browser):
+        browser.open(view='test-structure')
+        link = browser.find('Link in Baz')
+        container = browser.css('.foo').first
+        self.assertFalse(container.contains(link))
+
 
 
 class TestNodeComparison(TestCase):

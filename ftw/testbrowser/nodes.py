@@ -6,7 +6,6 @@ import types
 
 
 METHODS_TO_WRAP = (
-    'find',
     'find_class',
     'findall',
     'getparent',
@@ -136,7 +135,7 @@ class NodeWrapper(object):
     def __repr__(self):
         attribs = ', '.join(['%s="%s"' % (key, value)
                             for key, value in self.attrib.items()])
-        if self.text.strip():
+        if self.text and self.text.strip():
             repr = ', '.join((self.tag, attribs, 'text:"%s"' % self.text))
         else:
             repr = ', '.join((self.tag, attribs))
@@ -154,6 +153,15 @@ class NodeWrapper(object):
         for element, attribute, link, pos in self.node.iterlinks(
             *args, **kwargs):
             yield wrap_node(element), attribute, link, pos
+
+    def find(self, text):
+        return self.browser.find(text, within=self)
+
+    def contains(self, other):
+        return other.within(self)
+
+    def within(self, container):
+        return container in tuple(self.iterancestors())
 
 
 class LinkNode(NodeWrapper):

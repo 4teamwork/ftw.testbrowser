@@ -14,6 +14,10 @@
 
             <span class="bar">Bar</span>
 
+            <div class="baz">
+                <a href="#">Link in Baz</a>
+            </div>
+
             <div id="some-links">
                 <a href="#">First link</a>
                 <a href="#">Second link</a>
