@@ -10,6 +10,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
 from zope.component.hooks import getSite
 from zope.interface import implements
+import json
 import lxml
 import re
 import tempfile
@@ -63,6 +64,16 @@ class Browser(object):
         self.response = self.get_mechbrowser().open(url, data=data)
         self.document = lxml.html.parse(self.response)
         return self
+
+    @property
+    def contents(self):
+        self._verify_setup()
+        self.response.seek(0)
+        return self.response.read()
+
+    @property
+    def json(self):
+        return json.loads(self.contents)
 
     def visit(self, *args, **kwargs):
         return self.open(*args, **kwargs)
