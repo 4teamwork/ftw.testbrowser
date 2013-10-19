@@ -1,4 +1,4 @@
-from ftw.browser.exceptions import NoElementFound
+from ftw.testbrowser.exceptions import NoElementFound
 from lxml.cssselect import CSSSelector
 from operator import methodcaller
 import lxml.etree
@@ -144,7 +144,7 @@ class NodeWrapper(object):
 
     @property
     def browser(self):
-        from ftw.browser import browser
+        from ftw.testbrowser import browser
         return browser
 
     def css(self, css_selector):

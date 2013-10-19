@@ -11,7 +11,7 @@ tests_require = [
     ]
 
 
-setup(name='ftw.browser',
+setup(name='ftw.testbrowser',
       version=version,
       description='A test browser for Zope and Plone.',
 
@@ -28,7 +28,7 @@ setup(name='ftw.browser',
       keywords='ftw browser testbrowser test',
       author='4teamwork GmbH',
       author_email='mailto:info@4teamwork.ch',
-      url='https://github.com/4teamwork/ftw.browser',
+      url='https://github.com/4teamwork/ftw.testbrowser',
 
       license='GPL2',
       packages=find_packages(exclude=['ez_setup']),

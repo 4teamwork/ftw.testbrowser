@@ -1,5 +1,5 @@
-from ftw.browser.exceptions import AmbiguousFormFields
-from ftw.browser.exceptions import FormFieldNotFound
+from ftw.testbrowser.exceptions import AmbiguousFormFields
+from ftw.testbrowser.exceptions import FormFieldNotFound
 import lxml.html.formfill
 
 
@@ -61,7 +61,7 @@ class Form(object):
 
     @classmethod
     def get_browser(klass):
-        from ftw.browser import browser
+        from ftw.testbrowser import browser
         return browser
 
     @classmethod

@@ -1,4 +1,4 @@
-from ftw.browser.core import Browser
+from ftw.testbrowser.core import Browser
 
 browser = Browser()
 

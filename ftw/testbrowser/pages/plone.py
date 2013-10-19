@@ -1,4 +1,4 @@
-from ftw.browser import browser
+from ftw.testbrowser import browser
 import re
 
 

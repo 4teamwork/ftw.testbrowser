@@ -1,4 +1,4 @@
-ftw.browser
+ftw.testbrowser
 ===========
 
 .. contents:: Table of Contents
@@ -15,10 +15,10 @@ Installation and usage
 Links
 -----
 
-- Main github project repository: https://github.com/4teamwork/ftw.browser
-- Issue tracker: https://github.com/4teamwork/ftw.browser/issues
-- Package on pypi: http://pypi.python.org/pypi/ftw.browser
-- Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.browser
+- Main github project repository: https://github.com/4teamwork/ftw.testbrowser
+- Issue tracker: https://github.com/4teamwork/ftw.testbrowser/issues
+- Package on pypi: http://pypi.python.org/pypi/ftw.testbrowser
+- Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.testbrowser
 
 
 Copyright
@@ -26,4 +26,4 @@ Copyright
 
 This package is copyright by `4teamwork <http://www.4teamwork.ch/>`_.
 
-``ftw.browser`` is licensed under GNU General Public License, version 2.
+``ftw.testbrowser`` is licensed under GNU General Public License, version 2.

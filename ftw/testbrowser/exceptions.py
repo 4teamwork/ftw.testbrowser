@@ -2,7 +2,7 @@ import re
 
 
 class BrowserException(Exception):
-    """ftw.browser exception base class.
+    """ftw.testbrowser exception base class.
     """
 
     def __init__(self):

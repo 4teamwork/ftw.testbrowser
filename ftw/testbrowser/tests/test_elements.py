@@ -1,5 +1,5 @@
-from ftw.browser import browsing
-from ftw.browser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser import browsing
+from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 
 

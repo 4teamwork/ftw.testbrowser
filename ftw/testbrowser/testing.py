@@ -9,13 +9,13 @@ class BrowserLayer(PloneSandboxLayer):
     defaultBases = (PLONE_FIXTURE, )
 
     def setUpZope(self, app, configurationContext):
-        import ftw.browser.tests.views
+        import ftw.testbrowser.tests.views
         xmlconfig.file('configure.zcml',
-                       ftw.browser.tests.views,
+                       ftw.testbrowser.tests.views,
                        context=configurationContext)
 
 
 BROWSER_FIXTURE = BrowserLayer()
 BROWSER_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(BROWSER_FIXTURE,),
-    name="ftw.browser:functional")
+    name="ftw.testbrowser:functional")

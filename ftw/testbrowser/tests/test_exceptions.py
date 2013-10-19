@@ -1,4 +1,4 @@
-from ftw.browser import exceptions
+from ftw.testbrowser import exceptions
 from unittest2 import TestCase
 
 

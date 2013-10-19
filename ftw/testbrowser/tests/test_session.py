@@ -1,5 +1,5 @@
-from ftw.browser import browsing
-from ftw.browser.pages import plone
+from ftw.testbrowser import browsing
+from ftw.testbrowser.pages import plone
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME

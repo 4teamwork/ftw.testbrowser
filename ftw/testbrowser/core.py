@@ -1,9 +1,9 @@
-from ftw.browser.exceptions import AmbiguousFormFields
-from ftw.browser.exceptions import BrowserNotSetUpException
-from ftw.browser.exceptions import FormFieldNotFound
-from ftw.browser.form import Form
-from ftw.browser.interfaces import IBrowser
-from ftw.browser.nodes import wrapped_nodes
+from ftw.testbrowser.exceptions import AmbiguousFormFields
+from ftw.testbrowser.exceptions import BrowserNotSetUpException
+from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.form import Form
+from ftw.testbrowser.interfaces import IBrowser
+from ftw.testbrowser.nodes import wrapped_nodes
 from lxml.cssselect import CSSSelector
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -47,11 +47,11 @@ class Browser(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         if (exc_type or exc_value) and self.response:
-            _, path = tempfile.mkstemp(suffix='.html', prefix='ftw.browser-')
+            _, path = tempfile.mkstemp(suffix='.html', prefix='ftw.testbrowser-')
             with open(path, 'w+') as file_:
                 self.response.seek(0)
                 file_.write(self.response.read())
-            print '\nftw.browser dump:', path,
+            print '\nftw.testbrowser dump:', path,
 
         self.reset()
 

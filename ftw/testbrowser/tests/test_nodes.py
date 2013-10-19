@@ -1,8 +1,8 @@
-from ftw.browser import browsing
-from ftw.browser.nodes import LinkNode
-from ftw.browser.nodes import NodeWrapper
-from ftw.browser.pages import plone
-from ftw.browser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser import browsing
+from ftw.testbrowser.nodes import LinkNode
+from ftw.testbrowser.nodes import NodeWrapper
+from ftw.testbrowser.pages import plone
+from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 

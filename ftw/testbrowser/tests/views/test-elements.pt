@@ -2,7 +2,7 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       metal:use-macro="context/main_template/macros/master"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-      i18n:domain="ftw.browser">
+      i18n:domain="ftw.testbrowser">
     <body>
 
         <div metal:fill-slot="main" >
