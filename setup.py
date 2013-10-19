@@ -6,6 +6,7 @@ version = '1.0.dev0'
 
 
 tests_require = [
+    'ftw.builder',
     'unittest2',
     'zope.configuration',
     'zope.publisher',

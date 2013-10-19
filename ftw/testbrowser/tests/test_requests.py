@@ -1,16 +1,26 @@
+from ftw.builder import Builder
+from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
+from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from ftw.testbrowser.tests.helpers import register_view
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
+from plone.app.testing import login
+from plone.app.testing import setRoles
 from unittest2 import TestCase
 from zope.publisher.browser import BrowserView
 
 
 class TestBrowserRequests(TestCase):
 
-    layer = PLONE_FUNCTIONAL_TESTING
+    layer = BROWSER_FUNCTIONAL_TESTING
+
+    def setUp(self):
+        portal = self.layer['portal']
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        login(portal, TEST_USER_NAME)
 
     @browsing
     def test_get_request(self, browser):
@@ -48,3 +58,16 @@ class TestBrowserRequests(TestCase):
             with self.assertRaises(ValueError) as cm:
                 browser.open(view='failing-view')
             self.assertEquals(str(cm.exception), 'The value is wrong.')
+
+    @browsing
+    def test_visit_object(self, browser):
+        folder = create(Builder('folder').titled('Test Folder'))
+        browser.login().visit(folder)
+        self.assertEquals('http://nohost/plone/test-folder', browser.url)
+
+    @browsing
+    def test_visit_view_on_object(self, browser):
+        folder = create(Builder('folder').titled('Test Folder'))
+        browser.login().visit(folder, view='folder_contents')
+        self.assertEquals('http://nohost/plone/test-folder/folder_contents',
+                          browser.url)
