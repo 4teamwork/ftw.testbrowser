@@ -6,8 +6,9 @@ version = '1.0.dev0'
 
 
 tests_require = [
-    'plone.app.testing',
     'unittest2',
+    'zope.configuration',
+    'zope.publisher',
     ]
 
 
@@ -38,7 +39,10 @@ setup(name='ftw.testbrowser',
 
       install_requires=[
         'lxml',
-        'zope.app.testing',
+        'plone.app.testing',
+        'plone.testing',
+        'zope.component',
+        'zope.interface',
         ],
 
       tests_require=tests_require,
