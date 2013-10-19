@@ -7,9 +7,65 @@ from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 
 
-class TestNodes(TestCase):
+
+class TestNodesResultSet(TestCase):
 
     layer = BROWSER_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_text_content_for_many_elements(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(['First link', 'Second link', 'Third link'],
+                          browser.css('#some-links a').text_content())
+
+    @browsing
+    def test_xpath_within_multiple_elements(self, browser):
+        browser.open(view='test-structure')
+        list_items = browser.css('#list-of-links li')
+        links = list_items.xpath('a')
+        self.assertEquals(['Link of first item', 'Link of second item'],
+                          links.text_content())
+
+    @browsing
+    def test_css_within_multiple_elements(self, browser):
+        browser.open(view='test-structure')
+        list_items = browser.css('#list-of-links li')
+        links = list_items.css('a')
+        self.assertEquals(['Link of first item', 'Link of second item'],
+                          links.text_content())
+
+    @browsing
+    def test_getparents_of_multiple_elements(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#list-of-links li'),
+                          browser.css('#list-of-links li a').getparents())
+
+    @browsing
+    def test_getparents_of_multiple_elements_is_uniquified(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('#list-of-links'),
+            browser.css('#list-of-links li').getparents(),
+            'Expected only one parent, since all items are in the same list.')
+
+
+
+class TestNodeWrappers(TestCase):
+
+    layer = BROWSER_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_string_representation(self, browser):
+        browser.open(view='test-structure')
+        node = browser.css('.foo .bar').first
+        self.assertEquals('<NodeWrapper:span, class="bar", text:"Bar in Foo">',
+                          str(node))
+
+    @browsing
+    def test_string_representation_without_text(self, browser):
+        browser.open(view='test-structure')
+        node = browser.css('.foo').first
+        self.assertEquals('<NodeWrapper:div, class="foo">', str(node))
 
     @browsing
     def test_css_returns_wrapped_nodes(self, browser):
