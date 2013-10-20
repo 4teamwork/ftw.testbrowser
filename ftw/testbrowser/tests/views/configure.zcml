@@ -30,4 +30,11 @@
         permission="zope.Public"
         />
 
+    <browser:page
+        name="test-statusmessages"
+        class=".views.TestStatusMessages"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>
