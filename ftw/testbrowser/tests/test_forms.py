@@ -88,6 +88,12 @@ class TestBrowserForms(TestCase):
         self.assertEquals('The body text.',
                           browser.css('#content-core').first.normalized_text())
 
+    @browsing
+    def test_find_submit_buttons(self, browser):
+        browser.open(view='login_form')
+        form = Form(Form.find_form_element_by_label_or_name('Login Name'))
+        button = form.find_submit_buttons().first
+        self.assertEquals('Log in', button.value)
 
 
 class TestSubmittingForms(TestCase):
@@ -95,10 +101,11 @@ class TestSubmittingForms(TestCase):
     layer = BROWSER_FUNCTIONAL_TESTING
 
     @browsing
-    def test_submitting_form_should_not_contain_button_values(self, browser):
+    def test_should_send_default_submit_button_value(self, browser):
         browser.visit(view='test-form')
         browser.css('#test-form').first.submit()
-        self.assertEquals({'textfield': ''}, browser.json)
+        self.assertEquals({'textfield': '',
+                           'submit-button': 'Submit'}, browser.json)
 
     @browsing
     def test_clicking_submit_contains_button_name_in_request(self, browser):

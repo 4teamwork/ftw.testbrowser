@@ -21,6 +21,18 @@ class Form(NodeWrapper):
         return self.__class__.find_field_in_form(self.node, label_or_name)
 
     @wrapped_nodes
+    def find_submit_buttons(self):
+        for field in self.node.inputs:
+            if field.tag != 'input':
+                continue
+            if getattr(field, 'type', None) != 'submit':
+                continue
+            button = SubmitButton(field)
+            if button.form != self:
+                continue
+            yield button
+
+    @wrapped_nodes
     def find_button_by_label(self, label):
         for input in self.node.inputs:
             try:
@@ -54,6 +66,14 @@ class Form(NodeWrapper):
     def submit(self, button=None):
         """Submits the form.
         """
+
+        if button is None:
+            # Simulate the behavior as browser such as Chrome do: when pressing
+            # enter (similar with form.submit()) the value of the first submit
+            # button is sent as if it was clicked.
+            buttons = self.find_submit_buttons()
+            if len(buttons) > 0:
+                return buttons.first.click()
 
         extra_values = None
         if button and button.attrib.get('name', None) and \
