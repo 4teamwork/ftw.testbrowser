@@ -38,6 +38,15 @@ class Form(NodeWrapper):
         and the value is its new value and fills the form with theese values.
         """
         values = self.field_labels_to_names(values)
+
+        # lxml.html.formfill breaks textarea when filling.
+        # see https://github.com/lxml/lxml/pull/127/files
+        for fieldname, value in values.items():
+            field = self.__class__.find_field_in_form(self.node, fieldname)
+            if field and field.tag == 'textarea':
+                field.node.text = value
+                del values[fieldname]
+
         lxml.html.formfill._fill_form(self.node, values)
         return self
 

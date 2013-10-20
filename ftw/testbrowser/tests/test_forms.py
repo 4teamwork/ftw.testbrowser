@@ -79,6 +79,15 @@ class TestBrowserForms(TestCase):
                       'Description': 'The folder description'}).submit()
         self.assertEquals('folder_listing', plone.view())
 
+    @browsing
+    def test_at_fill_tinymce_field(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': 'The page',
+                      'Body Text': '<p>The body text.</p>'}).submit()
+        self.assertEquals('The body text.',
+                          browser.css('#content-core').first.normalized_text())
+
 
 
 class TestSubmittingForms(TestCase):
