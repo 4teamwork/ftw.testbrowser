@@ -84,6 +84,11 @@ class Form(NodeWrapper):
                                      extra_values=extra_values,
                                      open_http=self._submit_form)
 
+    def save(self):
+        """Click on "Save" button.
+        """
+        return self.find('Save').click()
+
     def field_labels_to_names(self, values):
         """Accepts a dict and converts its field labels (keys) to field names.
         """

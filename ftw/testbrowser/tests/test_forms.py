@@ -4,6 +4,7 @@ from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
+from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
@@ -87,6 +88,14 @@ class TestBrowserForms(TestCase):
                       'Body Text': '<p>The body text.</p>'}).submit()
         self.assertEquals('The body text.',
                           browser.css('#content-core').first.normalized_text())
+
+    @browsing
+    def test_at_save_add_form(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': 'The page'}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertEquals('http://nohost/plone/the-page', browser.url)
 
     @browsing
     def test_find_submit_buttons(self, browser):
