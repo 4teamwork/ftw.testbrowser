@@ -7,6 +7,7 @@ version = '1.0.dev0'
 
 tests_require = [
     'ftw.builder',
+    'plone.app.contenttypes',
     'unittest2',
     'zope.configuration',
     'zope.publisher',

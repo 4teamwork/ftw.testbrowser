@@ -82,6 +82,11 @@ def wrap_node(node):
         from ftw.testbrowser.form import SubmitButton
         return SubmitButton(node)
 
+    if node.tag == 'textarea':
+        from ftw.testbrowser.form import TextAreaField
+        return TextAreaField(node)
+
+
     return NodeWrapper(node)
 
 

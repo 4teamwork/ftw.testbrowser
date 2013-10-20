@@ -2,6 +2,7 @@ from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
+from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.utils import normalize_spaces
 import lxml.html.formfill
 
@@ -115,6 +116,7 @@ class Form(NodeWrapper):
         label = normalize_spaces(label_or_name)
 
         for input in form.inputs:
+            input = wrap_node(input)
             if input.name == label_or_name:
                 return input
 
@@ -147,6 +149,23 @@ class Form(NodeWrapper):
 
     def _submit_form(self, method, URL, values):
         self.__class__.get_browser().open(URL, data=values)
+
+
+class TextAreaField(NodeWrapper):
+
+    def __init__(self, node):
+        super(TextAreaField, self).__init__(node)
+        self._setup_label()
+
+    def _setup_label(self):
+        if self.node.label is not None:
+            return
+
+        # Tinymce with dexterity has not the same label "for" as ids on the textarea.
+        for_attribute = self.attrib['id'].replace('.', '-')
+        label = self.body.xpath('//label[@for="%s"]' % for_attribute)
+        if len(label) > 0:
+            self.node.label = label.first.node
 
 
 class SubmitButton(NodeWrapper):
