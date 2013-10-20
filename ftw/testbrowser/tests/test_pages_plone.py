@@ -41,3 +41,14 @@ class TestPlonePageObject(TestCase):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
         self.assertEquals('Add Folder', plone.first_heading())
+
+    @browsing
+    def test_document_description(self, browser):
+        browser.login(SITE_OWNER_NAME).open(view='overview-controlpanel')
+        self.assertEquals('Configuration area for Plone and add-on Products.',
+                          plone.document_description())
+
+    @browsing
+    def test_no_document_description(self, browser):
+        browser.open()
+        self.assertEquals(None, plone.document_description())

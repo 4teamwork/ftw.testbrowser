@@ -30,3 +30,13 @@ def first_heading():
     """
     first_heading = browser.css('.documentFirstHeading').first
     return normalize_spaces(first_heading.text_content())
+
+
+def document_description():
+    """Returns the whitespace-normalized document description of the current page
+    or None.
+    """
+    nodes = browser.css('.documentDescription')
+    if len(nodes) == 0:
+        return None
+    return normalize_spaces(nodes.first.text_content())
