@@ -3,6 +3,7 @@ from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
 from operator import methodcaller
 import lxml.etree
+import re
 import types
 
 
@@ -185,6 +186,15 @@ class NodeWrapper(object):
 
     def normalized_text(self):
         return normalize_spaces(self.text_content())
+
+    @property
+    def classes(self):
+        """A list of css-classes of this element.
+        """
+        if not self.attrib.get('class', None):
+            return []
+        else:
+            return re.split(r'\s', self.attrib['class'].strip())
 
 
 class LinkNode(NodeWrapper):

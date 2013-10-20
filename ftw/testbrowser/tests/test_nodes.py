@@ -280,6 +280,11 @@ class TestNodeComparison(TestCase):
         self.assertEquals('Bar in Foo Link in Foo',
                           browser.css('.foo').first.normalized_text())
 
+    @browsing
+    def test_classes(self, browser):
+        browser.open(view='test-structure')
+        self.assertIn('userrole-anonymous', browser.css('body').first.classes)
+
 
 class TestLinkNode(TestCase):
 

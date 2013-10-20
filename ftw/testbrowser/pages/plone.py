@@ -18,8 +18,7 @@ def logged_in():
 def view():
     """Returns the view, taken from the template class, of the current page.
     """
-    classes = re.split(r'\s', browser.css('body')[0].attrib['class'].strip())
-    for cls in classes:
+    for cls in browser.css('body').first.classes:
         if cls.startswith('template-'):
             return cls.split('-', 1)[1]
     return None
