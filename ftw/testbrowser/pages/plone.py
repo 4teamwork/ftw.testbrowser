@@ -24,6 +24,22 @@ def view():
     return None
 
 
+def portal_type():
+    """Returns the current content type, extracted from the body css classes.
+    """
+    for cls in browser.css('body').first.classes:
+        if cls.startswith('portaltype-'):
+            return cls.split('-', 1)[1]
+    return None
+
+
+def view_and_portal_type():
+    """Returns a tuple of the view and the content type, both taken from the
+    body css classes.
+    """
+    return (view(), portal_type())
+
+
 def first_heading():
     """Returns the whitespace-normalized first heading of the current page.
     """

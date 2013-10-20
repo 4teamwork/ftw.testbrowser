@@ -31,6 +31,18 @@ class TestPlonePageObject(TestCase):
         browser.open(view='login_form')
         self.assertEquals('login_form', plone.view())
 
+
+    @browsing
+    def test_portal_type(self, browser):
+        browser.open()
+        self.assertEquals('plone-site', plone.portal_type())
+
+    @browsing
+    def test_view_and_portal_type(self, browser):
+        browser.open()
+        self.assertEquals(('folder_listing', 'plone-site'),
+                          plone.view_and_portal_type())
+
     @browsing
     def test_first_heading(self, browser):
         browser.open()
