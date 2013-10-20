@@ -1,4 +1,5 @@
 from ftw.testbrowser import browser
+from ftw.testbrowser.utils import normalize_spaces
 import re
 
 
@@ -22,3 +23,10 @@ def view():
         if cls.startswith('template-'):
             return cls.split('-', 1)[1]
     return None
+
+
+def first_heading():
+    """Returns the whitespace-normalized first heading of the current page.
+    """
+    first_heading = browser.css('.documentFirstHeading').first
+    return normalize_spaces(first_heading.text_content())

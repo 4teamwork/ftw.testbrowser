@@ -4,6 +4,7 @@ from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
+from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -12,14 +13,9 @@ from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
-import re
 import tempfile
 import urllib
 import urlparse
-
-
-def normalize_spaces(text):
-    return re.sub(r'\s{1,}', ' ', text).strip()
 
 
 class Browser(object):
