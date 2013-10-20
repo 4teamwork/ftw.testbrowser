@@ -9,3 +9,13 @@ class TestBrowserExceptions(TestCase):
                           ' Use the browser as a context manager'
                           ' with the "with" statement.',
                           str(exceptions.BrowserNotSetUpException()))
+
+    def test_form_field_not_found(self):
+        self.assertEquals('Could not find form field: "field label".',
+                          str(exceptions.FormFieldNotFound('field label')))
+
+    def test_form_field_not_found_with_found_fields(self):
+        self.assertEquals('Could not find form field: "field label". '
+                          'Fields: "foo", "bar", "baz"',
+                          str(exceptions.FormFieldNotFound('field label',
+                                                           ['foo', 'bar', 'baz'])))

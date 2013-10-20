@@ -20,9 +20,14 @@ class FormFieldNotFound(BrowserException):
     """Could not find a form field.
     """
 
-    def __init__(self, label_or_name):
-        Exception.__init__(self, 'Could not find form field: "%s"' % (
-                label_or_name))
+    def __init__(self, label_or_name, labels=None):
+        if labels:
+            label_advice = ' Fields: "%s"' % '", "'.join(labels)
+        else:
+            label_advice = ''
+
+        Exception.__init__(self, 'Could not find form field: "%s".%s' % (
+                label_or_name, label_advice))
 
 
 class AmbiguousFormFields(BrowserException):

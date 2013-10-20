@@ -27,8 +27,10 @@ class TestBrowserForms(TestCase):
         browser.open(view='login_form')
         with self.assertRaises(FormFieldNotFound) as cm:
             Form.find_form_by_labels_or_names('First Name')
-        self.assertEquals('Could not find form field: "First Name"',
-                          str(cm.exception))
+        self.assertTrue(
+            str(cm.exception).startswith('Could not find form field: "First Name".'
+                                         ' Fields: '),
+            str(cm.exception))
 
     @browsing
     def test_exception_when_chaning_fields_in_different_forms(self, browser):

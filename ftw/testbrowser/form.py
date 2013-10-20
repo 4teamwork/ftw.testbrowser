@@ -69,7 +69,8 @@ class Form(NodeWrapper):
         """
         field = self.__class__.find_field_in_form(self.node, label)
         if field is None:
-            raise FormFieldNotFound(label)
+            labels = self.__class__.field_labels(self.node)
+            raise FormFieldNotFound(label, labels)
         return field.name
 
     @classmethod
@@ -84,7 +85,8 @@ class Form(NodeWrapper):
         for label_or_name in labels_or_names:
             form = klass.find_form_element_by_label_or_name(label_or_name)
             if form is None:
-                raise FormFieldNotFound(label_or_name)
+                labels = klass.field_labels(form_element)
+                raise FormFieldNotFound(label_or_name, labels)
             if form_element is not None and form != form_element:
                 raise AmbiguousFormFields()
             form_element = form
@@ -117,6 +119,22 @@ class Form(NodeWrapper):
                 return input
 
         return None
+
+    @classmethod
+    def field_labels(klass, form=None):
+        forms = form and [form] or klass.get_browser().root.forms
+
+        labels = []
+
+        for form in forms:
+            for input in form.inputs:
+                label = input.label is not None and normalize_spaces(input.label.text)
+                if label:
+                    labels.append(label)
+                elif input.name:
+                    labels.append(input.name)
+
+        return labels
 
     def _submit_form(self, method, URL, values):
         self.__class__.get_browser().open(URL, data=values)
