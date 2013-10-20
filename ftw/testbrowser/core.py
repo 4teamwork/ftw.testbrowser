@@ -19,7 +19,7 @@ import urlparse
 
 
 def normalize_spaces(text):
-    return re.sub(r'\s{1,}', ' ', text)
+    return re.sub(r'\s{1,}', ' ', text).strip()
 
 
 class Browser(object):
