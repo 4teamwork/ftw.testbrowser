@@ -49,6 +49,13 @@ class TestNodesResultSet(TestCase):
             browser.css('#list-of-links li').getparents(),
             'Expected only one parent, since all items are in the same list.')
 
+    @browsing
+    def test_find_within_result_set(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.find('Link in Baz'),
+            browser.css('#content div').find('Link in Baz').first)
+
 
 
 class TestNodeWrappers(TestCase):

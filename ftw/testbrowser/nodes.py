@@ -103,6 +103,11 @@ class Nodes(list):
         return Nodes(reduce(list.__add__,
                             map(methodcaller('xpath', *args, **kwargs), self)))
 
+    def find(self, *args, **kwargs):
+        return Nodes(node for node
+                     in map(methodcaller('find', *args, **kwargs), self)
+                     if node is not None).remove_duplicates()
+
     def getparents(self):
         return Nodes(map(methodcaller('getparent'), self)).remove_duplicates()
 
