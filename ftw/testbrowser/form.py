@@ -2,6 +2,7 @@ from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
+from ftw.testbrowser.utils import normalize_spaces
 import lxml.html.formfill
 
 
@@ -100,6 +101,8 @@ class Form(NodeWrapper):
     @classmethod
     @wrapped_nodes
     def find_field_in_form(klass, form, label_or_name):
+        label = normalize_spaces(label_or_name)
+
         for input in form.inputs:
             if input.name == label_or_name:
                 return input
@@ -107,7 +110,7 @@ class Form(NodeWrapper):
             if input.label is None:
                 continue
 
-            if input.label.text_content() == label_or_name:
+            if normalize_spaces(input.label.text) == label:
                 return input
 
         return None

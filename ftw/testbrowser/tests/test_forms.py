@@ -2,9 +2,11 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.form import Form
+from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -58,6 +60,23 @@ class TestBrowserForms(TestCase):
         browser.fill({'Login Name': TEST_USER_NAME,
                       'Password': TEST_USER_PASSWORD}).submit()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_fill_archetypes_field(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Folder')
+        browser.fill({'Title': 'The Folder'}).submit()
+        self.assertEquals('folder_listing', plone.view())
+        self.assertEquals('The Folder', plone.first_heading())
+
+    @browsing
+    def test_fill_archtypes_field_with_description(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Folder')
+        browser.fill({'Title': 'The Folder',
+                      'Description': 'The folder description'}).submit()
+        self.assertEquals('folder_listing', plone.view())
+
 
 
 class TestSubmittingForms(TestCase):
