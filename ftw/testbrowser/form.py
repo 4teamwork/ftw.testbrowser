@@ -113,6 +113,9 @@ class Form(NodeWrapper):
             if normalize_spaces(input.label.text) == label:
                 return input
 
+            if normalize_spaces(input.label.text_content()) == label:
+                return input
+
         return None
 
     def _submit_form(self, method, URL, values):
