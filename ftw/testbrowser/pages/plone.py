@@ -1,6 +1,5 @@
 from ftw.testbrowser import browser
 from ftw.testbrowser.utils import normalize_spaces
-import re
 
 
 def logged_in():

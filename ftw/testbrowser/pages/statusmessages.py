@@ -33,10 +33,12 @@ def info_messages():
     """
     return messages()['info']
 
+
 def warning_messages():
     """Returns all "warning" statusmessages.
     """
     return messages()['warning']
+
 
 def error_messages():
     """Returns all "error" statusmessages.
