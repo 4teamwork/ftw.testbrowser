@@ -1,4 +1,5 @@
 from ftw.testbrowser.exceptions import NoElementFound
+from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
 from operator import methodcaller
 import lxml.etree
@@ -96,6 +97,9 @@ class Nodes(list):
     def text_content(self):
         return map(methodcaller('text_content'), self)
 
+    def normalized_text(self):
+        return map(methodcaller('normalized_text'), self)
+
     def css(self, css_selector):
         return self.xpath(CSSSelector(css_selector).path)
 
@@ -174,6 +178,9 @@ class NodeWrapper(object):
 
     def within(self, container):
         return container in tuple(self.iterancestors())
+
+    def normalized_text(self):
+        return normalize_spaces(self.text_content())
 
 
 class LinkNode(NodeWrapper):

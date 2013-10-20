@@ -20,6 +20,12 @@ class TestNodesResultSet(TestCase):
                           browser.css('#some-links a').text_content())
 
     @browsing
+    def test_normalized_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(['Bar in Foo Link in Foo'],
+                          browser.css('.foo').normalized_text())
+
+    @browsing
     def test_xpath_within_multiple_elements(self, browser):
         browser.open(view='test-structure')
         list_items = browser.css('#list-of-links li')
@@ -267,6 +273,12 @@ class TestNodeComparison(TestCase):
         self.assertNotEquals(browser.css('.foo').first,
                              browser.css('.foo').first.getparent(),
                              'Different elements should be different.')
+
+    @browsing
+    def test_normalized_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals('Bar in Foo Link in Foo',
+                          browser.css('.foo').first.normalized_text())
 
 
 class TestLinkNode(TestCase):
