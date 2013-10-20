@@ -139,7 +139,8 @@ class Form(NodeWrapper):
 
         for form in forms:
             for input in form.inputs:
-                label = input.label is not None and normalize_spaces(input.label.text)
+                label = (input.label is not None
+                         and normalize_spaces(input.label.text))
                 if label:
                     labels.append(label)
                 elif input.name:
@@ -161,7 +162,8 @@ class TextAreaField(NodeWrapper):
         if self.node.label is not None:
             return
 
-        # Tinymce with dexterity has not the same label "for" as ids on the textarea.
+        # Tinymce with dexterity has not the same label "for" as ids
+        # on the textarea.
         for_attribute = self.attrib['id'].replace('.', '-')
         label = self.body.xpath('//label[@for="%s"]' % for_attribute)
         if len(label) > 0:

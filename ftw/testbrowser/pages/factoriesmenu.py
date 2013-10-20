@@ -2,7 +2,8 @@ from ftw.testbrowser import browser
 
 
 def menu():
-    """Returns the factories menu container node or ``None`` if it is not visible.
+    """Returns the factories menu container node or ``None`` if it is
+    not visible.
     """
     nodes = browser.css('#plone-contentmenu-factories')
     if len(nodes) == 0:
@@ -26,7 +27,8 @@ def add(type_name):
     This opens the add form for this type.
     """
     if not visible():
-        raise ValueError('Cannot add "%s": no factories menu visible.' % type_name)
+        raise ValueError('Cannot add "%s": no factories menu visible.' % (
+                type_name))
 
     links = menu().css('.actionMenuContent').find(type_name)
     if len(links) == 0:

@@ -33,8 +33,8 @@ def first_heading():
 
 
 def document_description():
-    """Returns the whitespace-normalized document description of the current page
-    or None.
+    """Returns the whitespace-normalized document description of the
+    current page or None.
     """
     nodes = browser.css('.documentDescription')
     if len(nodes) == 0:

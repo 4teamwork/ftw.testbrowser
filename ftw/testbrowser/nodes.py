@@ -86,7 +86,6 @@ def wrap_node(node):
         from ftw.testbrowser.form import TextAreaField
         return TextAreaField(node)
 
-
     return NodeWrapper(node)
 
 
