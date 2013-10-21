@@ -209,21 +209,39 @@ class LinkNode(NodeWrapper):
 class DefinitionListNode(NodeWrapper):
 
     def keys(self):
+        """Returns all <dt>-tags which are direct children
+        of this definition list.
+        """
         return self.css('>dt')
 
     def values(self):
+        """Returns all <dd>-tags which are direct children
+        of this definition list.
+        """
         return self.css('>dd')
 
     def items(self):
+        """Returns a mapping (list with tuples) from
+        <dt>-tags to <dd>-tags of this definition list.
+        """
         return zip(self.keys(), self.values())
 
     @property
     def terms(self):
+        """Returns the normalized text of each <dt>-tag of this
+        definition list.
+        """
         return self.keys().normalized_text()
 
     @property
     def definitions(self):
+        """Returns the normalized text of each <dd>-tag of this
+        definition list.
+        """
         return self.values().normalized_text()
 
     def items_text(self):
+        """Returns a terms (<dt>) to definition (<dd>) mapping as
+        list with tuples, each as normalized text.
+        """
         return zip(self.terms, self.definitions)
