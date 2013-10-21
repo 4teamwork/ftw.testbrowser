@@ -209,10 +209,10 @@ class LinkNode(NodeWrapper):
 class DefinitionListNode(NodeWrapper):
 
     def keys(self):
-        return self.css('dt')
+        return self.css('>dt')
 
     def values(self):
-        return self.css('dd')
+        return self.css('>dd')
 
     def items(self):
         return zip(self.keys(), self.values())
