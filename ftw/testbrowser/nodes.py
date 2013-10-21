@@ -87,6 +87,9 @@ def wrap_node(node):
         from ftw.testbrowser.form import TextAreaField
         return TextAreaField(node)
 
+    if node.tag == 'dl':
+        return DefinitionListNode(node)
+
     return NodeWrapper(node)
 
 
@@ -201,3 +204,28 @@ class LinkNode(NodeWrapper):
 
     def click(self):
         self.browser.open(self.attrib['href'])
+
+
+class DefinitionListNode(NodeWrapper):
+
+    def keys(self):
+        return self.css('dt')
+
+    def values(self):
+        return self.css('dd')
+
+    @property
+    def terms(self):
+        return self.keys().text_content()
+
+    @property
+    def definitions(self):
+        return self.values().text_content()
+
+    def items(self):
+        return zip(self.keys(),
+                   self.values())
+
+    def items_text(self):
+        return zip(self.keys().text_content(),
+                   self.values().text_content())

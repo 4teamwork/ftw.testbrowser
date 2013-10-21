@@ -4,9 +4,7 @@ from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from unittest2 import TestCase
-
 
 
 class TestNodesResultSet(TestCase):
@@ -288,9 +286,58 @@ class TestNodeComparison(TestCase):
 
 class TestLinkNode(TestCase):
 
-    layer = PLONE_FUNCTIONAL_TESTING
+    layer = BROWSER_FUNCTIONAL_TESTING
 
     @browsing
     def test_clicking_links(self, browser):
         browser.open().find('Site Map').click()
         self.assertEquals('sitemap', plone.view())
+
+
+class TestDefinitionListNode(TestCase):
+
+    layer = BROWSER_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_keys_returns_dts(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('#definition-list-of-links dt'),
+            browser.css('#definition-list-of-links').first.keys())
+
+    @browsing
+    def test_terms_is_dts_as_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            ['Mails', 'Search', 'Maps'],
+            browser.css('#definition-list-of-links').first.terms)
+
+    @browsing
+    def test_values_returns_dds(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('#definition-list-of-links dd'),
+            browser.css('#definition-list-of-links').first.values())
+
+    @browsing
+    def test_definitions_is_dds_as_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            ['mail.google.com', 'google.com', 'maps.google.com'],
+            browser.css('#definition-list-of-links').first.definitions)
+
+    @browsing
+    def test_items_returns_list_of_dt_to_dd_mapping(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(zip(browser.css('#definition-list-of-links dt'),
+                              browser.css('#definition-list-of-links dd')),
+                          browser.css('#definition-list-of-links').first.items())
+
+    @browsing
+    def test_items_text_returns_list_of_dt_to_dd_mapping_as_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            [('Mails', 'mail.google.com'),
+             ('Search', 'google.com'),
+             ('Maps', 'maps.google.com')],
+            browser.css('#definition-list-of-links').first.items_text())

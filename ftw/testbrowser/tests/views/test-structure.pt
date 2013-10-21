@@ -29,6 +29,15 @@
                 <li><a href="#">Link of second item</a></li>
             </ul>
 
+            <dl id="definition-list-of-links">
+                <dt>Mails</dt>
+                <dd><a href="http://mail.google.com">mail.google.com</a></dd>
+                <dt>Search</dt>
+                <dd><a href="http://www.google.com">google.com</a></dd>
+                <dt>Maps</dt>
+                <dd><a href="http://maps.google.com">maps.google.com</a></dd>
+            </dl>
+
         </div>
 
     </body>
