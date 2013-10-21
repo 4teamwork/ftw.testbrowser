@@ -341,3 +341,11 @@ class TestDefinitionListNode(TestCase):
              ('Search', 'google.com'),
              ('Maps', 'maps.google.com')],
             browser.css('#definition-list-of-links').first.items_text())
+
+    @browsing
+    def test_text_to_nodes_returns_dict_of_text_terms_to_node_defs(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            dict(zip(['Mails', 'Search', 'Maps'],
+                     browser.css('#definition-list-of-links > dd'))),
+            browser.css('#definition-list-of-links').first.text_to_nodes())

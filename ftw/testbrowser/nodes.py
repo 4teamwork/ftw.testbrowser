@@ -245,3 +245,8 @@ class DefinitionListNode(NodeWrapper):
         list with tuples, each as normalized text.
         """
         return zip(self.terms, self.definitions)
+
+    def text_to_nodes(self):
+        """Returns a dict with a mapping of text-terms to <dd>-nodes.
+        """
+        return dict(zip(self.terms, self.values()))
