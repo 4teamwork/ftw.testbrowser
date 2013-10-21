@@ -214,18 +214,16 @@ class DefinitionListNode(NodeWrapper):
     def values(self):
         return self.css('dd')
 
+    def items(self):
+        return zip(self.keys(), self.values())
+
     @property
     def terms(self):
-        return self.keys().text_content()
+        return self.keys().normalized_text()
 
     @property
     def definitions(self):
-        return self.values().text_content()
-
-    def items(self):
-        return zip(self.keys(),
-                   self.values())
+        return self.values().normalized_text()
 
     def items_text(self):
-        return zip(self.keys().text_content(),
-                   self.values().text_content())
+        return zip(self.terms, self.definitions)
