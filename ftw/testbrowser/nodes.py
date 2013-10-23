@@ -173,6 +173,24 @@ class NodeWrapper(object):
     def css(self, css_selector):
         return self.xpath(CSSSelector(css_selector).path)
 
+    def parent(self, css=None, xpath=None):
+        if css and xpath:
+            raise ValueError('parent() requires either "css" or "xpath" argument.')
+        elif not css and not xpath:
+            xpath = '*'
+
+        if css:
+            xpath = CSSSelector(css).path.replace('descendant-or-self::', '')
+
+        if not xpath.startswith('ancestor::'):
+            xpath = 'ancestor::%s' % xpath
+
+        result = self.xpath(xpath)
+        if len(result) > 0:
+            return result[-1]
+        else:
+            return None
+
     def iterlinks(self, *args, **kwargs):
         for element, attribute, link, pos in self.node.iterlinks(
             *args, **kwargs):

@@ -251,6 +251,48 @@ class TestNodeWrappers(TestCase):
         container = browser.css('.foo').first
         self.assertFalse(container.contains(link))
 
+    @browsing
+    def test_parent_by_css_returns_first_match(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('#content').first,
+            browser.css('.foo > .bar').first.parent('#content'))
+
+    @browsing
+    def test_parent_by_css_returns_None_when_no_match(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            None,
+            browser.css('.foo > .bar').first.parent('form'))
+
+    @browsing
+    def test_parent_by_xpath_returns_first_match(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('#content').first,
+            browser.css('.foo > .bar').first.parent(xpath='*[@id="content"]'))
+
+    @browsing
+    def test_parent_by_xpath_returns_None_when_no_match(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            None,
+            browser.css('.foo > .bar').first.parent(xpath='form'))
+
+    @browsing
+    def test_returns_first_parent_when_no_argument_passed(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(
+            browser.css('div.foo').first,
+            browser.css('.foo > .bar').first.parent())
+
+    @browsing
+    def test_parent_does_not_allow_multiple_argument(self, browser):
+        browser.open(view='test-structure')
+        with self.assertRaises(ValueError) as cm:
+            browser.css('.foo > .bar').first.parent(css='div', xpath='div')
+        self.assertEquals('parent() requires either "css" or "xpath" argument.',
+                          str(cm.exception))
 
 
 class TestNodeComparison(TestCase):
