@@ -9,12 +9,14 @@ import lxml.html.formfill
 
 class Form(NodeWrapper):
 
-    def __init__(self, node):
-        self.node = node
-
     @property
     def values(self):
         return self.node.fields
+
+    @property
+    @wrapped_nodes
+    def inputs(self):
+        return list(self.node.inputs)
 
     @wrapped_nodes
     def find_field(self, label_or_name):
