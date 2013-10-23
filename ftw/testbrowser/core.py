@@ -6,6 +6,7 @@ from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
+from mechanize import BrowserStateError
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
@@ -34,6 +35,7 @@ class Browser(object):
         self.mechbrowser = None
         self.response = None
         self.document = None
+        self.previous_url = None
 
     def __enter__(self):
         if self.next_app is None:
@@ -55,6 +57,10 @@ class Browser(object):
 
     def open(self, url_or_object=None, data=None, view=None):
         self._verify_setup()
+        try:
+            self.previous_url = self.url
+        except BrowserStateError:
+            pass
         url = self._normalize_url(url_or_object, view=view)
         data = self._prepare_post_data(data)
         self.response = self.get_mechbrowser().open(url, data=data)

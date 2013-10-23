@@ -23,3 +23,15 @@ class TestBrowserSession(TestCase):
 
         browser.visit(view='/')
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_previous_url_is_None_on_first_page(self, browser):
+        self.assertEquals(None, browser.previous_url)
+        browser.open()
+        self.assertEquals(None, browser.previous_url)
+
+    @browsing
+    def test_previous_url_is_set_on_link_click(self, browser):
+        browser.open()
+        browser.find('Log in').click()
+        self.assertEquals('http://nohost/plone', browser.previous_url)
