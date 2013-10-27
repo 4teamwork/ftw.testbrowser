@@ -1,0 +1,34 @@
+
+==============
+ Page objects
+==============
+
+.. contents:: :local:
+
+
+Plone page object
+=================
+
+.. automodule:: ftw.testbrowser.pages.plone
+   :members:
+
+
+Factories menu page object
+==========================
+
+.. automodule:: ftw.testbrowser.pages.factoriesmenu
+   :members:
+
+
+Status messages page object
+===========================
+
+.. automodule:: ftw.testbrowser.pages.statusmessages
+   :members:
+
+
+z3cform page object
+===================
+
+.. automodule:: ftw.testbrowser.pages.z3cform
+   :members:
