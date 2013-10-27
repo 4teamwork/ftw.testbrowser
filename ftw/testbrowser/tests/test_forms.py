@@ -81,6 +81,14 @@ class TestBrowserForms(TestCase):
         self.assertEquals('folder_listing', plone.view())
 
     @browsing
+    def test_fill_checkbox_field(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Folder')
+        self.assertEquals(False, browser.find('Exclude from navigation').checked)
+        browser.fill({'Exclude from navigation': True})
+        self.assertEquals(True, browser.find('Exclude from navigation').checked)
+
+    @browsing
     def test_at_fill_tinymce_field(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Page')

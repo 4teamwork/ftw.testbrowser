@@ -54,13 +54,22 @@ class Form(NodeWrapper):
         """
         values = self.field_labels_to_names(values)
 
-        # lxml.html.formfill breaks textarea when filling.
-        # see https://github.com/lxml/lxml/pull/127/files
         for fieldname, value in values.items():
             field = self.__class__.find_field_in_form(self.node, fieldname)
+
+            # lxml.html.formfill breaks textarea when filling.
+            # see https://github.com/lxml/lxml/pull/127/files
             if field and field.tag == 'textarea':
                 field.node.text = value
                 del values[fieldname]
+
+            # lxml.html.formfill expects the checkbox value to be the value
+            # of the field, otherwise it will not be checked.
+            # We like to be able to use `True` for checking the checkbox
+            # independent of the actual field value.
+            if field and field.tag == 'input' and field.type == 'checkbox' \
+                    and value is True:
+                values[fieldname] = field.node.attrib['value']
 
         lxml.html.formfill._fill_form(self.node, values)
         return self
