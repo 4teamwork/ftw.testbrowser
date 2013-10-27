@@ -16,6 +16,7 @@ def logged_in():
 
 def view():
     """Returns the view, taken from the template class, of the current page.
+
     """
     for cls in browser.css('body').first.classes:
         if cls.startswith('template-'):

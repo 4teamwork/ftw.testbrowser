@@ -25,6 +25,9 @@ def add(type_name):
     """Clicks on the add-link in the factories menu for the passed type name.
     The type name is the literal link label.
     This opens the add form for this type.
+
+    :params type_name: The name (label) of the type to add.
+    :type type_name: string
     """
     if not visible():
         raise ValueError('Cannot add "%s": no factories menu visible.' % (

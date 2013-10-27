@@ -3,6 +3,10 @@ from ftw.testbrowser.utils import normalize_spaces
 
 
 def erroneous_fields():
+    """Returns a mapping of erroneous fields (key is label or name of the field) to
+    a list of error messages for this field.
+    """
+
     result = {}
     for input in browser.css('form#form').first.inputs:
         if not input.parent('.field.error'):

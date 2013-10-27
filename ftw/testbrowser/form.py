@@ -11,19 +11,43 @@ class Form(NodeWrapper):
 
     @property
     def values(self):
+        """Returns the lxml `FieldsDict` of this form.
+
+        :returns: lxml fields dict
+        :rtype: lxml.html.FieldsDict
+        """
         return self.node.fields
 
     @property
     @wrapped_nodes
     def inputs(self):
+        """Returns a list of all input nodes of this form.
+
+        :returns: All input nodes
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return list(self.node.inputs)
 
     @wrapped_nodes
     def find_field(self, label_or_name):
+        """Finds and returns a field by label or name.
+
+        :param label_or_name: The label or the name of the field.
+        :type label_or_name: string
+        :returns: The field node
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
         return self.__class__.find_field_in_form(self.node, label_or_name)
 
     @wrapped_nodes
     def find_submit_buttons(self):
+        """Returns all submit buttons of this form.
+
+        :returns: a list of submit buttons
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+          of :py:class:`ftw.testbrowser.form.SubmitButton` of
+        """
+
         for field in self.node.inputs:
             if field.tag != 'input':
                 continue
@@ -36,6 +60,14 @@ class Form(NodeWrapper):
 
     @wrapped_nodes
     def find_button_by_label(self, label):
+        """Finds a button of with a specific label in this form.
+
+        :param label: The label of the button.
+        :type label: string
+        :returns: The button node
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+
         for input in self.node.inputs:
             try:
                 input_type = input.type
@@ -51,6 +83,12 @@ class Form(NodeWrapper):
     def fill(self, values):
         """Accepts a dict, where the key is the name or the label of a field
         and the value is its new value and fills the form with theese values.
+
+        :param values: The key is the label or input-name and the value is the value
+          to set.
+        :type values: dict
+        :returns: The form node.
+        :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
 
@@ -75,7 +113,19 @@ class Form(NodeWrapper):
         return self
 
     def submit(self, button=None):
-        """Submits the form.
+        """Submits this form by clicking on the first submit button.
+        The behavior of click the first submit button is what browser usually do
+        and may not get the expected results.
+
+        It might be more save to click the primary button specificall:
+
+        .. code:: py
+
+          browser.find('Save').click()
+          # or
+          form.save()
+
+        .. seealso:: :py:func:`save`
         """
 
         if button is None:
@@ -96,12 +146,17 @@ class Form(NodeWrapper):
                                      open_http=self._submit_form)
 
     def save(self):
-        """Click on "Save" button.
+        """Clicks on the "Save" button in this form.
         """
         return self.find('Save').click()
 
     def field_labels_to_names(self, values):
         """Accepts a dict and converts its field labels (keys) to field names.
+
+        :param values: A dict of values where the keys are field labels.
+        :type values: dict
+        :param values: A dict of values where the keys are field names.
+        :rtype: dict
         """
         new_values = {}
         for label_or_name, value in values.items():
@@ -112,6 +167,11 @@ class Form(NodeWrapper):
     def field_label_to_name(self, label):
         """Accepts a field label (or a field name) and returns the field name
         of the field.
+
+        :param label: The label of the field.
+        :type label: string
+        :returns: The field name of the field.
+        :rtype: string
         """
         field = self.__class__.find_field_in_form(self.node, label)
         if field is None:
@@ -126,8 +186,16 @@ class Form(NodeWrapper):
 
     @classmethod
     def find_form_by_labels_or_names(klass, *labels_or_names):
-        form_element = None
+        """Searches for the form which has fields for the labels passed as
+        arguments and returns the form node.
 
+        :returns: The form instance which has the searched fields.
+        :rtype: :py:class:`ftw.testbrowser.form.Form`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
+        """
+
+        form_element = None
         for label_or_name in labels_or_names:
             form = klass.find_form_element_by_label_or_name(label_or_name)
             if form is None:
@@ -141,6 +209,16 @@ class Form(NodeWrapper):
 
     @classmethod
     def find_form_element_by_label_or_name(klass, label_or_name):
+        """Searches the form which has a field with the label or name passed as
+        argument and returns the form node.
+        Returns `None` when no such field was found.
+
+        :param label_or_name: The label or the name of the field.
+        :type label_or_name: string
+        :returns: The form instance which has the searched fields or `None`
+        :rtype: :py:class:`ftw.testbrowser.form.Form`.
+        """
+
         for form in klass.get_browser().root.forms:
             if klass.find_field_in_form(form, label_or_name) is not None:
                 return form
@@ -149,6 +227,17 @@ class Form(NodeWrapper):
     @classmethod
     @wrapped_nodes
     def find_field_in_form(klass, form, label_or_name):
+        """Finds and returns a field with the passed label or name in the passed
+        form.
+
+        :param form: The form node.
+        :type form: :py:class:`ftw.testbrowser.form.Form`
+        :param label_or_name: The label or the name of the field.
+        :type label_or_name: string
+        :returns: Returns the field node or `None`.
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+
         label = normalize_spaces(label_or_name)
 
         for input in form.inputs:
@@ -189,6 +278,10 @@ class Form(NodeWrapper):
 
 
 class TextAreaField(NodeWrapper):
+    """The `TextAreaField` node wrapper wraps a text area field and makes sure
+    that the TinyMCE widget finds its label, since the markup of the TinyMCE
+    widget is not standard.
+    """
 
     def __init__(self, node):
         super(TextAreaField, self).__init__(node)
@@ -207,13 +300,24 @@ class TextAreaField(NodeWrapper):
 
 
 class SubmitButton(NodeWrapper):
+    """Wraps a submit button and makes it clickable.
+    """
 
     def click(self):
+        """Click on this submit button, which makes the form submit with this
+        button.
+        """
         return self.form.submit(button=self)
 
     @property
     @wrapped_nodes
     def form(self):
+        """Returns the form of which this button is parent.
+        It returns the first form node if it is a nested form.
+
+        :returns: the form node
+        :rtype: :py:class:`ftw.testbrowser.form.Form`
+        """
         for node in self.iterancestors():
             if node.tag == 'form':
                 return node

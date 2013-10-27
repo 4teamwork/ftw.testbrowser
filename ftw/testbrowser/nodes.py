@@ -94,33 +94,91 @@ def wrap_node(node):
 
 
 class Nodes(list):
+    """A list of HTML nodes. This is used as result set when doing queries
+    (css / xpath) on the HTML document. It acts as a list.
+    """
 
     @property
     def first(self):
+        """The first element of the list.
+
+        :raises: :py:exc:`ftw.testbrowser.exceptions.NoElementFound`
+        """
         if len(self) == 0:
             raise NoElementFound()
 
         return self[0]
 
     def text_content(self):
+        """Returns a list with the text content of each node of this result set.
+
+        :returns: A list of the `text_content` of each node.
+        :rtype: list
+
+        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.text_content`
+        """
         return map(methodcaller('text_content'), self)
 
     def normalized_text(self):
+        """Returns a list with the *normalized* text content of each node of this
+        result set.
+
+        :returns: A list of the `normalized_text` of each node.
+        :rtype: list
+
+        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
+        """
         return map(methodcaller('normalized_text'), self)
 
     def css(self, css_selector):
+        """Find nodes by a *css* expression which are within one of the nodes
+        in this result set.
+        The resulting nodes are merged into a new result set.
+
+        :param xpath_selector: The xpath selector.
+        :type xpath_selector: string
+        :returns: Object containg matches.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return self.xpath(CSSSelector(css_selector).path)
 
     def xpath(self, *args, **kwargs):
+        """Find nodes by an *xpath* expression which are within one of the nodes
+        in this result set.
+        The resulting nodes are merged into a new result set.
+
+        :param xpath_selector: The xpath selector.
+        :type xpath_selector: string
+        :returns: Object containg matches.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return Nodes(reduce(list.__add__,
                             map(methodcaller('xpath', *args, **kwargs), self)))
 
     def find(self, *args, **kwargs):
+        """Find a elements by text. The elements are searched within each node of
+        the current result set.
+
+        The method looks for:
+        - a link with this text (normalized, including subelements' texts)
+        - a field which has a label with this text
+        - a button which has a label with this text
+
+        :param text: The text to be looked for.
+        :type text: string
+        :returns: A list of the parent of each node in the current result set.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return Nodes(node for node
                      in map(methodcaller('find', *args, **kwargs), self)
                      if node is not None).remove_duplicates()
 
     def getparents(self):
+        """Returns a list of each node's parent.
+
+        :returns: The parent of each node of the current result set.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return Nodes(map(methodcaller('getparent'), self)).remove_duplicates()
 
     def remove_duplicates(self):
@@ -139,6 +197,12 @@ class Nodes(list):
 
 
 class NodeWrapper(object):
+    """`NodeWrapper` is the default wrapper class in which each element will be
+    wrapped for use in `ftw.testbrowser`. It wraps the elements returned by `lxml`
+    and redirects calls if it does not overload them.
+
+    There are more specific node wrapper classes for some elements.
+    """
 
     def __init__(self, node):
         self.node = node
@@ -167,13 +231,54 @@ class NodeWrapper(object):
 
     @property
     def browser(self):
+        """The current browser instance.
+        """
         from ftw.testbrowser import browser
         return browser
 
     def css(self, css_selector):
+        """Find nodes within this node by a *css* selector.
+
+        :param css_selector: The CSS selector.
+        :type css_selector: string
+        :returns: Object containg matches.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return self.xpath(CSSSelector(css_selector).path)
 
+    @wrapped_nodes
+    def xpath(self, xpath_selector):
+        """Find nodes within this node by a *css* selector.
+
+        :param css_selector: The CSS selector.
+        :type css_selector: string
+        :returns: Object containg matches.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
+        return self.node.xpath(xpath_selector)
+
     def parent(self, css=None, xpath=None):
+        """Find the nearest parent which (optionally) does match a *css* or *xpath*
+        selector.
+
+        If `parent` is called without an argument the first parent is returned.
+
+        Examples:
+
+        .. code:: py
+
+            browser.css('.foo > .bar').first.parent('#content')
+            # equals
+            browser.css('.foo > .bar').first.parent(xpath='*[@id="content"]')
+
+        :param css: The css selector.
+        :type css: string
+        :param xpath: The xpath selector.
+        :type xpath: string
+        :returns: The parent node.
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+
         if css and xpath:
             raise ValueError('parent() requires either "css" or "xpath" argument.')
         elif not css and not xpath:
@@ -192,21 +297,68 @@ class NodeWrapper(object):
             return None
 
     def iterlinks(self, *args, **kwargs):
+        """Iterate over all links in this node.
+        Each link is represented as a tuple with `node, attribute, link, pos`.
+        """
         for element, attribute, link, pos in self.node.iterlinks(
             *args, **kwargs):
             yield wrap_node(element), attribute, link, pos
 
     def find(self, text):
+        """Find an element by text within the current node.
+
+        The method looks for:
+        - a link with this text (normalized, including subelements' texts)
+        - a field which has a label with this text
+        - a button which has a label with this text
+
+        :param text: The text to be looked for.
+        :type text: string
+        :param within: A node object for limiting the scope of the search.
+        :type within: :py:class:`ftw.testbrowser.nodes.NodeWrapper`.
+        :returns: A single node object or `None` if nothing matches.
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
         return self.browser.find(text, within=self)
 
     def contains(self, other):
+        """Test whether the passed `other` node is contained in the current node.
+
+        :param other: The other node.
+        :type other: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        :returns: `True` when `other` is within `self`.
+        :rtype: boolean
+        """
         return other.within(self)
 
     def within(self, container):
+        """Test whether the passed `other` node contains the current node.
+
+        :param other: The other node.
+        :type other: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        :returns: `True` when `self` is within `other`.
+        :rtype: boolean
+        """
         return container in tuple(self.iterancestors())
 
     def normalized_text(self):
+        """Returns the whitespace-normalized text of the current node.
+        This includes the text of each node within this node recurively.
+        All whitespaces are reduced to a single space each.
+
+        :returns: The whitespace normalized text content.
+        :rtype: unicode
+        """
         return normalize_spaces(self.text_content())
+
+    def text_content(self):
+        """Returns the text content of the current node, including the text content
+        of each containing node recursively.
+
+        :returns: The text content.
+        :rtype: unicode
+        """
+        return self.node.text_content()
 
     @property
     def classes(self):
@@ -219,52 +371,81 @@ class NodeWrapper(object):
 
 
 class LinkNode(NodeWrapper):
+    """Wrapps an `<a>` node.
+    """
 
     def click(self):
+        """Clicks on the link, which opens the target in the current browser.
+        """
         self.browser.open(self.attrib['href'])
 
 
 class DefinitionListNode(NodeWrapper):
+    """Wrapps a `<dl>` node.
+    """
 
     def keys(self):
-        """Returns all <dt>-tags which are direct children
+        """Returns all `<dt>`-tags which are direct children
         of this definition list.
+
+        :returns: A list of `<dt>`-tags.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         return self.css('>dt')
 
     def values(self):
-        """Returns all <dd>-tags which are direct children
+        """Returns all `<dd>`-tags which are direct children
         of this definition list.
+
+        :returns: A list of `<dd>`-tags.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         return self.css('>dd')
 
     def items(self):
         """Returns a mapping (list with tuples) from
-        <dt>-tags to <dd>-tags of this definition list.
+        `<dt>`-tags to `<dd>`-tags of this definition list.
+
+        :returns: a dict where the key is the `<dt>`-node and the
+          value is the `<dd>`-node.
+        :rtype: dict
         """
         return zip(self.keys(), self.values())
 
     @property
     def terms(self):
-        """Returns the normalized text of each <dt>-tag of this
+        """Returns the normalized text of each `<dt>`-tag of this
         definition list.
+
+        :returns: A list of text of each `<dt>`-node.
+        :rtype: list of unicode
         """
         return self.keys().normalized_text()
 
     @property
     def definitions(self):
-        """Returns the normalized text of each <dd>-tag of this
+        """Returns the normalized text of each `<dd>`-tag of this
         definition list.
+
+        :returns: A list of text of each `<dd>`-node.
+        :rtype: list of unicode
         """
         return self.values().normalized_text()
 
     def items_text(self):
-        """Returns a terms (<dt>) to definition (<dd>) mapping as
+        """Returns a terms (`<dt>`) to definition (`<dd>`) mapping as
         list with tuples, each as normalized text.
+
+        :returns: key is the text of the `<dt>`-node, value is the text of
+          the `<dd>`-node.
+        :rtype: dict
         """
         return zip(self.terms, self.definitions)
 
     def text_to_nodes(self):
-        """Returns a dict with a mapping of text-terms to <dd>-nodes.
+        """Returns a dict with a mapping of text-terms to `<dd>`-nodes.
+
+        :returns: key is the text of the `<dt>`-node, value is the `<dd>`-node.
+        :rtype: dict
         """
         return dict(zip(self.terms, self.values()))
