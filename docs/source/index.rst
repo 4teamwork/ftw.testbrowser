@@ -3,13 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ftw.testbrowser's documentation!
-===========================================
+ftw.testbrowser
+===============
 
+`ftw.testbrowser` is a browser library for testing `Plone`_ based web sites and
+applications.
 
 .. toctree::
-   api.rst
+    :maxdepth: 2
 
+    introduction.rst
+    api.rst
+
+
+Links
+=====
+
+- Source code on github: https://github.com/4teamwork/ftw.testbrowser
+- Releases on pypi: https://pypi.python.org/pypi/ftw.testbrowser
+- Issues on github: https://github.com/4teamwork/ftw.testbrowser/issues
+- Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.testbrowser
 
 
 Indices and tables
@@ -18,3 +31,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. _Plone: http://www.plone.org/

@@ -1,15 +1,11 @@
 ftw.testbrowser
-===========
+===============
 
-.. contents:: Table of Contents
+`ftw.testbrowser` is a browser library for testing `Plone`_ web sites and
+applications.
 
-
-Motivation
-----------
-
-
-Installation and usage
-----------------------
+It integrations directly into `Plone` / `Zope` and uses `lxml`_ for parsing
+and querying pages. It supports all the basic features such as filling forms.
 
 
 Links

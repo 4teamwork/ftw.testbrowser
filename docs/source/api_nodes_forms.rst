@@ -5,6 +5,9 @@
 .. contents:: :local:
 
 
+.. automodule:: ftw.testbrowser.nodes
+
+
 Result set
 ==========
 
@@ -32,8 +35,11 @@ methods so that it is nicely integrated in the `ftw.testbrowser` behavior.
    :members:
 
 
+
 Forms and fields
 ================
+
+.. automodule:: ftw.testbrowser.form
 
 .. autoclass:: ftw.testbrowser.form.Form
    :show-inheritance:
