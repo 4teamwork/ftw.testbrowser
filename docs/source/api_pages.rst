@@ -1,10 +1,11 @@
 
+.. automodule:: ftw.testbrowser.pages
+
 ==============
  Page objects
 ==============
 
 .. contents:: :local:
-
 
 Plone page object
 =================

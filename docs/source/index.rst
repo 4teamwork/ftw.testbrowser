@@ -14,6 +14,7 @@ applications.
 
     introduction.rst
     quickstart.rst
+    userdoc.rst
     api.rst
 
 

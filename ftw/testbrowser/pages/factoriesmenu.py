@@ -26,7 +26,7 @@ def add(type_name):
     The type name is the literal link label.
     This opens the add form for this type.
 
-    :params type_name: The name (label) of the type to add.
+    :param type_name: The name (label) of the type to add.
     :type type_name: string
     """
     if not visible():
