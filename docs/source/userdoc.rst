@@ -2,6 +2,8 @@
  User documentation
 ====================
 
+.. contents:: :local:
+
 
 Setup
 =====
