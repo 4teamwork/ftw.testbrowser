@@ -111,7 +111,8 @@ class Nodes(list):
         return self[0]
 
     def text_content(self):
-        """Returns a list with the text content of each node of this result set.
+        """Returns a list with the text content of each node of this result
+        set.
 
         :returns: A list of the `text_content` of each node.
         :rtype: list
@@ -121,13 +122,14 @@ class Nodes(list):
         return map(methodcaller('text_content'), self)
 
     def normalized_text(self):
-        """Returns a list with the *normalized* text content of each node of this
-        result set.
+        """Returns a list with the *normalized* text content of each node of
+        this result set.
 
         :returns: A list of the `normalized_text` of each node.
         :rtype: list
 
-        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
+        .. seealso::
+          :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
         """
         return map(methodcaller('normalized_text'), self)
 
@@ -144,8 +146,8 @@ class Nodes(list):
         return self.xpath(CSSSelector(css_selector).path)
 
     def xpath(self, *args, **kwargs):
-        """Find nodes by an *xpath* expression which are within one of the nodes
-        in this result set.
+        """Find nodes by an *xpath* expression which are within one of the
+        nodes in this result set.
         The resulting nodes are merged into a new result set.
 
         :param xpath_selector: The xpath selector.
@@ -157,8 +159,8 @@ class Nodes(list):
                             map(methodcaller('xpath', *args, **kwargs), self)))
 
     def find(self, *args, **kwargs):
-        """Find a elements by text. The elements are searched within each node of
-        the current result set.
+        """Find a elements by text. The elements are searched within each node
+        of the current result set.
 
         The method looks for:
         - a link with this text (normalized, including subelements' texts)
@@ -199,8 +201,8 @@ class Nodes(list):
 
 class NodeWrapper(object):
     """`NodeWrapper` is the default wrapper class in which each element will be
-    wrapped for use in `ftw.testbrowser`. It wraps the elements returned by `lxml`
-    and redirects calls if it does not overload them.
+    wrapped for use in `ftw.testbrowser`. It wraps the elements returned by
+    `lxml` and redirects calls if it does not overload them.
 
     There are more specific node wrapper classes for some elements.
     """
@@ -259,8 +261,8 @@ class NodeWrapper(object):
         return self.node.xpath(xpath_selector)
 
     def parent(self, css=None, xpath=None):
-        """Find the nearest parent which (optionally) does match a *css* or *xpath*
-        selector.
+        """Find the nearest parent which (optionally) does match a *css* or
+        *xpath* selector.
 
         If `parent` is called without an argument the first parent is returned.
 
@@ -281,7 +283,8 @@ class NodeWrapper(object):
         """
 
         if css and xpath:
-            raise ValueError('parent() requires either "css" or "xpath" argument.')
+            raise ValueError(
+                'parent() requires either "css" or "xpath" argument.')
         elif not css and not xpath:
             xpath = '*'
 
@@ -323,7 +326,8 @@ class NodeWrapper(object):
         return self.browser.find(text, within=self)
 
     def contains(self, other):
-        """Test whether the passed `other` node is contained in the current node.
+        """Test whether the passed `other` node is contained in the current
+        node.
 
         :param other: The other node.
         :type other: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
@@ -353,8 +357,8 @@ class NodeWrapper(object):
         return normalize_spaces(self.text_content())
 
     def text_content(self):
-        """Returns the text content of the current node, including the text content
-        of each containing node recursively.
+        """Returns the text content of the current node, including the text
+        content of each containing node recursively.
 
         :returns: The text content.
         :rtype: unicode

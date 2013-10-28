@@ -84,8 +84,8 @@ class Form(NodeWrapper):
         """Accepts a dict, where the key is the name or the label of a field
         and the value is its new value and fills the form with theese values.
 
-        :param values: The key is the label or input-name and the value is the value
-          to set.
+        :param values: The key is the label or input-name and the value is the
+          value to set.
         :type values: dict
         :returns: The form node.
         :rtype: :py:class:`ftw.testbrowser.form.Form`
@@ -114,8 +114,8 @@ class Form(NodeWrapper):
 
     def submit(self, button=None):
         """Submits this form by clicking on the first submit button.
-        The behavior of click the first submit button is what browser usually do
-        and may not get the expected results.
+        The behavior of click the first submit button is what browser usually
+        do and may not get the expected results.
 
         It might be more save to click the primary button specificall:
 
@@ -227,8 +227,8 @@ class Form(NodeWrapper):
     @classmethod
     @wrapped_nodes
     def find_field_in_form(klass, form, label_or_name):
-        """Finds and returns a field with the passed label or name in the passed
-        form.
+        """Finds and returns a field with the passed label or name in the
+        passed form.
 
         :param form: The form node.
         :type form: :py:class:`ftw.testbrowser.form.Form`

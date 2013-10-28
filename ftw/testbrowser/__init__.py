@@ -21,7 +21,8 @@ def browsing(func):
             @browsing
             def test_login_form(self, browser):
                 browser.open(view='login_form')
-                self.assertEquals('http://nohost/plone/login_form', browser.url)
+                self.assertEquals('http://nohost/plone/login_form',
+                                  browser.url)
     """
 
     def test_function(self, *args, **kwargs):

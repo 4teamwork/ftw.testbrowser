@@ -21,8 +21,8 @@ import urlparse
 
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
-    It represents the browser instance and is used for navigating and interacting
-    with the browser.
+    It represents the browser instance and is used for navigating and
+    interacting with the browser.
 
     The ``Browser`` is a context manager, requiring the Zope app to be set:
 
@@ -37,10 +37,10 @@ class Browser(object):
         with browser(app):
             browser.open()
 
-    When using the browser in tests there is a ``@browsing`` test-method decorator
-    uses the global (singleton) browser and sets it up / tears it down using the
-    context manager syntax. See the `ftw.testbrowser.browsing`_ documentation for
-    more information.
+    When using the browser in tests there is a ``@browsing`` test-method
+    decorator uses the global (singleton) browser and sets it up / tears it
+    down using the context manager syntax. See the
+    `ftw.testbrowser.browsing`_ documentation for more information.
     """
 
     implements(IBrowser)
@@ -49,9 +49,9 @@ class Browser(object):
         self.reset()
 
     def __call__(self, app):
-        """Calling the browser instance with the Zope app object as argument sets
-        configures the Zope app to be used for the next session, which is initailized
-        by using the context manager syntax.
+        """Calling the browser instance with the Zope app object as argument
+        sets configures the Zope app to be used for the next session, which is
+        initailized by using the context manager syntax.
         """
         self.next_app = app
         return self
@@ -60,7 +60,8 @@ class Browser(object):
         return '<ftw.browser.core.Browser instance>'
 
     def reset(self):
-        """Resets the browser: closes active sessions and resets the internal state.
+        """Resets the browser: closes active sessions and resets the internal
+        state.
         """
         self.next_app = None
         self.app = None
@@ -94,8 +95,8 @@ class Browser(object):
           an ``absolute_url`` method). Defaults to the Plone Site URL.
         :param data: A dict with data which is posted using a `POST` request.
         :type data: dict
-        :param view: The name of a view which will be added at the end of the current
-          URL.
+        :param view: The name of a view which will be added at the end of the
+          current URL.
         :type view: string
 
         .. seealso:: :py:func:`visit`
@@ -141,7 +142,8 @@ class Browser(object):
 
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
-        Use the :py:func:`reset` method for logging out and clearing everything.
+        Use the :py:func:`reset` method for logging out and clearing
+        everything.
         """
         self.get_mechbrowser().addheaders.append(
             ('Authorization', 'Basic %s:%s' % (username, password)))
@@ -200,16 +202,17 @@ class Browser(object):
             browser.open(view='login_form')
             browser.fill({'Login Name': 'hugo.boss', 'Password': 'secret'})
 
-        Since the form node (:py:class:`ftw.testbrowser.form.Form`) is returned,
-        it can easily be submitted:
+        Since the form node (:py:class:`ftw.testbrowser.form.Form`) is
+        returned, it can easily be submitted:
 
         .. code:: py
 
             browser.open(view='login_form')
-            browser.fill({'Login Name': 'hugo.boss', 'Password': 'secret'}).submit()
+            browser.fill({'Login Name': 'hugo.boss',
+                          'Password': 'secret'}).submit()
 
-        :param values: The key is the label or input-name and the value is the value
-          to set.
+        :param values: The key is the label or input-name and the value is the
+          value to set.
         :type values: dict
         :returns: The form node.
         :rtype: :py:class:`ftw.testbrowser.form.Form`
