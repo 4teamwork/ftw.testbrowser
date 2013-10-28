@@ -47,6 +47,7 @@ def wrapped_nodes(func):
         return wrap_nodes(result)
 
     wrapper_method.__name__ = func.__name__
+    wrapper_method.__doc__ = func.__doc__
     return wrapper_method
 
 
