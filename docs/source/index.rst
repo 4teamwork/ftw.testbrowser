@@ -13,6 +13,7 @@ applications.
     :maxdepth: 2
 
     introduction.rst
+    quickstart.rst
     api.rst
 
 
