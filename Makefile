@@ -18,7 +18,7 @@ html:
 upload:
 	@echo "> Building documentation.."
 	rm -rf $(BUILDDIR)/html
-	make html
+	FOR_UPLOAD=1 make html
 	@echo
 	@echo "> Uploading documentation.."
 	./bin/sphinx-upload setup.py upload_sphinx
