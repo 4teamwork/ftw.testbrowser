@@ -1,4 +1,5 @@
 from ftw.testbrowser import browsing
+from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import NodeWrapper
@@ -59,6 +60,29 @@ class TestNodesResultSet(TestCase):
         self.assertEquals(
             browser.find('Link in Baz'),
             browser.css('#content div').find('Link in Baz').first)
+
+    @browsing
+    def test_first_is_first_node(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#content > div')[0],
+                          browser.css('#content > div').first)
+
+    @browsing
+    def test_first_raises_NoElementFound_when_nothing_matches(self, browser):
+        browser.open(view='test-structure')
+        with self.assertRaises(NoElementFound):
+            browser.css('.not-existing-class').first
+
+    @browsing
+    def test_first_or_none_is_first_node(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#content > div')[0],
+                          browser.css('#content > div').first_or_none)
+
+    @browsing
+    def test_first_is_None_when_nothing_matches(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(None, browser.css('.not-existing-class').first_or_none)
 
 
 

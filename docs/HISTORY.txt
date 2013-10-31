@@ -5,7 +5,8 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add ``first_or_none`` property to ``Nodes``.
+  [jone]
 
 
 1.0.0 (2013-10-28)

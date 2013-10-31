@@ -110,6 +110,15 @@ class Nodes(list):
 
         return self[0]
 
+    @property
+    def first_or_none(self):
+        """The first element of the list or ``None`` if the list is empty.
+        """
+        if len(self) > 0:
+            return self[0]
+        else:
+            return None
+
     def text_content(self):
         """Returns a list with the text content of each node of this result
         set.
