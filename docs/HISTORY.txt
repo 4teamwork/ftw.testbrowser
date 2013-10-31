@@ -5,7 +5,8 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- When normalizing whitespaces, do also replace non-breaking spaces.
+  [jone]
 
 
 1.0.1 (2013-10-31)

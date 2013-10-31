@@ -38,6 +38,8 @@
                 <dd><a href="http://maps.google.com">maps.google.com</a></dd>
             </dl>
 
+            <div class="non-breaking">Non&nbsp;breaking&nbsp;spaces.</div>
+
         </div>
 
     </body>

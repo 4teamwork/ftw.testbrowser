@@ -325,6 +325,12 @@ class TestNodeWrappers(TestCase):
                           browser.css('.foo').first.normalized_text())
 
     @browsing
+    def test_normalized_text_replaces_non_breaking_spaces(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals('Non breaking spaces.',
+                          browser.css('.non-breaking').first.normalized_text())
+
+    @browsing
     def test_classes(self, browser):
         browser.open(view='test-structure')
         self.assertIn('userrole-anonymous', browser.css('body').first.classes)
