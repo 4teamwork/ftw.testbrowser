@@ -318,6 +318,17 @@ class TestNodeWrappers(TestCase):
         self.assertEquals('parent() requires either "css" or "xpath" argument.',
                           str(cm.exception))
 
+    @browsing
+    def test_normalized_text(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals('Bar in Foo Link in Foo',
+                          browser.css('.foo').first.normalized_text())
+
+    @browsing
+    def test_classes(self, browser):
+        browser.open(view='test-structure')
+        self.assertIn('userrole-anonymous', browser.css('body').first.classes)
+
 
 class TestNodeComparison(TestCase):
 
@@ -337,17 +348,6 @@ class TestNodeComparison(TestCase):
         self.assertNotEquals(browser.css('.foo').first,
                              browser.css('.foo').first.getparent(),
                              'Different elements should be different.')
-
-    @browsing
-    def test_normalized_text(self, browser):
-        browser.open(view='test-structure')
-        self.assertEquals('Bar in Foo Link in Foo',
-                          browser.css('.foo').first.normalized_text())
-
-    @browsing
-    def test_classes(self, browser):
-        browser.open(view='test-structure')
-        self.assertIn('userrole-anonymous', browser.css('body').first.classes)
 
 
 class TestLinkNode(TestCase):
