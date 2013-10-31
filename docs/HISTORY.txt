@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0.1 (unreleased)
+1.0.1 (2013-10-31)
 ------------------
 
 - Add ``first_or_none`` property to ``Nodes``.
