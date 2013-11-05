@@ -46,6 +46,14 @@ class TestNodesResultSet(TestCase):
                           links.text_content())
 
     @browsing
+    def test_child_css_selection(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#nested').xpath('em'),
+                          browser.css('#nested').css('>em'))
+        self.assertEquals(browser.css('#nested').xpath('em'),
+                          browser.css('#nested').css('nonexistent, >em'))
+
+    @browsing
     def test_getparents_of_multiple_elements(self, browser):
         browser.open(view='test-structure')
         self.assertEquals(browser.css('#list-of-links li'),
@@ -155,6 +163,12 @@ class TestNodeWrappers(TestCase):
                           'Expected to find one ".bar" element in ".foo".')
 
     @browsing
+    def test_child_xpath_selection(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.xpath('//*[@id="nested"]/em'),
+                          browser.xpath('//*[@id="nested"]').first.xpath('em'))
+
+    @browsing
     def test_css_on_node(self, browser):
         browser.open(view='test-structure')
         self.assertEquals(2, len(browser.css('span.bar')),
@@ -163,6 +177,14 @@ class TestNodeWrappers(TestCase):
         foo = browser.css('div.foo').first
         self.assertEquals(1, len(foo.css('span.bar')),
                           'Expected to find one ".bar" element in ".foo".')
+
+    @browsing
+    def test_child_css_selection(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#nested > em'),
+                          browser.css('#nested').first.css('>em'))
+        self.assertEquals(browser.css('#nested > em'),
+                          browser.css('#nested').first.css('nonexistent, >em'))
 
     @browsing
     def test_body_on_node_is_wrapped(self, browser):

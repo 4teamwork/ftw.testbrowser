@@ -42,6 +42,11 @@
 
             <div class="empty"></div>
 
+            <div id="nested">
+                <em class="outer">outer</em>
+                <div><em class="inner">inner</em></div>
+            </div>
+
         </div>
 
     </body>

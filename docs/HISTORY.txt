@@ -5,6 +5,9 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
+- Fix direct child selection with CSS (node.css(">tag")).
+  [jone]
+
 - Add a ``recursive`` option to ``normalized_text``.
   [jone]
 

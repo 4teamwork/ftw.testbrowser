@@ -1,6 +1,7 @@
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
+from lxml.cssselect import css_to_xpath
 from operator import methodcaller
 import lxml.etree
 import re
@@ -144,7 +145,7 @@ class Nodes(list):
         """
         return map(methodcaller('normalized_text', recursive=recursive), self)
 
-    def css(self, css_selector):
+    def css(self, *args, **kwargs):
         """Find nodes by a *css* expression which are within one of the nodes
         in this result set.
         The resulting nodes are merged into a new result set.
@@ -154,7 +155,8 @@ class Nodes(list):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return self.xpath(CSSSelector(css_selector).path)
+        return Nodes(reduce(list.__add__,
+                            map(methodcaller('css', *args, **kwargs), self)))
 
     def xpath(self, *args, **kwargs):
         """Find nodes by an *xpath* expression which are within one of the
@@ -258,7 +260,23 @@ class NodeWrapper(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return self.xpath(CSSSelector(css_selector).path)
+
+        xpath = []
+
+        # When a direct child is selected (">x"), we need to prefix the xpath
+        # expression with "self::" rather than "descendant-or-self::" for not
+        # selecting the children of the children.
+        # "self::*/div"                 -->   ">div"
+        # "descendant-or-self::*/div"   -->   ">div, >* div"
+        # "descendant-or-self::div"     -->   "div"
+        for css in css_selector.split(','):
+            if css.strip().startswith('>'):
+                xpath.append(css_to_xpath(css, prefix='self::'))
+            else:
+                xpath.append(css_to_xpath(css, prefix='descendant-or-self::'))
+
+        xpath_expr = ' | '.join(xpath)
+        return self.xpath(xpath_expr)
 
     @wrapped_nodes
     def xpath(self, xpath_selector):
