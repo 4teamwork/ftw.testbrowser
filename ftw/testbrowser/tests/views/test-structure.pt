@@ -9,7 +9,7 @@
 
             <div class="foo">
                 <span class="bar">Bar in Foo</span>
-                <a href="#">Link in Foo</a>
+                <a href="#">Link in <em>Foo</em></a>
             </div>
 
             <span class="bar">Bar</span>
@@ -39,6 +39,8 @@
             </dl>
 
             <div class="non-breaking">Non&nbsp;breaking&nbsp;spaces.</div>
+
+            <div class="empty"></div>
 
         </div>
 

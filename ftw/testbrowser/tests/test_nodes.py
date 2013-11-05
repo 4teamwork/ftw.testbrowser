@@ -21,8 +21,13 @@ class TestNodesResultSet(TestCase):
     @browsing
     def test_normalized_text(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals(['Bar in Foo Link in Foo'],
-                          browser.css('.foo').normalized_text())
+        nodes = browser.css('.foo > *')
+
+        self.assertEquals(
+            {'default': ['Bar in Foo', 'Link in Foo'],
+             'non-recursive': ['Bar in Foo', 'Link in']},
+            {'default': nodes.normalized_text(),
+             'non-recursive': nodes.normalized_text(recursive=False)})
 
     @browsing
     def test_xpath_within_multiple_elements(self, browser):
@@ -321,14 +326,27 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_normalized_text(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals('Bar in Foo Link in Foo',
-                          browser.css('.foo').first.normalized_text())
+        link = browser.css('.foo a').first
+
+        self.assertEquals(
+            {'default': 'Link in Foo',
+             'non-recursive': 'Link in'},
+            {'default': link.normalized_text(),
+             'non-recursive': link.normalized_text(recursive=False)})
 
     @browsing
     def test_normalized_text_replaces_non_breaking_spaces(self, browser):
         browser.open(view='test-structure')
         self.assertEquals('Non breaking spaces.',
                           browser.css('.non-breaking').first.normalized_text())
+
+    @browsing
+    def test_nonrecursive_normalized_text_when_node_has_no_content(self, browser):
+        browser.open(view='test-structure')
+        node = browser.css('.empty').first
+        self.assertEquals(None, node.text,
+                          'Expected node ".empty" to not have any text.')
+        self.assertEquals('', node.normalized_text(recursive=False))
 
     @browsing
     def test_classes(self, browser):

@@ -130,17 +130,19 @@ class Nodes(list):
         """
         return map(methodcaller('text_content'), self)
 
-    def normalized_text(self):
+    def normalized_text(self, recursive=True):
         """Returns a list with the *normalized* text content of each node of
         this result set.
 
+        :param recursive: Set to ``False`` for not including text of contained tags.
+        :type recursive: Boolean (default: ``True``)
         :returns: A list of the `normalized_text` of each node.
         :rtype: list
 
         .. seealso::
           :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
         """
-        return map(methodcaller('normalized_text'), self)
+        return map(methodcaller('normalized_text', recursive=recursive), self)
 
     def css(self, css_selector):
         """Find nodes by a *css* expression which are within one of the nodes
@@ -355,15 +357,20 @@ class NodeWrapper(object):
         """
         return container in tuple(self.iterancestors())
 
-    def normalized_text(self):
+    def normalized_text(self, recursive=True):
         """Returns the whitespace-normalized text of the current node.
         This includes the text of each node within this node recurively.
         All whitespaces are reduced to a single space each.
 
+        :param recursive: Set to ``False`` for not including text of contained tags.
+        :type recursive: Boolean (default: ``True``)
         :returns: The whitespace normalized text content.
         :rtype: unicode
         """
-        return normalize_spaces(self.text_content())
+        if recursive:
+            return normalize_spaces(self.text_content())
+        else:
+            return normalize_spaces(self.text or '')
 
     def text_content(self):
         """Returns the text content of the current node, including the text
