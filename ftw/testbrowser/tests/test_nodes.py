@@ -105,6 +105,22 @@ class TestNodesResultSet(TestCase):
             '<Nodes: [<NodeWrapper:span, class="bar", text:"Bar in Foo">]>',
             str(node))
 
+    @browsing
+    def test_result_set_equal_when_containing_same_nodes(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(browser.css('#content div'),
+                          browser.css('#content div'),
+                          'Two result sets with the same nodes should be equal.')
+
+    @browsing
+    def test_result_set_not_equal_when_containing_different_nodes(self, browser):
+        browser.open(view='test-structure')
+        self.assertNotEquals(browser.css('#content div'),
+                             browser.css('#content a'),
+                             'Two result sets with different nodes should not be'
+                             ' equal.')
+
+
 
 class TestNodeWrappers(TestCase):
 
