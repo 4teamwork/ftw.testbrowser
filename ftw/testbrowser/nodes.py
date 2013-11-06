@@ -197,6 +197,9 @@ class Nodes(list):
         """
         return Nodes(map(methodcaller('getparent'), self)).remove_duplicates()
 
+    def __repr__(self):
+        return '<Nodes: %s>' % str(list(self))
+
     def remove_duplicates(self):
         keep = []
         remove = []
@@ -238,9 +241,14 @@ class NodeWrapper(object):
 
     def __repr__(self):
         attribs = ', '.join(['%s="%s"' % (key, value)
-                            for key, value in self.attrib.items()])
-        if self.text and self.text.strip():
-            repr = ', '.join((self.tag, attribs, 'text:"%s"' % self.text))
+                             for key, value in self.attrib.items()])
+
+        text = self.text
+        if isinstance(text, unicode):
+            text = text.encode('utf-8')
+
+        if text and text.strip():
+            repr = ', '.join((self.tag, attribs, 'text:"%s"' % text))
         else:
             repr = ', '.join((self.tag, attribs))
         return '<%s:%s>' % (self.__class__.__name__, repr)

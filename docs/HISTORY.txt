@@ -5,6 +5,9 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
+- Show containing elements in string representation of "Nodes" list.
+  [jone]
+
 - Fix direct child selection with CSS (node.css(">tag")).
   [jone]
 

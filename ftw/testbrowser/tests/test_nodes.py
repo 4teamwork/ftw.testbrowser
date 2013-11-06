@@ -97,6 +97,13 @@ class TestNodesResultSet(TestCase):
         browser.open(view='test-structure')
         self.assertEquals(None, browser.css('.not-existing-class').first_or_none)
 
+    @browsing
+    def test_string_representation(self, browser):
+        browser.open(view='test-structure')
+        node = browser.css('.foo .bar')
+        self.assertEquals(
+            '<Nodes: [<NodeWrapper:span, class="bar", text:"Bar in Foo">]>',
+            str(node))
 
 
 class TestNodeWrappers(TestCase):
