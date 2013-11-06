@@ -135,6 +135,51 @@ class TestNodesResultSet(TestCase):
         self.assertEquals(Nodes, type(result))
         self.assertEquals(browser.css('.foo, .bar'), result)
 
+    @browsing
+    def test_Nodes_type_is_kept_on_append(self, browser):
+        browser.open(view='test-structure')
+        result = browser.css('.foo')
+        result.append(browser.css('.bar').first)
+        self.assertEquals(
+            Nodes, type(result),
+            'Appending to a "Nodes" object should not change it\'s type.')
+
+    @browsing
+    def test_Nodes_type_is_kept_on_extend(self, browser):
+        browser.open(view='test-structure')
+        result = browser.css('.foo')
+        result.extend(browser.css('.bar'))
+        self.assertEquals(
+            Nodes, type(result),
+            'Extending a "Nodes" object should not change it\'s type.')
+
+    @browsing
+    def test_Nodes_type_is_kept_on_remove(self, browser):
+        browser.open(view='test-structure')
+        result = browser.css('.foo, .bar')
+        result.remove(browser.css('.bar').first)
+        self.assertEquals(
+            Nodes, type(result),
+            'Removing from a "Nodes" object should not change it\'s type.')
+
+    @browsing
+    def test_Nodes_type_is_kept_on_pop(self, browser):
+        browser.open(view='test-structure')
+        result = browser.css('.foo, .bar')
+        result.pop()
+        self.assertEquals(
+            Nodes, type(result),
+            'Popping from a "Nodes" object should not change it\'s type.')
+
+    @browsing
+    def test_Nodes_type_is_kept_on_reverse(self, browser):
+        browser.open(view='test-structure')
+        result = browser.css('.foo, .bar')
+        result.reverse()
+        self.assertEquals(
+            Nodes, type(result),
+            'Reversing a "Nodes" object should not change it\'s type.')
+
 
 class TestNodeWrappers(TestCase):
 
