@@ -56,3 +56,11 @@ Forms and fields
 .. autoclass:: ftw.testbrowser.form.SubmitButton
    :show-inheritance:
    :members:
+
+
+Tables
+======
+
+.. automodule:: ftw.testbrowser.table
+   :show-inheritance:
+   :members:

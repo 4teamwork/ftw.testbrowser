@@ -1,0 +1,97 @@
+<html xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="context/main_template/macros/master"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="ftw.testbrowser">
+    <body>
+
+        <div metal:fill-slot="main" >
+
+            <table id="onecol-table">
+                <thead>
+                    <tr><th>Foo</th></tr>
+                </thead>
+                <tfoot>
+                    <tr><td>Baz</td></tr>
+                </tfoot>
+                <tbody>
+                    <tr><td>Bar</td></tr>
+                </tbody>
+            </table>
+
+            <table id="simple-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td>TOTAL:</td>
+                        <td>47.90</td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr>
+                        <td>Socks</td>
+                        <td>12.90</td>
+                    </tr>
+                    <tr>
+                        <td>Pants</td>
+                        <td>35.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table id="nested-table">
+                <thead><tr><td>
+                    Heading
+                    <table><tr><td>Nested</td></tr></table>
+                </td></tr></thead>
+                <tfoot><tr><td>
+                    Footer
+                    <table><tr><td>Nested</td></tr></table>
+                </td></tr></tfoot>
+                <tbody><tr><td>
+                    Body
+                    <table><tr><td>Nested</td></tr></table>
+                </td></tr></tbody>
+            </table>
+
+            <table id="advanced-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Product</th>
+                        <th>Price</th>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>CHF</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">TOTAL:</td>
+                        <td>114.70</td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr>
+                        <td>Fancy Pants</td>
+                        <td>Pants</td>
+                        <td>44.80</td>
+                    </tr>
+                    <tr>
+                        <td>Pink Pullover</td>
+                        <td>Pullovers</td>
+                        <td>69.90</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </body>
+</html>

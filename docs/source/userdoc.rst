@@ -267,6 +267,77 @@ the name of the field. Only one form can be filled at a time.
              :py:func:`ftw.testbrowser.form.Form.save`
 
 
+Tables
+======
+
+Tables are difficult to test without the right tools.
+For making the tests easy and readable, the table components provide helpers
+especially for easily extracting a table in a readable form.
+
+For testing the content of this table:
+
+.. code:: html
+
+            <table id="shopping-cart">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Socks</td>
+                        <td>12.90</td>
+                    </tr>
+                    <tr>
+                        <td>Pants</td>
+                        <td>35.00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>TOTAL:</td>
+                        <td>47.90</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+You could use the ``lists`` method:
+
+.. code:: py
+
+    self.assertEquals(
+        [['Product', 'Price'],
+         ['Socks', '12.90'],
+         ['Pants', '35.00'],
+         ['TOTAL:', '47.90']],
+        browser.css('#shopping-cart').first.lists())
+
+.. seealso:: :py:func:`ftw.testbrowser.table.Table.lists`
+
+or the ``dicts`` method:
+
+.. code:: py
+
+    self.assertEquals(
+        [{'Product': 'Socks',
+          'Price': '12.90'},
+         {'Product': 'Pants',
+          'Price': '35.00'},
+         {'Product': 'TOTAL:',
+          'Price': '47.90'}],
+        browser.css('#shopping-cart').first.dicts())
+
+.. seealso:: :py:func:`ftw.testbrowser.table.Table.dicts`
+
+See the tables API for more details.
+
+.. seealso:: :py:func:`ftw.testbrowser.table.Table`,
+             :py:func:`ftw.testbrowser.table.TableRow`,
+             :py:func:`ftw.testbrowser.table.TableCell`
+
+
 Page objects
 ============
 

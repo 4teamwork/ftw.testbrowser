@@ -5,6 +5,9 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
+- Add table nodes with helpers for table testing.
+  [jone]
+
 - Merging "Nodes" lists returns a new "Nodes" list, not a "list".
   [jone]
 

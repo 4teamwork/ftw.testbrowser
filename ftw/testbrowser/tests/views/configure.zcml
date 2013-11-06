@@ -37,4 +37,11 @@
         permission="zope.Public"
         />
 
+    <browser:page
+        name="test-tables"
+        template="test-tables.pt"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>

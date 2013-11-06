@@ -92,6 +92,22 @@ def wrap_node(node):
     if node.tag == 'dl':
         return DefinitionListNode(node)
 
+    if node.tag == 'table':
+        from ftw.testbrowser.table import Table
+        return Table(node)
+
+    if node.tag == 'tr':
+        from ftw.testbrowser.table import TableRow
+        return TableRow(node)
+
+    if node.tag in ('td', 'th'):
+        from ftw.testbrowser.table import TableCell
+        return TableCell(node)
+
+    if node.tag in ('colgroup', 'col', 'thead', 'tbody', 'tfoot'):
+        from ftw.testbrowser.table import TableComponent
+        return TableComponent(node)
+
     return NodeWrapper(node)
 
 
@@ -135,7 +151,8 @@ class Nodes(list):
         """Returns a list with the *normalized* text content of each node of
         this result set.
 
-        :param recursive: Set to ``False`` for not including text of contained tags.
+        :param recursive: Set to ``False`` for not including text of
+            contained tags.
         :type recursive: Boolean (default: ``True``)
         :returns: A list of the `normalized_text` of each node.
         :rtype: list
@@ -394,7 +411,8 @@ class NodeWrapper(object):
         This includes the text of each node within this node recurively.
         All whitespaces are reduced to a single space each.
 
-        :param recursive: Set to ``False`` for not including text of contained tags.
+        :param recursive: Set to ``False`` for not including text of
+            contained tags.
         :type recursive: Boolean (default: ``True``)
         :returns: The whitespace normalized text content.
         :rtype: unicode
