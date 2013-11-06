@@ -3,6 +3,7 @@ from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import NodeWrapper
+from ftw.testbrowser.nodes import Nodes
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from unittest2 import TestCase
@@ -120,6 +121,19 @@ class TestNodesResultSet(TestCase):
                              'Two result sets with different nodes should not be'
                              ' equal.')
 
+    @browsing
+    def test_merging_two_Nodes_returns_result_set_as_well(self, browser):
+        browser.open(view='test-structure')
+        self.assertEquals(Nodes, type(browser.css('.foo') + browser.css('.bar')))
+        self.assertEquals(browser.css('.foo, .bar'),
+                          browser.css('.foo') + browser.css('.bar'))
+
+    @browsing
+    def test_merging_list_with_Nodes_returns_Nodes(self, browser):
+        browser.open(view='test-structure')
+        result = list(browser.css('.foo')) + browser.css('.bar')
+        self.assertEquals(Nodes, type(result))
+        self.assertEquals(browser.css('.foo, .bar'), result)
 
 
 class TestNodeWrappers(TestCase):

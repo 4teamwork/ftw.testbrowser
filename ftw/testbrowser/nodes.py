@@ -200,6 +200,12 @@ class Nodes(list):
     def __repr__(self):
         return '<Nodes: %s>' % str(list(self))
 
+    def __add__(self, other):
+        return Nodes(list(self) + list(other))
+
+    def __radd__(self, other):
+        return Nodes(list(other) + list(self))
+
     def remove_duplicates(self):
         keep = []
         remove = []
