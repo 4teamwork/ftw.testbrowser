@@ -1,11 +1,11 @@
 from ftw.testbrowser import browsing
+from ftw.testbrowser.pages import dexterity
 from ftw.testbrowser.pages import factoriesmenu
-from ftw.testbrowser.pages import z3cform
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 
 
-class TestZ3cformPageObject(TestCase):
+class TestDexterityPageObject(TestCase):
 
     layer = PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
 
@@ -15,6 +15,5 @@ class TestZ3cformPageObject(TestCase):
         factoriesmenu.add('Folder')
         browser.find('Save').click()
         self.assertEquals(browser.previous_url, browser.url)
-        form = browser.css('form#form').first
         self.assertEquals({u'Title': ['Required input is missing.']},
-                          z3cform.erroneous_fields(form))
+                          dexterity.erroneous_fields())

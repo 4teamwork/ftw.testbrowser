@@ -5,6 +5,9 @@ Changelog
 1.0.3 (unreleased)
 ------------------
 
+- Add dexterity page object, refactor z3cform page object.
+  [jone]
+
 - Add table nodes with helpers for table testing.
   [jone]
 

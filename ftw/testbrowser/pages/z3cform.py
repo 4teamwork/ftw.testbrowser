@@ -1,14 +1,19 @@
-from ftw.testbrowser import browser
 from ftw.testbrowser.utils import normalize_spaces
 
 
-def erroneous_fields():
+def erroneous_fields(form):
     """Returns a mapping of erroneous fields (key is label or name of
-    the field) to a list of error messages for this field.
+    the field) to a list of error messages for the fields on the form
+    passed as argument.
+
+    :param form: The form node to check for errors.
+    :type form: :py:class:`ftw.testbrowser.form.Form`
+    :returns: A dict of erroneous fields with error messages.
+    :rtype: dict
     """
 
     result = {}
-    for input in browser.css('form#form').first.inputs:
+    for input in form.inputs:
         if not input.parent('.field.error'):
             continue
 
