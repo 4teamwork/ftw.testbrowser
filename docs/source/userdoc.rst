@@ -361,6 +361,8 @@ See the API documentation for the page objects included in `ftw.testbrowser`:
 
 - The **statusmessages** page object helps to assert the current status messages.
 
+- The **dexterity** page object provides helpers related to dexterity
+
 - The **z3cform** page object provides helpers related to z3cforms, e.g. for asserting
   validation errors in the form.
 

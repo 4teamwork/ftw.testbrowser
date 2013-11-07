@@ -28,6 +28,12 @@ Status messages page object
    :members:
 
 
+dexterity page object
+===================
+
+.. automodule:: ftw.testbrowser.pages.dexterity
+   :members:
+
 z3cform page object
 ===================
 
