@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.1.1 (unreleased)
+1.2.0 (2013-11-24)
 ------------------
 
 - Add `open_html` method to browser object, allowing to pass in HTML directly.
