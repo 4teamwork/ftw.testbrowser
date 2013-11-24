@@ -1,3 +1,4 @@
+from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import FormFieldNotFound
@@ -109,7 +110,24 @@ class Browser(object):
         url = self._normalize_url(url_or_object, view=view)
         data = self._prepare_post_data(data)
         self.response = self.get_mechbrowser().open(url, data=data)
-        self.document = lxml.html.parse(self.response)
+        return self.open_html(self.response)
+
+    def open_html(self, html):
+        """Opens a HTML page in the browser without doing a request.
+        The passed ``html`` may be a string or a file-like stream.
+
+        :param html: The HTML content to load in the browser.
+        :type html: string or file-like object
+        :returns: The browser object.
+        """
+
+        if hasattr(html, 'seek'):
+            html.seek(0)
+
+        if isinstance(html, (unicode, str)):
+            html = StringIO(html)
+
+        self.document = lxml.html.parse(html)
         return self
 
     def visit(self, *args, **kwargs):

@@ -1,3 +1,4 @@
+from StringIO import StringIO
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
@@ -71,3 +72,22 @@ class TestBrowserRequests(TestCase):
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals('http://nohost/plone/test-folder/folder_contents',
                           browser.url)
+
+    @browsing
+    def test_loading_string_html_without_request(self, browser):
+        html = '\n'.join(('<html>',
+                          '<h1>The heading</h1>',
+                          '<html>'))
+
+        browser.open_html(html)
+        self.assertEquals('The heading', browser.css('h1').first.normalized_text())
+
+    @browsing
+    def test_loading_stream_html_without_request(self, browser):
+        html = StringIO()
+        html.write('<html>')
+        html.write('<h1>The heading</h1>')
+        html.write('<html>')
+
+        browser.open_html(html)
+        self.assertEquals('The heading', browser.css('h1').first.normalized_text())

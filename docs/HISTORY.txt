@@ -5,7 +5,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add `open_html` method to browser object, allowing to pass in HTML directly.
+  [jone]
 
 
 1.1.0 (2013-11-07)
