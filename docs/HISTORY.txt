@@ -5,7 +5,8 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add ``webdav`` method for doing WebDAV requests with a ZServer.
+  [jone]
 
 
 1.2.0 (2013-11-24)

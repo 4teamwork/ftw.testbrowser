@@ -367,3 +367,50 @@ See the API documentation for the page objects included in `ftw.testbrowser`:
   validation errors in the form.
 
 .. seealso:: :py:mod:`ftw.testbrowser.pages`
+
+
+WebDAV requests
+===============
+
+`ftw.testbrowser` supports doing WebDAV requests, although it requires a
+ZServer to be running because of limitations in mechanize.
+
+Use a testing layer which bases on ``plone.app.testing.PLONE_ZSERVER``:
+
+.. code:: py
+
+    from plone.app.testing import FunctionalTesting
+    from plone.app.testing import PLONE_FIXTURE
+    from plone.app.testing import PLONE_ZSERVER
+    from plone.app.testing import PloneSandboxLayer
+
+
+    class MyPackageLayer(PloneSandboxLayer):
+
+        defaultBases = (PLONE_FIXTURE, )
+
+    MY_PACKAGE_FIXTURE = MyPackageLayer()
+    MY_PACKAGE_ZSERVER_TESTING = FunctionalTesting(
+        bases=(MY_PACKAGE_FIXTURE,
+               PLONE_ZSERVER),
+        name='my.package:functional:zserver')
+
+Then use the ``webdav`` method for making requests in the test:
+
+.. code:: py
+
+    from ftw.testbrowser import browsing
+    from my.package.testing import MY_PACKAGE_ZSERVER_TESTING
+    from unittest2 import TestCase
+
+
+    class TestWebdav(TestCase):
+
+        layer = MY_PACKAGE_ZSERVER_TESTING
+
+        @browsing
+        def test_DAV_option(self, browser):
+            browser.webdav('OPTIONS')
+            self.assertEquals('1,2', browser.response.headers.get('DAV'))
+
+.. seealso:: :py:func:`ftw.testbrowser.core.Browser.webdav`

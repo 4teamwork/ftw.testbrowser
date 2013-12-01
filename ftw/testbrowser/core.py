@@ -2,6 +2,7 @@ from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
@@ -15,6 +16,7 @@ from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
+import requests
 import tempfile
 import urllib
 import urlparse
@@ -70,6 +72,7 @@ class Browser(object):
         self.response = None
         self.document = None
         self.previous_url = None
+        self._authentication = None
 
     def __enter__(self):
         if self.next_app is None:
@@ -79,12 +82,11 @@ class Browser(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if (exc_type or exc_value) and self.response:
+        if (exc_type or exc_value) and self.response is not None:
             _, path = tempfile.mkstemp(suffix='.html',
                                        prefix='ftw.testbrowser-')
             with open(path, 'w+') as file_:
-                self.response.seek(0)
-                file_.write(self.response.read())
+                file_.write(self.contents)
             print '\nftw.testbrowser dump:', path,
 
         self.reset()
@@ -127,7 +129,14 @@ class Browser(object):
         if isinstance(html, (unicode, str)):
             html = StringIO(html)
 
-        self.document = lxml.html.parse(html)
+        if isinstance(html, requests.Response):
+            html = StringIO(html.content)
+
+        if len(html.read()) == 0:
+            self.document = None
+        else:
+            html.seek(0)
+            self.document = lxml.html.parse(html)
         return self
 
     def visit(self, *args, **kwargs):
@@ -137,13 +146,47 @@ class Browser(object):
         """
         return self.open(*args, **kwargs)
 
+    def webdav(self, method, url_or_object=None, data=None, view=None):
+        """Makes a webdav request to the Zope server.
+
+        It is required that a ``ZSERVER_FIXTURE`` is used in the test setup
+        (e.g. ``PLONE_ZSERVER'' from ``plone.app.testing``).
+
+        :param method: The HTTP request method (``OPTIONS``, ``PROPFIND``, etc)
+        :type method: string
+        :param url_or_object: A full qualified URL or a Plone object (which has
+          an ``absolute_url`` method). Defaults to the Plone Site URL.
+        :param data: A dict with data which is posted using a `POST` request.
+        :type data: dict
+        :param view: The name of a view which will be added at the end of the
+          current URL.
+        :type view: string
+        """
+        self._verify_setup()
+        try:
+            self.previous_url = self.url
+        except BrowserStateError:
+            pass
+
+        url = self._normalize_url(url_or_object, view=view)
+        if urlparse.urlparse(url).hostname == 'nohost':
+            raise ZServerRequired()
+
+        self.response = requests.request(method, url, data=data,
+                                         auth=self._authentication)
+        return self.open_html(self.response)
+
     @property
     def contents(self):
         """The source of the current page (usually HTML).
         """
         self._verify_setup()
-        self.response.seek(0)
-        return self.response.read()
+
+        if isinstance(self.response, requests.Response):
+            return self.response.content
+        else:
+            self.response.seek(0)
+            return self.response.read()
 
     @property
     def json(self):
@@ -165,6 +208,7 @@ class Browser(object):
         """
         self.get_mechbrowser().addheaders.append(
             ('Authorization', 'Basic %s:%s' % (username, password)))
+        self._authentication = (username, password)
         return self
 
     def css(self, css_selector):
