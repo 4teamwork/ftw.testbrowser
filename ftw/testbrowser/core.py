@@ -7,6 +7,7 @@ from ftw.testbrowser.form import Form
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
+from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
 from mechanize import BrowserStateError
 from plone.app.testing import TEST_USER_NAME
@@ -172,8 +173,10 @@ class Browser(object):
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
-        self.response = requests.request(method, url, data=data,
-                                         auth=self._authentication)
+        with verbose_logging():
+            self.response = requests.request(method, url, data=data,
+                                             auth=self._authentication)
+
         return self.open_html(self.response)
 
     @property
