@@ -147,7 +147,8 @@ class Browser(object):
         """
         return self.open(*args, **kwargs)
 
-    def webdav(self, method, url_or_object=None, data=None, view=None):
+    def webdav(self, method, url_or_object=None, data=None, view=None,
+               headers=None):
         """Makes a webdav request to the Zope server.
 
         It is required that a ``ZSERVER_FIXTURE`` is used in the test setup
@@ -162,6 +163,8 @@ class Browser(object):
         :param view: The name of a view which will be added at the end of the
           current URL.
         :type view: string
+        :param headers: Pass in reqest headers.
+        :type headers: dict
         """
         self._verify_setup()
         try:
@@ -175,7 +178,8 @@ class Browser(object):
 
         with verbose_logging():
             self.response = requests.request(method, url, data=data,
-                                             auth=self._authentication)
+                                             auth=self._authentication,
+                                             headers=headers)
 
         return self.open_html(self.response)
 
