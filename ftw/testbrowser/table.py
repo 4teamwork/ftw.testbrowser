@@ -194,7 +194,8 @@ class Table(NodeWrapper):
 
 class TableComponent(NodeWrapper):
     """Represents any component of a table tag.
-    This includes: 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th'
+    This includes: 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'tr', 'td',
+    'th'
     """
 
     @property
