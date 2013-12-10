@@ -16,11 +16,20 @@ class TestBrowserZ3CForms(TestCase):
     @browsing
     def test_fill_radio_fields(self, browser):
         browser.login().visit(view='test-z3cform-shopping')
-        browser.fill({'Bag': 'plastic bag'}).submit()
+        browser.fill({'Bag': 'plastic bag'})
+        browser.find('Submit').click()
         self.assertEquals({u'bag': [u'plastic bag']}, browser.json)
 
     @browsing
     def test_fill_checkbox_fields(self, browser):
         browser.login().visit(view='test-z3cform-shopping')
-        browser.fill({'Fruits': ['Banana', 'Apple']}).submit()
+        browser.fill({'Fruits': ['Banana', 'Apple']})
+        browser.find('Submit').click()
         self.assertEquals({u'fruits': [u'Apple', u'Banana']}, browser.json)
+
+    @browsing
+    def test_autocomplete_form_fill(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+        browser.fill({'Payment': 'mastercard'})
+        browser.find('Submit').click()
+        self.assertEquals({u'payment': [u'mastercard']}, browser.json)

@@ -51,4 +51,10 @@
         permission="zope.Public"
         />
 
+    <utility
+        factory=".z3cform.PaymentVocabulary"
+        provides="zope.schema.interfaces.IVocabularyFactory"
+        name="test-z3cform-payment-vocabulary"
+        />
+
 </configure>

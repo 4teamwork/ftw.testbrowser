@@ -1,4 +1,6 @@
 from ftw.testbrowser.nodes import NodeWrapper
+from lxml import etree
+
 
 WIDGETS = []
 
@@ -18,7 +20,8 @@ class PloneWidget(NodeWrapper):
         return node.tag == 'div' and 'field' in node.classes
 
     def fill(self, value):
-        raise NotImplementedError()
+        raise NotImplementedError('%s.%s does not implement fill(self, value)' % (
+                self.__class__.__module__, self.__class__.__name__))
 
     @property
     def label(self):
@@ -64,3 +67,37 @@ class SequenceWidget(PloneWidget):
     @property
     def name(self):
         return self.inputs.first.attrib['name']
+
+
+@widget
+class AutocompleteWidget(PloneWidget):
+    """Represents the autocomplete widget.
+    """
+
+    @staticmethod
+    def match(node):
+        if not PloneWidget.match(node):
+            return False
+
+        return len(node.css('div.autocompleteInputWidget')) > 0
+
+    def fill(self, values):
+        if not isinstance(values, (list, set, tuple)):
+            values = [values]
+
+        container = self.css('div.autocompleteInputWidget').first
+        fieldname = '%s:list' % self.attrib['data-fieldname']
+
+        # remove currently selected values
+        for span in container.css('span.option'):
+            span.node.getparent().remove(span.node)
+
+        # add new values
+        for value in values:
+            span = etree.SubElement(container.node, 'span', {'class': 'option'})
+            input = etree.SubElement(span, 'input', {
+                    'type': 'checkbox',
+                    'name': fieldname,
+                    'value': value,
+                    'checked': 'checked'})
+            etree.SubElement(span, 'label').text = value

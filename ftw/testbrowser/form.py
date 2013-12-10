@@ -94,10 +94,12 @@ class Form(NodeWrapper):
         """
         values = self.field_labels_to_names(values)
 
+        widgets = []
+
         for fieldname, value in values.items():
             field = self.__class__.find_field_in_form(self.node, fieldname)
             if isinstance(field, PloneWidget):
-                field.fill(value)
+                widgets.append((field, value))
                 continue
 
             # lxml.html.formfill breaks textarea when filling.
@@ -115,6 +117,10 @@ class Form(NodeWrapper):
                 values[fieldname] = field.node.attrib['value']
 
         lxml.html.formfill._fill_form(self.node, values)
+
+        for widget, value in widgets:
+            widget.fill(value)
+
         return self
 
     def submit(self, button=None):
