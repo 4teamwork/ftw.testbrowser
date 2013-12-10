@@ -108,6 +108,11 @@ def wrap_node(node):
         from ftw.testbrowser.table import TableComponent
         return TableComponent(node)
 
+    from ftw.testbrowser.widgets import WIDGETS
+    for widget_klass in WIDGETS:
+        if widget_klass.match(NodeWrapper(node)):
+            return widget_klass(node)
+
     return NodeWrapper(node)
 
 

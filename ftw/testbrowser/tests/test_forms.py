@@ -6,6 +6,7 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.widgets import PloneWidget
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
@@ -111,6 +112,15 @@ class TestBrowserForms(TestCase):
         form = Form(Form.find_form_element_by_label_or_name('Login Name'))
         button = form.find_submit_buttons().first
         self.assertEquals('Log in', button.value)
+
+    @browsing
+    def test_find_widget_in_form(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Folder')
+        form = Form.find_form_by_labels_or_names('Title')
+        widget = Form.find_widget_in_form(form, 'Title')
+        self.assertEquals('div', widget.tag)
+        self.assertEquals(PloneWidget, type(widget))
 
 
 class TestSubmittingForms(TestCase):

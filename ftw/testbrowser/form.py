@@ -1,9 +1,11 @@
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
-from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.nodes import wrap_node
+from ftw.testbrowser.nodes import wrap_nodes
+from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
+from ftw.testbrowser.widgets import PloneWidget
 import lxml.html.formfill
 
 
@@ -94,6 +96,9 @@ class Form(NodeWrapper):
 
         for fieldname, value in values.items():
             field = self.__class__.find_field_in_form(self.node, fieldname)
+            if isinstance(field, PloneWidget):
+                field.fill(value)
+                continue
 
             # lxml.html.formfill breaks textarea when filling.
             # see https://github.com/lxml/lxml/pull/127/files
@@ -161,6 +166,8 @@ class Form(NodeWrapper):
         new_values = {}
         for label_or_name, value in values.items():
             name = self.field_label_to_name(label_or_name)
+            if name is None:
+                name = label_or_name
             new_values[name] = value
         return new_values
 
@@ -177,7 +184,7 @@ class Form(NodeWrapper):
         if field is None:
             labels = self.__class__.field_labels(self.node)
             raise FormFieldNotFound(label, labels)
-        return field.name
+        return getattr(field, 'name', None)
 
     @classmethod
     def get_browser(klass):
@@ -253,6 +260,32 @@ class Form(NodeWrapper):
 
             if normalize_spaces(input.label.text_content()) == label:
                 return input
+
+        return klass.find_widget_in_form(form, label_or_name)
+
+    @classmethod
+    @wrapped_nodes
+    def find_widget_in_form(klass, form, label):
+        """Finds a Plone widget (div.field) in a form.
+
+        :param form: The form node.
+        :type form: :py:class:`ftw.testbrowser.form.Form`
+        :param label: The label of the widget.
+        :type label: string
+        :returns: Returns the field node or `None`.
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+        label = normalize_spaces(label)
+        form = wrap_node(form)
+
+        label_xpath = '//label[normalize-space(text())="%s"]' % label
+        for label_node in form.xpath(label_xpath):
+            if not label_node.within(wrap_node(form)):
+                continue
+
+            field = label_node.parent(css='div.field')
+            if field:
+                return field
 
         return None
 

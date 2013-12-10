@@ -5,6 +5,9 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
+- Implement form fill for z3cform sequence widgets.
+  [jone]
+
 - Add ``webdav`` method for doing WebDAV requests with a ZServer.
   [jone]
 
