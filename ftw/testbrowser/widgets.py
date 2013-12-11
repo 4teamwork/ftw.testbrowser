@@ -142,7 +142,8 @@ class AutocompleteWidget(PloneWidget):
         from ftw.testbrowser import Browser
         from ftw.testbrowser import browser
 
-        url = '/'.join((browser.url, '++widget++form.widgets.payment',
+        url = '/'.join((browser.url,
+                        '++widget++%s' % self.attrib['data-fieldname'],
                         '@@autocomplete-search'))
 
         with Browser()(browser.app) as query_browser:
