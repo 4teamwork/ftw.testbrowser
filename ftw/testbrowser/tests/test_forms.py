@@ -147,3 +147,26 @@ class TestSubmittingForms(TestCase):
         browser.find('Cancel').click()
         self.assertEquals({'textfield': '',
                            'cancel-button': 'Cancel'}, browser.json)
+
+
+class TestSelectField(TestCase):
+
+    layer = PLONE_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_select_value(self, browser):
+        browser.open_html('\n'.join((
+                    '<html><body>',
+                    ' <form id="form">',
+                    '  <label for="field">Select Field</label>',
+                    '  <select id="field" name="field">',
+                    '    <option value="foo" selected>Foo</option>',
+                    '    <option value="bar">Bar</option>',
+                    '    <option value="baz">Baz</option>',
+                    '  </select>',
+                    ' </form>'
+                    '</body></html>')))
+
+        self.assertEquals('foo', browser.find('Select Field').value)
+        browser.find('Select Field').value = 'bar'
+        self.assertEquals('bar', browser.find('Select Field').value)

@@ -264,6 +264,12 @@ class NodeWrapper(object):
         else:
             return result
 
+    def __setattr__(self, name, value):
+        if name != 'node':
+            setattr(self.node, name, value)
+        else:
+            super(NodeWrapper, self).__setattr__(name, value)
+
     def __cmp__(self, other):
         return cmp(self.node, getattr(other, 'node', _marker))
 
