@@ -160,6 +160,9 @@ class AutocompleteWidget(PloneWidget):
                         '@@autocomplete-search'))
 
         with Browser()(browser.app) as query_browser:
+            if browser._authentication:
+                query_browser.login(*browser._authentication)
+
             query_browser.open(url, data={'q': query_string})
             return map(lambda line: line.split('|'),
                        query_browser.contents.split('\n'))
