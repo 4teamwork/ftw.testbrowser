@@ -35,6 +35,19 @@ class PloneWidget(NodeWrapper):
         """
         return self.css('>label').first
 
+    @property
+    def fieldname(self):
+        """The field name of the widget.
+        """
+        if self.attrib.get('data-fieldname', None) is not None:
+            return self.attrib['data-fieldname']
+
+        for cls in self.classes:
+            if cls.startswith('kssattr-fieldname-'):
+                return cls.split('kssattr-fieldname-', 1)[1]
+
+        return None
+
 
 @widget
 class SequenceWidget(PloneWidget):
@@ -112,7 +125,7 @@ class AutocompleteWidget(PloneWidget):
             values = [values]
 
         container = self.css('div.autocompleteInputWidget').first
-        fieldname = '%s:list' % self.attrib['data-fieldname']
+        fieldname = '%s:list' % self.fieldname
 
         # remove currently selected values
         for span in container.css('span.option'):
@@ -143,7 +156,7 @@ class AutocompleteWidget(PloneWidget):
         from ftw.testbrowser import browser
 
         url = '/'.join((browser.url,
-                        '++widget++%s' % self.attrib['data-fieldname'],
+                        '++widget++%s' % self.fieldname,
                         '@@autocomplete-search'))
 
         with Browser()(browser.app) as query_browser:
@@ -162,7 +175,7 @@ class DateTimeWidget(PloneWidget):
         if not PloneWidget.match(node):
             return False
 
-        name = node.attrib.get('data-fieldname', None)
+        name = PloneWidget(node).fieldname
         if not name:
             return False
 
@@ -174,7 +187,7 @@ class DateTimeWidget(PloneWidget):
         :param value: datetime object for filling the fields.
         :type value: :py:class:`datetime.datetime`
         """
-        name = self.attrib.get('data-fieldname')
+        name = self.fieldname
 
         self.css('*[name="%s-day"]' % name).first.set('value', str(value.day))
         self.css('*[name="%s-month"]' % name).first.value = str(value.month)
