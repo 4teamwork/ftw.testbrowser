@@ -95,7 +95,7 @@ class AutocompleteWidget(PloneWidget):
         # add new values
         for value in values:
             span = etree.SubElement(container.node, 'span', {'class': 'option'})
-            input = etree.SubElement(span, 'input', {
+            etree.SubElement(span, 'input', {
                     'type': 'checkbox',
                     'name': fieldname,
                     'value': value,
