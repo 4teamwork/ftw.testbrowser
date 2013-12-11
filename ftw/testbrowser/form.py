@@ -2,7 +2,6 @@ from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrap_node
-from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets import PloneWidget
