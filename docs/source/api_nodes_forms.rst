@@ -36,8 +36,8 @@ methods so that it is nicely integrated in the `ftw.testbrowser` behavior.
 
 
 
-Forms and fields
-================
+Forms, fields and widgets
+=========================
 
 .. automodule:: ftw.testbrowser.form
 
@@ -54,6 +54,10 @@ Forms and fields
    :members:
 
 .. autoclass:: ftw.testbrowser.form.SubmitButton
+   :show-inheritance:
+   :members:
+
+.. automodule:: ftw.testbrowser.widgets
    :show-inheritance:
    :members:
 

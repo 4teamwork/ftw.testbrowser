@@ -20,11 +20,18 @@ class PloneWidget(NodeWrapper):
         return node.tag == 'div' and 'field' in node.classes
 
     def fill(self, value):
+        """Subclassing widgets should implement this method or provide a name
+        property for form filling to work.
+
+        :param value: value to fill the widget inputs with.
+        """
         raise NotImplementedError('%s.%s does not implement fill(self, value)' % (
                 self.__class__.__module__, self.__class__.__name__))
 
     @property
     def label(self):
+        """Returns the label node of this widget.
+        """
         return self.css('>label').first
 
 
@@ -55,6 +62,11 @@ class SequenceWidget(PloneWidget):
 
     @property
     def options(self):
+        """Available option labels.
+
+        :returns: All available option labels.
+        :rtype: list of string
+        """
         options = []
         for label in self.css('span.option label'):
             options.append(label.normalized_text())
@@ -62,10 +74,18 @@ class SequenceWidget(PloneWidget):
 
     @property
     def inputs(self):
+        """Returns all inputs of this widget.
+
+        :returns: <input> fields of this widgets.
+        :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
+        """
         return self.css('span.option input')
 
     @property
     def name(self):
+        """Returns the name of the field.
+        This allows the default mechanism to take place for filling the form.
+        """
         return self.inputs.first.attrib['name']
 
 
@@ -82,6 +102,11 @@ class AutocompleteWidget(PloneWidget):
         return len(node.css('div.autocompleteInputWidget')) > 0
 
     def fill(self, values):
+        """Fill the autocomplete value with a key from the vocabulary.
+
+        :param values: value to fill the autocomplete field with.
+        :type values: string
+        """
         if not isinstance(values, (list, set, tuple)):
             values = [values]
 
@@ -120,6 +145,11 @@ class DateTimeWidget(PloneWidget):
         return len(node.css('input[name="%s-day"]' % name)) > 0
 
     def fill(self, value):
+        """Fill the widget fields with a datetime object.
+
+        :param value: datetime object for filling the fields.
+        :type value: :py:class:`datetime.datetime`
+        """
         name = self.attrib.get('data-fieldname')
 
         self.css('*[name="%s-day"]' % name).first.set('value', str(value.day))
