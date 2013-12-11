@@ -101,3 +101,31 @@ class AutocompleteWidget(PloneWidget):
                     'value': value,
                     'checked': 'checked'})
             etree.SubElement(span, 'label').text = value
+
+
+@widget
+class DateTimeWidget(PloneWidget):
+    """Represents the z3cform datetime widget.
+    """
+
+    @staticmethod
+    def match(node):
+        if not PloneWidget.match(node):
+            return False
+
+        name = node.attrib.get('data-fieldname', None)
+        if not name:
+            return False
+
+        return len(node.css('input[name="%s-day"]' % name)) > 0
+
+    def fill(self, value):
+        name = self.attrib.get('data-fieldname')
+
+        self.css('*[name="%s-day"]' % name).first.set('value', str(value.day))
+        self.css('*[name="%s-month"]' % name).first.value = str(value.month)
+        self.css('*[name="%s-year"]' % name).first.set('value', str(value.year))
+
+        if self.css('*[name="%s-hour"]' % name):
+            self.css('*[name="%s-hour"]' % name).first.set('value', str(value.hour))
+            self.css('*[name="%s-min"]' % name).first.set('value', str(value.minute))

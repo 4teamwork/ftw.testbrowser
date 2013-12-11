@@ -5,6 +5,9 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
+- Implement form fill for z3cform datetime widget.
+  [jone]
+
 - Fix setting attributes on nodes when wrapped with NodeWrapper.
   [jone]
 

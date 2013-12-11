@@ -1,3 +1,4 @@
+from datetime import datetime
 from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.z3cform.layout import FormWrapper
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -52,6 +53,10 @@ class IShoppingFormSchema(Interface):
             vocabulary='test-z3cform-payment-vocabulary'),
         required=False)
 
+    delivery_date = schema.Datetime(
+        title=u'Delivery date',
+        required=False)
+
 
 class ShoppingForm(Form):
     label = u'Shopping'
@@ -71,9 +76,18 @@ class ShoppingForm(Form):
     @buttonAndHandler(u'Submit')
     def handle_submit(self, action):
         data, errors = self.extractData()
-        if len(errors) == 0:
-            self.result_data = dict([(key, value) for (key, value) in data.items()
-                                     if value])
+        if len(errors) > 0:
+            return
+
+        self.result_data = {}
+        for key, value in data.items():
+            if not value:
+                continue
+
+            if isinstance(value, datetime):
+                value = value.isoformat()
+
+            self.result_data[key] = value
 
 
 class ShoppingView(FormWrapper):
