@@ -5,6 +5,7 @@ from plone.app.testing import FunctionalTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import applyProfile
 from zope.configuration import xmlconfig
 
 
@@ -17,6 +18,14 @@ class BrowserLayer(PloneSandboxLayer):
         xmlconfig.file('configure.zcml',
                        ftw.testbrowser.tests.views,
                        context=configurationContext)
+
+        import plone.formwidget.autocomplete
+        xmlconfig.file('configure.zcml',
+                       plone.formwidget.autocomplete,
+                       context=configurationContext)
+
+    def setUpPloneSite(self, portal):
+        applyProfile(portal, 'plone.formwidget.autocomplete:default')
 
 
 BROWSER_FIXTURE = BrowserLayer()

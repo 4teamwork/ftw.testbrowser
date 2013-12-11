@@ -25,7 +25,8 @@ class PloneWidget(NodeWrapper):
 
         :param value: value to fill the widget inputs with.
         """
-        raise NotImplementedError('%s.%s does not implement fill(self, value)' % (
+        raise NotImplementedError(
+            '%s.%s does not implement fill(self, value)' % (
                 self.__class__.__module__, self.__class__.__name__))
 
     @property
@@ -119,13 +120,35 @@ class AutocompleteWidget(PloneWidget):
 
         # add new values
         for value in values:
-            span = etree.SubElement(container.node, 'span', {'class': 'option'})
+            span = etree.SubElement(container.node, 'span',
+                                    {'class': 'option'})
             etree.SubElement(span, 'input', {
                     'type': 'checkbox',
                     'name': fieldname,
                     'value': value,
                     'checked': 'checked'})
             etree.SubElement(span, 'label').text = value
+
+    def query(self, query_string):
+        """Make a query request to the autocomplete vocabulary.
+
+        :param query_string: Search string to query with.
+        :type query_string: string
+        :returns: List of results, each as a tuple with token and label.
+        :rtype: list of tuple of strings.
+
+        """
+
+        from ftw.testbrowser import Browser
+        from ftw.testbrowser import browser
+
+        url = '/'.join((browser.url, '++widget++form.widgets.payment',
+                        '@@autocomplete-search'))
+
+        with Browser()(browser.app) as query_browser:
+            query_browser.open(url, data={'q': query_string})
+            return map(lambda line: line.split('|'),
+                       query_browser.contents.split('\n'))
 
 
 @widget
@@ -154,8 +177,11 @@ class DateTimeWidget(PloneWidget):
 
         self.css('*[name="%s-day"]' % name).first.set('value', str(value.day))
         self.css('*[name="%s-month"]' % name).first.value = str(value.month)
-        self.css('*[name="%s-year"]' % name).first.set('value', str(value.year))
+        self.css('*[name="%s-year"]' % name).first.set(
+            'value', str(value.year))
 
         if self.css('*[name="%s-hour"]' % name):
-            self.css('*[name="%s-hour"]' % name).first.set('value', str(value.hour))
-            self.css('*[name="%s-min"]' % name).first.set('value', str(value.minute))
+            self.css('*[name="%s-hour"]' % name).first.set(
+                'value', str(value.hour))
+            self.css('*[name="%s-min"]' % name).first.set(
+                'value', str(value.minute))

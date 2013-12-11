@@ -36,6 +36,14 @@ class TestBrowserZ3CForms(TestCase):
         self.assertEquals({u'payment': [u'mastercard']}, browser.json)
 
     @browsing
+    def test_autocomplete_query(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+
+        self.assertEquals([['cash', 'Cash'],
+                           ['mastercard', 'MasterCard']],
+                          browser.find('Payment').query('ca'))
+
+    @browsing
     def test_datefield_form_fill(self, browser):
         browser.login().visit(view='test-z3cform-shopping')
         browser.fill({'Delivery date': datetime(2010, 12, 22, 10, 30, 00)})
