@@ -81,10 +81,29 @@ class SequenceWidget(PloneWidget):
         :returns: All available option labels.
         :rtype: list of string
         """
-        options = []
-        for label in self.css('span.option label'):
-            options.append(label.normalized_text())
-        return options
+        return sorted(self.inputs_by_label.keys())
+
+    @property
+    def option_map(self):
+        """A dict with all available options, having the key as term token
+        and the value as term label.
+
+        :returns: Available options
+        :rtype: dict
+        """
+
+        result = {}
+        for input in self.inputs:
+            if 'value' not in input.attrib:
+                continue
+
+            label = self.find_label_for_input(input)
+            if not label:
+                continue
+
+            result[input.attrib['value']] = label.normalized_text()
+
+        return result
 
     @property
     def inputs(self):
@@ -101,6 +120,61 @@ class SequenceWidget(PloneWidget):
         This allows the default mechanism to take place for filling the form.
         """
         return self.inputs.first.attrib['name']
+
+    @property
+    def inputs_by_value(self):
+        """Returns a dict of input value to input node mapping.
+
+        :returns: dict of inputs by value
+        :rtype: dict
+        """
+
+        result = {}
+        for input in self.inputs:
+            if 'value' not in input.attrib:
+                continue
+
+            result[input.attrib['value']] = input
+
+        return result
+
+    @property
+    def inputs_by_label(self):
+        """Returns a dict of inputs where the key is the label of the input.
+
+        :returns: dict of inputs by label
+        :rtype: dict
+        """
+
+        result = {}
+        for input in self.inputs:
+            label = self.find_label_for_input(input)
+            if not label:
+                continue
+
+            result[label.normalized_text()] = input
+
+        return result
+
+    def find_label_for_input(self, input):
+        """Searches for the <label> node associated with the <input> node passed
+        as argument and returns it.
+
+        :returns: <label> node for the <input>
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+
+        if 'id' in input.attrib:
+            labels = self.xpath('//label[@for="%s"]' % input.attrib['id'])
+            if labels:
+                return labels.first
+
+        if 'name' in input.attrib:
+            labels = self.xpath('//label[@for="%s"]' % input.attrib['name'])
+            if labels:
+                return labels.first
+
+        return None
 
 
 @widget

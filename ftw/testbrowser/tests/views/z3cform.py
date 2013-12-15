@@ -39,7 +39,11 @@ class IShoppingFormSchema(Interface):
 
     fruits = schema.List(
         title=u'Fruits',
-        value_type=schema.Choice([u'Apple', u'Banana', u'Orange']),
+        value_type=schema.Choice(
+            vocabulary=SimpleVocabulary(
+                [SimpleTerm(u'apple', u'apple', u'Apple'),
+                 SimpleTerm(u'banana', u'banana', u'Banana'),
+                 SimpleTerm(u'orange', u'orange', u'Orange')])),
         required=False)
 
     bag = schema.List(
