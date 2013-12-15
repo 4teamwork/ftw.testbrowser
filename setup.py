@@ -6,11 +6,17 @@ version = '1.3.1.dev0'
 
 
 tests_require = [
+    'Products.statusmessages',
     'ftw.builder',
     'plone.app.contenttypes',
+    'plone.formwidget.autocomplete',
+    'plone.z3cform',
     'unittest2',
+    'z3c.form',
+    'z3c.formwidget.query',
     'zope.configuration',
     'zope.publisher',
+    'zope.schema',
     ]
 
 
@@ -41,6 +47,7 @@ setup(name='ftw.testbrowser',
 
       install_requires=[
         'lxml',
+        'mechanize',
         'plone.app.testing',
         'plone.testing',
         'requests',
