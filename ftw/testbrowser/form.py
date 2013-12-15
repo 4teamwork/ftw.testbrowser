@@ -4,7 +4,7 @@ from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
-from ftw.testbrowser.widgets import PloneWidget
+from ftw.testbrowser.widgets.base import PloneWidget
 import lxml.html.formfill
 
 

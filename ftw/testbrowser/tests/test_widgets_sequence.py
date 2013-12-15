@@ -1,11 +1,10 @@
-from datetime import datetime
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 
 
-class TestBrowserZ3CForms(TestCase):
+class TestSequenceWidget(TestCase):
 
     layer = BROWSER_FUNCTIONAL_TESTING
 
@@ -57,25 +56,3 @@ class TestBrowserZ3CForms(TestCase):
         self.assertEquals(
             'Could not find options [\'Coconut\'] for field "Fruits".',
             str(cm.exception))
-
-    @browsing
-    def test_autocomplete_form_fill(self, browser):
-        browser.login().visit(view='test-z3cform-shopping')
-        browser.fill({'Payment': 'mastercard'})
-        browser.find('Submit').click()
-        self.assertEquals({u'payment': [u'mastercard']}, browser.json)
-
-    @browsing
-    def test_autocomplete_query(self, browser):
-        browser.login().visit(view='test-z3cform-shopping')
-
-        self.assertEquals([['cash', 'Cash'],
-                           ['mastercard', 'MasterCard']],
-                          browser.find('Payment').query('ca'))
-
-    @browsing
-    def test_datefield_form_fill(self, browser):
-        browser.login().visit(view='test-z3cform-shopping')
-        browser.fill({'Delivery date': datetime(2010, 12, 22, 10, 30, 00)})
-        browser.find('Submit').click()
-        self.assertEquals({u'delivery_date': u'2010-12-22T10:30:00'}, browser.json)

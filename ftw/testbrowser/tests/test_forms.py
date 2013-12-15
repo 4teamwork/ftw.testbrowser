@@ -6,7 +6,7 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from ftw.testbrowser.widgets import PloneWidget
+from ftw.testbrowser.widgets.base import PloneWidget
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
