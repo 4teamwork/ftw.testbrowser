@@ -51,5 +51,6 @@ class OptionsNotFound(BrowserException):
     """
 
     def __init__(self, field_label, options):
-        Exception.__init__(self, 'Could not find options %s for field "%s".' % (
-                str(options), field_label))
+        msg = 'Could not find options %s for field "%s".' % (
+            str(options), field_label)
+        Exception.__init__(self, msg)

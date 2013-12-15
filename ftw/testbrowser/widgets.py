@@ -82,7 +82,7 @@ class SequenceWidget(PloneWidget):
         :type values: list of string
         """
         if not isinstance(values, (list, tuple, set)):
-            values = [values,]
+            values = [values]
 
         # deselect existing options
         for input in self.inputs:
@@ -180,8 +180,8 @@ class SequenceWidget(PloneWidget):
         return result
 
     def find_label_for_input(self, input):
-        """Searches for the <label> node associated with the <input> node passed
-        as argument and returns it.
+        """Searches for the <label> node associated with the <input>
+        node passed as argument and returns it.
 
         :returns: <label> node for the <input>
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
