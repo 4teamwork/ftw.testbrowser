@@ -1,3 +1,4 @@
+from ftw.testbrowser.exceptions import OnlyOneValueAllowed
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
@@ -28,6 +29,14 @@ class SequenceWidget(PloneWidget):
 
         return True
 
+    @property
+    def multiple(self):
+        """Returns ``True`` when the widget allows multiple values (checkboxes) or
+        ``False`` if only one value is allowed (radios).
+        """
+        input_types = set([input.attrib.get('type', None) for input in self.inputs])
+        return 'checkbox' in input_types
+
     def fill(self, values):
         """Fill the widget inputs with the values passed as arguments.
 
@@ -36,6 +45,9 @@ class SequenceWidget(PloneWidget):
         """
         if not isinstance(values, (list, tuple, set)):
             values = [values]
+
+        if not self.multiple and len(values) > 1:
+            raise OnlyOneValueAllowed()
 
         # deselect existing options
         for input in self.inputs:

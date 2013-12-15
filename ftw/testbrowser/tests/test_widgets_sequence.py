@@ -1,4 +1,5 @@
 from ftw.testbrowser import browsing
+from ftw.testbrowser.exceptions import OnlyOneValueAllowed
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from unittest2 import TestCase
@@ -35,11 +36,29 @@ class TestSequenceWidget(TestCase):
                           sorted(browser.find('Fruits').inputs_by_label.keys()))
 
     @browsing
+    def test_radio_widget_has_multiple_False(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+        self.assertFalse(browser.find('Bag').multiple,
+                         'The radio field "Bag" should only allow one option.')
+
+    @browsing
     def test_fill_radio_fields(self, browser):
         browser.login().visit(view='test-z3cform-shopping')
         browser.fill({'Bag': 'plastic bag'})
         browser.find('Submit').click()
         self.assertEquals({u'bag': [u'plastic bag']}, browser.json)
+
+    @browsing
+    def test_fill_radio_multiple_options_raises_exception(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+        with self.assertRaises(OnlyOneValueAllowed):
+            browser.fill({'Bag': ['plastic bag', 'paper bag']})
+
+    @browsing
+    def test_checkbox_widget_has_multiple_True(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+        self.assertTrue(browser.find('Fruits').multiple,
+                        'The radio field "Fruits" should allow multiple options.')
 
     @browsing
     def test_fill_checkbox_fields(self, browser):

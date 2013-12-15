@@ -54,3 +54,8 @@ class OptionsNotFound(BrowserException):
         msg = 'Could not find options %s for field "%s".' % (
             str(options), field_label)
         Exception.__init__(self, msg)
+
+
+class OnlyOneValueAllowed(BrowserException):
+    """The field or widget does not allow to set multiple values.
+    """
