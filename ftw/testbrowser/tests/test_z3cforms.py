@@ -1,5 +1,6 @@
 from datetime import datetime
 from ftw.testbrowser import browsing
+from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from unittest2 import TestCase
 
@@ -44,9 +45,18 @@ class TestBrowserZ3CForms(TestCase):
     @browsing
     def test_fill_checkbox_fields(self, browser):
         browser.login().visit(view='test-z3cform-shopping')
-        browser.fill({'Fruits': ['banana', 'apple']})
+        browser.fill({'Fruits': ['Banana', 'apple']})
         browser.find('Submit').click()
         self.assertEquals({u'fruits': [u'apple', u'banana']}, browser.json)
+
+    @browsing
+    def test_fill_checkbox_raises_when_value_not_available(self, browser):
+        browser.login().visit(view='test-z3cform-shopping')
+        with self.assertRaises(OptionsNotFound) as cm:
+            browser.fill({'Fruits': ['Coconut']})
+        self.assertEquals(
+            'Could not find options [\'Coconut\'] for field "Fruits".',
+            str(cm.exception))
 
     @browsing
     def test_autocomplete_form_fill(self, browser):

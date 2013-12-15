@@ -44,3 +44,12 @@ class ZServerRequired(BrowserException):
     """The `webdav` method can only be used with a running ZServer.
     Use the `plone.app.testing.PLONE_ZSERVER` testing layer.
     """
+
+
+class OptionsNotFound(BrowserException):
+    """Could not find the options for a widget.
+    """
+
+    def __init__(self, field_label, options):
+        Exception.__init__(self, 'Could not find options %s for field "%s".' % (
+                str(options), field_label))

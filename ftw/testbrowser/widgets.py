@@ -1,3 +1,4 @@
+from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from lxml import etree
 
@@ -74,6 +75,35 @@ class SequenceWidget(PloneWidget):
 
         return True
 
+    def fill(self, values):
+        """Fill the widget inputs with the values passed as arguments.
+
+        :param values: a list of names and / or labels of the options
+        :type values: list of string
+        """
+        if not isinstance(values, (list, tuple, set)):
+            values = [values,]
+
+        # deselect existing options
+        for input in self.inputs:
+            input.checked = False
+
+        # normalize value labels to names
+        reverse_option_map = dict(map(reversed, self.option_map.items()))
+        values = [reverse_option_map.get(value, value) for value in values]
+
+        # fill new values
+        for input in self.inputs:
+            if 'value' not in input.attrib:
+                continue
+
+            if input.attrib['value'] in values:
+                input.checked = True
+                values.remove(input.attrib['value'])
+
+        if values:
+            raise OptionsNotFound(self.label.normalized_text(), values)
+
     @property
     def options(self):
         """Available option labels.
@@ -113,13 +143,6 @@ class SequenceWidget(PloneWidget):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         return self.css('span.option input')
-
-    @property
-    def name(self):
-        """Returns the name of the field.
-        This allows the default mechanism to take place for filling the form.
-        """
-        return self.inputs.first.attrib['name']
 
     @property
     def inputs_by_value(self):

@@ -5,6 +5,9 @@ Changelog
 1.3.1 (unreleased)
 ------------------
 
+- Sequence widget: implement custom form filling with label support and validation.
+  [jone]
+
 - Sequence widget: add additional properties with inputs and options.
   [jone]
 
