@@ -113,7 +113,8 @@ class Browser(object):
         url = self._normalize_url(url_or_object, view=view)
         data = self._prepare_post_data(data)
         self.response = self.get_mechbrowser().open(url, data=data)
-        return self.open_html(self.response)
+        self._load_html(self.response)
+        return self
 
     def open_html(self, html):
         """Opens a HTML page in the browser without doing a request.
@@ -123,21 +124,7 @@ class Browser(object):
         :type html: string or file-like object
         :returns: The browser object.
         """
-
-        if hasattr(html, 'seek'):
-            html.seek(0)
-
-        if isinstance(html, (unicode, str)):
-            html = StringIO(html)
-
-        if isinstance(html, requests.Response):
-            html = StringIO(html.content)
-
-        if len(html.read()) == 0:
-            self.document = None
-        else:
-            html.seek(0)
-            self.document = lxml.html.parse(html)
+        self.response = self._load_html(html)
         return self
 
     def visit(self, *args, **kwargs):
@@ -181,7 +168,8 @@ class Browser(object):
                                              auth=self._authentication,
                                              headers=headers)
 
-        return self.open_html(self.response)
+        self._load_html(self.response)
+        return self
 
     @property
     def contents(self):
@@ -412,6 +400,24 @@ class Browser(object):
             url = urlparse.urlunparse(parts)
 
         return url
+
+    def _load_html(self, html):
+        if hasattr(html, 'seek'):
+            html.seek(0)
+
+        if isinstance(html, (unicode, str)):
+            html = StringIO(html)
+
+        if isinstance(html, requests.Response):
+            html = StringIO(html.content)
+
+        if len(html.read()) == 0:
+            self.document = None
+            return None
+        else:
+            html.seek(0)
+            self.document = lxml.html.parse(html)
+            return html
 
     def _prepare_post_data(self, data):
         if not data:

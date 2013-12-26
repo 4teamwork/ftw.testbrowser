@@ -91,3 +91,19 @@ class TestBrowserRequests(TestCase):
 
         browser.open_html(html)
         self.assertEquals('The heading', browser.css('h1').first.normalized_text())
+
+    @browsing
+    def test_open_html_sets_response_to_html_stream(self, browser):
+        # When an exception happens within a test, the response content is dumped
+        # to a temporary file for debugging purpose.
+        # For having the HTML, which was set with open_html, in the temporary file
+        # the response needs to contain this HTML and not html set previously or
+        # nothing.
+
+        html = '\n'.join(('<html>',
+                          '<h1>The heading</h1>',
+                          '<html>'))
+
+        browser.open_html(html)
+        browser.response.seek(0)
+        self.assertEquals(html, browser.response.read())
