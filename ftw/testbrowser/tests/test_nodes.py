@@ -514,6 +514,14 @@ class TestNodeWrappers(TestCase):
         self.assertEquals(u'Some text.', browser.css('#text').first.text)
 
     @browsing
+    def test_text_strips_spaces_around_newlines(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<p id="text">',
+                    u' Some <br /> text. ',
+                    u'</p>')))
+        self.assertEquals(u'Some\ntext.', browser.css('#text').first.text)
+
+    @browsing
     def test_text_does_not_include_surrounding_text(self, browser):
         browser.open_html(u'foo <div id="text">bar</div> baz')
         self.assertEquals(u'bar', browser.css('#text').first.text)

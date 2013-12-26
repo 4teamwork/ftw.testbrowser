@@ -485,8 +485,8 @@ class NodeWrapper(object):
                 yield '\n\n'
 
         text = ''.join(recursive_text(self.node)).strip()
-        # strip spaces before newlines
-        text = re.sub('[ ]{1,}\n', '\n', text)
+        # strip spaces before and after newlines
+        text = re.sub(' *\n *', '\n', text)
         return text
 
     @property
