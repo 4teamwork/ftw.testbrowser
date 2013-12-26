@@ -2,7 +2,9 @@ from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.utils import normalize_spaces
 from lxml.cssselect import CSSSelector
 from lxml.cssselect import css_to_xpath
+from operator import attrgetter
 from operator import methodcaller
+from zope.deprecation import deprecate
 import lxml.etree
 import re
 import types
@@ -152,6 +154,7 @@ class Nodes(list):
         """
         return map(methodcaller('text_content'), self)
 
+    @deprecate('Nodes.normalized_text is deprecated in favor of Nodes.text')
     def normalized_text(self, recursive=True):
         """Returns a list with the *normalized* text content of each node of
         this result set.
@@ -162,10 +165,35 @@ class Nodes(list):
         :returns: A list of the `normalized_text` of each node.
         :rtype: list
 
+        .. deprecated:: 1.3.1
+           Use property :py:func:`ftw.testbrowser.nodes.Nodes.text` instead.
+
         .. seealso::
           :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
         """
         return map(methodcaller('normalized_text', recursive=recursive), self)
+
+    @property
+    def text(self):
+        """A list of all ``text`` properties of this result set.
+
+        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.text`
+
+        :returns: A list of text
+        :rtype: list of string
+        """
+        return map(attrgetter('text'), self)
+
+    @property
+    def raw_text(self):
+        """A list of all ``raw_text`` properties of this result set.
+
+        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.raw_text`
+
+        :returns: A list of raw text
+        :rtype: list of string
+        """
+        return map(attrgetter('raw_text'), self)
 
     def css(self, *args, **kwargs):
         """Find nodes by a *css* expression which are within one of the nodes
@@ -277,7 +305,7 @@ class NodeWrapper(object):
         attribs = ', '.join(['%s="%s"' % (key, value)
                              for key, value in self.attrib.items()])
 
-        text = self.text
+        text = self.raw_text
         if isinstance(text, unicode):
             text = text.encode('utf-8')
 
@@ -417,10 +445,68 @@ class NodeWrapper(object):
         """
         return container in tuple(self.iterancestors())
 
+    @property
+    def text(self):
+        """Returns the whitespace-normalized text of the current node.
+        This includes the text of each node within this node recursively.
+        All whitespaces are reduced to a single space each, including newlines
+        within the text.
+
+        HTML line breaks (`<br />`) are turned into a single newline (`\n`) and
+        paragraphs (`<p></p>`) and with two newlines (`\n\n`), although the end
+        of the string is stripped.
+
+        For having the original lxml raw text, use ``raw_text``.
+        .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.raw_text`
+
+        :returns: The whitespace normalized text content.
+        :rtype: unicode
+        """
+
+        def normalize(text):
+            # replace all space sequences (including non breaking spaces)
+            # with a single space.
+            return re.sub(r'[\s\xa0]{1,}', ' ', text)
+
+        def recursive_text(node, include_tail=False):
+            if node.tag == 'br':
+                yield '\n'
+
+            if node.text:
+                yield normalize(node.text)
+
+            for child in tuple(node.iterchildren()):
+                yield ''.join(recursive_text(child, include_tail=True))
+
+            if include_tail and node.tail:
+                yield normalize(node.tail)
+
+            if node.tag == 'p':
+                yield '\n\n'
+
+        text = ''.join(recursive_text(self.node)).strip()
+        # strip spaces before newlines
+        text = re.sub('[ ]{1,}\n', '\n', text)
+        return text
+
+    @property
+    def raw_text(self):
+        """The original lxml raw text of this node.
+
+        :returns: Original lxml raw text.
+        :rtype: unicode
+        """
+        return self.node.text or u''
+
+    @deprecate('NodeWrapper.normalized_text is deprecated in'
+               ' favor of NodeWrapper.text')
     def normalized_text(self, recursive=True):
         """Returns the whitespace-normalized text of the current node.
         This includes the text of each node within this node recurively.
         All whitespaces are reduced to a single space each.
+
+        .. deprecated:: 1.3.1
+           Use property :py:func:`ftw.testbrowser.nodes.NodeWrapper.text` instead.
 
         :param recursive: Set to ``False`` for not including text of
             contained tags.
@@ -431,7 +517,7 @@ class NodeWrapper(object):
         if recursive:
             return normalize_spaces(self.text_content())
         else:
-            return normalize_spaces(self.text or '')
+            return normalize_spaces(self.raw_text or '')
 
     def text_content(self):
         """Returns the text content of the current node, including the text

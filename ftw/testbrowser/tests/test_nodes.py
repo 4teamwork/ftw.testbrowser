@@ -19,6 +19,7 @@ class TestNodesResultSet(TestCase):
         self.assertEquals(['First link', 'Second link', 'Third link'],
                           browser.css('#some-links a').text_content())
 
+    # Nodes.normalized_text is deprecated.
     @browsing
     def test_normalized_text(self, browser):
         browser.open(view='test-structure')
@@ -29,6 +30,24 @@ class TestNodesResultSet(TestCase):
              'non-recursive': ['Bar in Foo', 'Link in']},
             {'default': nodes.normalized_text(),
              'non-recursive': nodes.normalized_text(recursive=False)})
+
+    @browsing
+    def test_text_is_list_of_text_property_of_each_node(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<p>foo</p>',
+                    u'<p>bar</p>')))
+
+        self.assertEquals([u'foo', u'bar'], browser.css('p').text)
+
+    @browsing
+    def test_raw_text_is_list_of_raw_text_property_of_each_node(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<p>foo \nbar  </p>',
+                    u'<p>foo  baz</p>')))
+
+        self.assertEquals([u'foo \nbar  ',
+                           u'foo  baz'],
+                          browser.css('p').raw_text)
 
     @browsing
     def test_xpath_within_multiple_elements(self, browser):
@@ -427,6 +446,7 @@ class TestNodeWrappers(TestCase):
         self.assertEquals('parent() requires either "css" or "xpath" argument.',
                           str(cm.exception))
 
+    # NodeWrapper.normalized_text is deprecated.
     @browsing
     def test_normalized_text(self, browser):
         browser.open(view='test-structure')
@@ -438,19 +458,70 @@ class TestNodeWrappers(TestCase):
             {'default': link.normalized_text(),
              'non-recursive': link.normalized_text(recursive=False)})
 
+    # NodeWrapper.normalized_text is deprecated.
     @browsing
     def test_normalized_text_replaces_non_breaking_spaces(self, browser):
         browser.open(view='test-structure')
         self.assertEquals('Non breaking spaces.',
                           browser.css('.non-breaking').first.normalized_text())
 
+    # NodeWrapper.normalized_text is deprecated.
     @browsing
     def test_nonrecursive_normalized_text_when_node_has_no_content(self, browser):
         browser.open(view='test-structure')
         node = browser.css('.empty').first
-        self.assertEquals(None, node.text,
+        self.assertEquals(u'', node.raw_text,
                           'Expected node ".empty" to not have any text.')
         self.assertEquals('', node.normalized_text(recursive=False))
+
+    @browsing
+    def test_text_is_recursive(self, browser):
+        browser.open_html(u'<div id="text">This is <b>some</b> text.</div>')
+        self.assertEquals(u'This is some text.', browser.css('#text').first.text)
+
+    @browsing
+    def test_text_has_nonbreaking_spaces_replaced(self, browser):
+        browser.open_html(u'<div id="text">Some non&nbsp;breaking text.</div>')
+        self.assertEquals(u'Some non breaking text.', browser.css('#text').first.text)
+
+    @browsing
+    def test_text_is_empty_string_when_there_is_no_text(self, browser):
+        browser.open_html(u'<div id="text" />')
+        self.assertEquals(u'', browser.css('#text').first.text)
+
+    @browsing
+    def test_text_has_breaks_replaced_with_single_newlines(self, browser):
+        browser.open_html(u'<div id="text">Some<br />text.</div>')
+        self.assertEquals(u'Some\ntext.', browser.css('#text').first.text)
+
+    @browsing
+    def test_text_has_paragraphs_replaced_with_double_newlines(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<div id="text">',
+                    u' <p>First paragraph.</p>',
+                    u' <p>Second paragraph.</p>',
+                    u'</div>')))
+
+        self.assertEquals(u'First paragraph.\n\nSecond paragraph.',
+                          browser.css('#text').first.text)
+
+    @browsing
+    def test_text_has_no_trailing_whitespace(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<p id="text">',
+                    u'Some text.<br />  ',
+                    u'</p>  ')))
+        self.assertEquals(u'Some text.', browser.css('#text').first.text)
+
+    @browsing
+    def test_text_does_not_include_surrounding_text(self, browser):
+        browser.open_html(u'foo <div id="text">bar</div> baz')
+        self.assertEquals(u'bar', browser.css('#text').first.text)
+
+    @browsing
+    def test_raw_text_is_original_raw_text(self, browser):
+        browser.open_html(u'<div id="text">Some  text.\n </div>')
+        self.assertEquals('Some  text.\n ', browser.css('#text').first.raw_text)
 
     @browsing
     def test_classes(self, browser):

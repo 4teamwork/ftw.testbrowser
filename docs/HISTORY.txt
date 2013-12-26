@@ -5,6 +5,14 @@ Changelog
 1.3.1 (unreleased)
 ------------------
 
+- Deprecate `normalized_text` method, replace it with `text` property.
+  The `text` property is more intuitive and easier to remember.
+  The `text` property has almost the same result as `normalized_text`,
+  but it represents `<br/>` and `<p>` with single and double newlines respectively.
+  `text` is to be the lxml `text` property, which contained the raw, non-recursive
+  text of the current node and is now available as `raw_text` property.
+  [jone]
+
 - open_html: make debugging file contain passed HTML.
   [jone]
 
