@@ -506,7 +506,8 @@ class NodeWrapper(object):
         All whitespaces are reduced to a single space each.
 
         .. deprecated:: 1.3.1
-           Use property :py:func:`ftw.testbrowser.nodes.NodeWrapper.text` instead.
+           Use property :py:func:`ftw.testbrowser.nodes.NodeWrapper.text`
+           instead.
 
         :param recursive: Set to ``False`` for not including text of
             contained tags.
