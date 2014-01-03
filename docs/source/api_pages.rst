@@ -29,7 +29,7 @@ Status messages page object
 
 
 dexterity page object
-===================
+=====================
 
 .. automodule:: ftw.testbrowser.pages.dexterity
    :members:

@@ -87,6 +87,10 @@ def wrap_node(node):
         from ftw.testbrowser.form import SubmitButton
         return SubmitButton(node)
 
+    if node.tag == 'input' and node.attrib.get('type', None) == 'file':
+        from ftw.testbrowser.form import FileField
+        return FileField(node)
+
     if node.tag == 'textarea':
         from ftw.testbrowser.form import TextAreaField
         return TextAreaField(node)
@@ -452,8 +456,8 @@ class NodeWrapper(object):
         All whitespaces are reduced to a single space each, including newlines
         within the text.
 
-        HTML line breaks (`<br />`) are turned into a single newline (`\n`) and
-        paragraphs (`<p></p>`) and with two newlines (`\n\n`), although the end
+        HTML line breaks (`<br />`) are turned into a single newlineand
+        paragraphs (`<p></p>`) and with two newlines, although the end
         of the string is stripped.
 
         For having the original lxml raw text, use ``raw_text``.
@@ -506,7 +510,8 @@ class NodeWrapper(object):
         All whitespaces are reduced to a single space each.
 
         .. deprecated:: 1.3.1
-           Use property :py:func:`ftw.testbrowser.nodes.NodeWrapper.text` instead.
+           Use property :py:func:`ftw.testbrowser.nodes.NodeWrapper.text`
+           instead.
 
         :param recursive: Set to ``False`` for not including text of
             contained tags.

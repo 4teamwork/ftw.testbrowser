@@ -1,3 +1,4 @@
+from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
@@ -5,7 +6,10 @@ from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
+from mechanize import Request
+from mechanize._form import MimeWriter
 import lxml.html.formfill
+import mimetypes
 
 
 class Form(NodeWrapper):
@@ -105,6 +109,12 @@ class Form(NodeWrapper):
             # see https://github.com/lxml/lxml/pull/127/files
             if field and field.tag == 'textarea':
                 field.node.text = value
+                del values[fieldname]
+
+            # lxml.html.formfill cannot handle file uploads.
+            # We use mechanize to do this.
+            if field and field.tag == 'input' and field.type == 'file':
+                field.set('value', value)
                 del values[fieldname]
 
             # lxml.html.formfill expects the checkbox value to be the value
@@ -312,7 +322,40 @@ class Form(NodeWrapper):
         return labels
 
     def _submit_form(self, method, URL, values):
-        self.__class__.get_browser().open(URL, data=values)
+        request = self._make_mechanize_multipart_request(URL, values)
+        self.__class__.get_browser().open(request)
+
+    def _make_mechanize_multipart_request(self, URL, values):
+        data = StringIO()
+        http_headers = []
+        mw = MimeWriter(data, http_headers)
+        mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
+
+        for fieldname, value in values:
+            field = self.__class__.find_field_in_form(self.node, fieldname)
+            if isinstance(field, FileField):
+                field.write_mime_data(mw)
+            else:
+                mw2 = mw.nextpart()
+                mw2.addheader("Content-Disposition",
+                              'form-data; name="%s"' % fieldname, 1)
+                f = mw2.startbody(prefix=0)
+                f.write(value)
+
+        mw.lastpart()
+
+        request = Request(URL, data.getvalue())
+        for key, val in http_headers:
+            add_hdr = request.add_header
+            if key.lower() == "content-type":
+                try:
+                    add_hdr = request.add_unredirected_header
+                except AttributeError:
+                    # pre-2.4 and not using ClientCookie
+                    pass
+            add_hdr(key, val)
+
+        return request
 
 
 class TextAreaField(NodeWrapper):
@@ -360,3 +403,69 @@ class SubmitButton(NodeWrapper):
             if node.tag == 'form':
                 return node
         return None
+
+
+class FileField(NodeWrapper):
+    """The ``FileField`` wrapper wraps `<input type="file" />` fields.
+    Since lxml.html.formfill cannot handle file uploads it does this with
+    mechanize, which takes care of multipart requests.
+    """
+
+    def set(self, attrname, value):
+        if attrname != 'value':
+            return self.node.set(attrname, value)
+
+        data, filename, content_type = self._normalize_value(value)
+        control = self._get_mechbrowser_control()
+        control.add_file(data, content_type, filename)
+        self.node.set('value', '____marker____')
+
+    def write_mime_data(self, mime_writer):
+        control = self._get_mechbrowser_control()
+        control._write_mime_data(mime_writer, None, None)
+
+    def _get_mechbrowser_control(self):
+        mechbrowser = self._get_browser().get_mechbrowser()
+
+        form = self.parent('form')
+        form_name = form.attrib.get('name')
+        assert form_name, ('The form %s has no name attribute,'
+                           ' which is required for file uploads.') % form
+        mechbrowser.select_form(name=form_name)
+
+        field_name = self.attrib.get('name')
+        assert field_name, ('The field %s has no name,'
+                            ' which is required for file uploads.') % self
+        return mechbrowser.find_control(name=field_name)
+
+    def _normalize_value(self, value):
+        filename = None
+        content_type = None
+
+        if isinstance(value, (list, tuple)):
+            if len(value) == 2:
+                value, filename = value
+            elif len(value) == 3:
+                value, filename, content_type = value
+
+        if not filename:
+            filename = getattr(value, 'filename', getattr(value, 'name', None))
+
+        if not filename:
+            raise ValueError('Cannot upload files without a filename.')
+
+        if not content_type:
+            content_type = getattr(value, 'content_type', None)
+
+        if not content_type:
+            content_type = mimetypes.guess_type(filename)[0] \
+                or 'application/octet-stream'
+
+        if isinstance(value, str):
+            value = StringIO(value)
+
+        return value, filename, content_type
+
+    def _get_browser(self):
+        from ftw.testbrowser import browser
+        return browser

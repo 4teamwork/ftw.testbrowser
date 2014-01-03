@@ -20,6 +20,7 @@ The test browser supports all the basic features:
 - Find nodes by CSS- and XPath-Expressions or by text
 - Click on links
 - Fill and submit forms
+- File uploading
 - Make WebDAV requests
 
 The `ftw.testbrowser` also comes with some basic Plone

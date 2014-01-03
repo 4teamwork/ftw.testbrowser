@@ -31,10 +31,11 @@ class SequenceWidget(PloneWidget):
 
     @property
     def multiple(self):
-        """Returns ``True`` when the widget allows multiple values (checkboxes) or
-        ``False`` if only one value is allowed (radios).
+        """Returns ``True`` when the widget allows multiple values (checkboxes)
+        or ``False`` if only one value is allowed (radios).
         """
-        input_types = set([input.attrib.get('type', None) for input in self.inputs])
+        input_types = set([input.attrib.get('type', None)
+                           for input in self.inputs])
         return 'checkbox' in input_types
 
     def fill(self, values):
