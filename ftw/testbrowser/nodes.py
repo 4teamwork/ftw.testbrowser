@@ -456,8 +456,8 @@ class NodeWrapper(object):
         All whitespaces are reduced to a single space each, including newlines
         within the text.
 
-        HTML line breaks (`<br />`) are turned into a single newline (`\n`) and
-        paragraphs (`<p></p>`) and with two newlines (`\n\n`), although the end
+        HTML line breaks (`<br />`) are turned into a single newlineand
+        paragraphs (`<p></p>`) and with two newlines, although the end
         of the string is stripped.
 
         For having the original lxml raw text, use ``raw_text``.
