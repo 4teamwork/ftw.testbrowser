@@ -87,6 +87,10 @@ def wrap_node(node):
         from ftw.testbrowser.form import SubmitButton
         return SubmitButton(node)
 
+    if node.tag == 'input' and node.attrib.get('type', None) == 'file':
+        from ftw.testbrowser.form import FileField
+        return FileField(node)
+
     if node.tag == 'textarea':
         from ftw.testbrowser.form import TextAreaField
         return TextAreaField(node)

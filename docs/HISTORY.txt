@@ -5,6 +5,9 @@ Changelog
 1.4.1 (unreleased)
 ------------------
 
+- Implement file uploads.
+  [jone]
+
 - Add "headers" property on the browser.
   [jone]
 

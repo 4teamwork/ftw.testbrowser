@@ -262,6 +262,39 @@ The keys of the dict with the form data can be either field labels (`<label>` te
 the name of the field. Only one form can be filled at a time.
 
 
+File uploading
+--------------
+
+For uploading a file you need to pass at least the file data (string or stream) and
+the filename to the `fill` method, optionally you can also declare a mime type.
+
+There are two syntaxes which can be used.
+
+**Tuple syntax:**
+
+.. code:: py
+
+    browser.fill({'File': ('Raw file data', 'file.txt', 'text/plain')})
+
+**Stream syntax**
+
+.. code:: py
+
+    file_ = StringIO('Raw file data')
+    file_.filename = 'file.txt'
+    file_.content_type = 'text/plain'
+
+    browser.fill({'File': file_})
+
+You can also pass in filesystem files directly, but you need to make sure that the
+file stream is opened untill the form is submitted.
+
+.. code:: py
+
+    with open('myfile.pdf') as file_:
+        browser.fill({'File': file_}).submit()
+
+
 .. seealso:: :py:func:`ftw.testbrowser.core.Browser.fill`,
              :py:func:`ftw.testbrowser.form.Form.submit`,
              :py:func:`ftw.testbrowser.form.Form.save`
