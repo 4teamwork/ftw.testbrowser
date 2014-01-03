@@ -5,6 +5,9 @@ Changelog
 1.4.1 (unreleased)
 ------------------
 
+- Implement AT file upload widget, because the label does not work.
+  [jone]
+
 - Implement file uploads.
   [jone]
 
