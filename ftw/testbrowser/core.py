@@ -13,6 +13,7 @@ from mechanize import BrowserStateError
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
+from requests.structures import CaseInsensitiveDict
 from zope.component.hooks import getSite
 from zope.interface import implements
 import json
@@ -189,6 +190,15 @@ class Browser(object):
         converted JSON data as python data structure.
         """
         return json.loads(self.contents)
+
+    @property
+    def headers(self):
+        """A dict of response headers.
+        """
+        if isinstance(self.response, requests.Response):
+            return self.response.headers
+        else:
+            return CaseInsensitiveDict(self.response.info().items())
 
     @property
     def url(self):
