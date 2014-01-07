@@ -74,12 +74,13 @@ class TestBrowserForms(TestCase):
         self.assertEquals('The Folder', plone.first_heading())
 
     @browsing
-    def test_fill_archtypes_field_with_description(self, browser):
+    def test_fill_archtypes_field_with_unicode_umlauts(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
-        browser.fill({'Title': 'The Folder',
-                      'Description': 'The folder description'}).submit()
+        browser.fill({'Title': u'F\xf6lder',
+                      'Description': u'The f\xf6lder description'}).submit()
         self.assertEquals('folder_listing', plone.view())
+        self.assertEquals(u'F\xf6lder', plone.first_heading())
 
     @browsing
     def test_fill_checkbox_field(self, browser):

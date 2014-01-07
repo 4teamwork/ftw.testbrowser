@@ -349,7 +349,7 @@ class Form(NodeWrapper):
 
         mw.lastpart()
 
-        request = Request(URL, data.getvalue())
+        request = Request(URL, data.getvalue().encode('utf-8'))
         for key, val in http_headers:
             add_hdr = request.add_header
             if key.lower() == "content-type":

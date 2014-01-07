@@ -1,5 +1,6 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
+from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
@@ -26,3 +27,11 @@ class TestDexterityForms(TestCase):
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
         self.assertEquals('http://nohost/plone/the-page/view', browser.url)
+
+    @browsing
+    def test_fill_umlauts(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': u'F\xf6lder'}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertEquals(u'F\xf6lder', plone.first_heading())

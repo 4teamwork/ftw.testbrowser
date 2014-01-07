@@ -5,6 +5,9 @@ Changelog
 1.5.1 (unreleased)
 ------------------
 
+- Fix form filling with umlauts.
+  [jone]
+
 - Fix form fill for single select fields.
   [jone]
 
