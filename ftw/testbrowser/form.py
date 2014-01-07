@@ -111,6 +111,11 @@ class Form(NodeWrapper):
                 field.node.text = value
                 del values[fieldname]
 
+            # lxml.html.formfill cannot fill select fields properly.
+            if field and field.tag == 'select' and not field.get('multiple'):
+                field.node.value = value
+                del values[fieldname]
+
             # lxml.html.formfill cannot handle file uploads.
             # We use mechanize to do this.
             if field and field.tag == 'input' and field.type == 'file':

@@ -170,3 +170,39 @@ class TestSelectField(TestCase):
         self.assertEquals('foo', browser.find('Select Field').value)
         browser.find('Select Field').value = 'bar'
         self.assertEquals('bar', browser.find('Select Field').value)
+
+    @browsing
+    def test_fill_value(self, browser):
+        browser.open_html('\n'.join((
+                    '<html><body>',
+                    ' <form id="form">',
+                    '  <label for="field">Select Field</label>',
+                    '  <select id="field" name="field">',
+                    '    <option value="foo" selected>Foo</option>',
+                    '    <option value="bar">Bar</option>',
+                    '    <option value="baz">Baz</option>',
+                    '  </select>',
+                    ' </form>'
+                    '</body></html>')))
+
+        self.assertEquals('foo', browser.find('Select Field').value)
+        browser.fill({'Select Field': 'bar'})
+        self.assertEquals('bar', browser.find('Select Field').value)
+
+    @browsing
+    def test_fill_multi_select(self, browser):
+        browser.open_html('\n'.join((
+                    '<html><body>',
+                    ' <form id="form">',
+                    '  <label for="field">Select Field</label>',
+                    '  <select id="field" name="field" multiple="multiple">',
+                    '    <option value="foo" selected>Foo</option>',
+                    '    <option value="bar">Bar</option>',
+                    '    <option value="baz">Baz</option>',
+                    '  </select>',
+                    ' </form>'
+                    '</body></html>')))
+
+        self.assertEquals(['foo'], list(browser.find('Select Field').value))
+        browser.fill({'Select Field': ['bar', 'baz']})
+        self.assertEquals(['bar', 'baz'], list(browser.find('Select Field').value))
