@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5.1 (unreleased)
+1.5.1 (2014-01-07)
 ------------------
 
 - Fix encoding problems when posting unicode data directly with Browser.open.
