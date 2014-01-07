@@ -96,6 +96,8 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
+        to_unicode = lambda val: isinstance(val, str) and val.decode('utf-8') or val
+        values = dict(map(lambda item: map(to_unicode, item), values.items()))
 
         widgets = []
 

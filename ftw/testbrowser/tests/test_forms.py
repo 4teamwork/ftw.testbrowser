@@ -83,6 +83,15 @@ class TestBrowserForms(TestCase):
         self.assertEquals(u'F\xf6lder', plone.first_heading())
 
     @browsing
+    def test_fill_archtypes_field_with_utf8_umlauts(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Folder')
+        browser.fill({'Title': u'F\xf6lder'.encode('utf-8'),
+                      'Description': u'The f\xf6lder description'.encode('utf-8')}).submit()
+        self.assertEquals('folder_listing', plone.view())
+        self.assertEquals(u'F\xf6lder', plone.first_heading())
+
+    @browsing
     def test_fill_checkbox_field(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
