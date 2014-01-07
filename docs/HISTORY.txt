@@ -5,6 +5,9 @@ Changelog
 1.5.1 (unreleased)
 ------------------
 
+- Fix encoding problems when posting unicode data directly with Browser.open.
+  [jone]
+
 - Support form filling with bytestrings.
   [jone]
 
