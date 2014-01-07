@@ -96,6 +96,8 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
+        to_unicode = lambda val: isinstance(val, str) and val.decode('utf-8') or val
+        values = dict(map(lambda item: map(to_unicode, item), values.items()))
 
         widgets = []
 
@@ -349,7 +351,7 @@ class Form(NodeWrapper):
 
         mw.lastpart()
 
-        request = Request(URL, data.getvalue())
+        request = Request(URL, data.getvalue().encode('utf-8'))
         for key, val in http_headers:
             add_hdr = request.add_header
             if key.lower() == "content-type":

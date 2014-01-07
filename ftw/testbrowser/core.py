@@ -436,4 +436,7 @@ class Browser(object):
         if isinstance(data, dict):
             data = data.items()
 
+        to_utf8 = lambda val: isinstance(val, unicode) and val.encode('utf-8') or val
+        data = dict(map(lambda item: map(to_utf8, item), data))
+
         return urllib.urlencode(data)

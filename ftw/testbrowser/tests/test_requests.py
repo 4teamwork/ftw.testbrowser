@@ -50,6 +50,11 @@ class TestBrowserRequests(TestCase):
         self.assertTrue(plone.logged_in())
 
     @browsing
+    def test_post_request_with_umlauts(self, browser):
+        browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
+        self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
+
+    @browsing
     def test_exceptions_are_passed_to_test(self, browser):
         class FailingView(BrowserView):
             def __call__(self):
