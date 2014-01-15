@@ -5,7 +5,8 @@ Changelog
 1.5.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Implement archetypes datetime widget form filling.
+  [jone]
 
 
 1.5.1 (2014-01-07)

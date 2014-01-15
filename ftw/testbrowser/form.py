@@ -300,7 +300,12 @@ class Form(NodeWrapper):
         label = normalize_spaces(label)
         form = wrap_node(form)
 
-        label_xpath = '//label[normalize-space(text())="%s"]' % label
+        label_node_xpath = '//label[normalize-space(text())="%s"]' % label
+        div_node_xpath = '//div[contains(concat(" ",' + \
+            'normalize-space(@class)," ")," label ")]' + \
+            '[normalize-space(text())="%s"]' % label
+        label_xpath = ' | '.join((label_node_xpath, div_node_xpath))
+
         for label_node in form.xpath(label_xpath):
             if not label_node.within(wrap_node(form)):
                 continue

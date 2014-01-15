@@ -16,7 +16,7 @@ class DateTimeWidget(PloneWidget):
         if not name:
             return False
 
-        return len(node.css('input[name="%s-day"]' % name)) > 0
+        return bool(DateTimeWidget(node)._field('day'))
 
     def fill(self, value):
         """Fill the widget fields with a datetime object.
@@ -24,15 +24,29 @@ class DateTimeWidget(PloneWidget):
         :param value: datetime object for filling the fields.
         :type value: :py:class:`datetime.datetime`
         """
-        name = self.fieldname
 
-        self.css('*[name="%s-day"]' % name).first.set('value', str(value.day))
-        self.css('*[name="%s-month"]' % name).first.value = str(value.month)
-        self.css('*[name="%s-year"]' % name).first.set(
-            'value', str(value.year))
+        self._field('day').value = value.strftime('%d')
+        self._field('month').value = value.strftime('%m')
+        self._field('year').value = value.strftime('%Y')
 
-        if self.css('*[name="%s-hour"]' % name):
-            self.css('*[name="%s-hour"]' % name).first.set(
-                'value', str(value.hour))
-            self.css('*[name="%s-min"]' % name).first.set(
-                'value', str(value.minute))
+        if not self._field('hour'):
+            return
+
+        if self._field('ampm'):
+            self._field('hour').value = value.strftime('%I')
+            self._field('ampm').value = value.strftime('%p')
+
+        else:
+            self._field('hour').value = value.strftime('%H')
+
+        minute = self._field('min') or self._field('minute')
+        minute.value = value.strftime('%M')
+
+    def _field(self, component):
+        xpr = '*[name="%(name)s-%(cmp)s"], *[name="%(name)s_%(cmp)s"]' % {
+            'name': self.fieldname,
+            'cmp': component}
+        if len(self.css(xpr)) == 0:
+            return None
+        else:
+            return self.css(xpr).first
