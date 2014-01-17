@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5.2 (unreleased)
+1.5.2 (2014-01-17)
 ------------------
 
 - Implement archetypes datetime widget form filling.
