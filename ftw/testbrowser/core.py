@@ -254,7 +254,7 @@ class Browser(object):
         for index, node in enumerate(self.css('form')):
             key = node.attrib.get('id', node.attrib.get(
                     'name', 'form-%s' % index))
-            forms[key] = Form(node)
+            forms[key] = node
 
         return forms
 

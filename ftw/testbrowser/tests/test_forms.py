@@ -13,6 +13,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
+import lxml.html
 
 
 class TestBrowserForms(TestCase):
@@ -55,6 +56,13 @@ class TestBrowserForms(TestCase):
 
         browser.fill({'Login Name': 'hugo.boss'})
         self.assertEquals(u'hugo.boss', browser.forms['login_form'].values['__ac_name'])
+
+    @browsing
+    def test_forms_are_not_wrapped_multiple_times(self, browser):
+        browser.open(view='login_form')
+        form = browser.forms['login_form']
+        self.assertEquals(Form, type(form))
+        self.assertEquals(lxml.html.FormElement, type(form.node))
 
     @browsing
     def test_submit_form(self, browser):
