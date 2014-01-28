@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5.3 (unreleased)
+1.5.3 (2014-01-28)
 ------------------
 
 - Fix multiple wrapping on browser.forms.
