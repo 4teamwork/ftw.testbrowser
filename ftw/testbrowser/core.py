@@ -201,6 +201,17 @@ class Browser(object):
             return CaseInsensitiveDict(self.response.info().items())
 
     @property
+    def cookies(self):
+        """A read-only dict of current cookies.
+        """
+        mechbrowser = self.get_mechbrowser()
+        cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
+        cookies = {}
+        for cookie in cookiejar:
+            cookies[cookie.name] = vars(cookie)
+        return cookies
+
+    @property
     def url(self):
         """The URL of the current page.
         """
