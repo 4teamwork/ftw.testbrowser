@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5.4 (unreleased)
+1.6.0 (2014-01-29)
 ------------------
 
 - Add `cookies` property to the browser.
