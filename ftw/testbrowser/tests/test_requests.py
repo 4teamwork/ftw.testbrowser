@@ -112,3 +112,22 @@ class TestBrowserRequests(TestCase):
         browser.open_html(html)
         browser.response.seek(0)
         self.assertEquals(html, browser.response.read())
+
+    @browsing
+    def test_logout_works(self, browser):
+        hugo = create(Builder('user').named('Hugo', 'Boss'))
+        browser.login(hugo.getId()).open()
+        self.assertEquals('Boss Hugo', plone.logged_in())
+
+        browser.logout().open()
+        self.assertEquals(False, plone.logged_in())
+
+    @browsing
+    def test_relogin_works(self, browser):
+        hugo = create(Builder('user').named('Hugo', 'Boss'))
+        browser.login(hugo.getId()).open()
+        self.assertEquals('Boss Hugo', plone.logged_in())
+
+        john = create(Builder('user').named('John', 'Doe'))
+        browser.login(john.getId()).open()
+        self.assertEquals('Doe John', plone.logged_in())

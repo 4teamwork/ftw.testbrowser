@@ -219,12 +219,23 @@ class Browser(object):
 
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
-        Use the :py:func:`reset` method for logging out and clearing
-        everything.
         """
+        self.logout()
         self.get_mechbrowser().addheaders.append(
             ('Authorization', 'Basic %s:%s' % (username, password)))
         self._authentication = (username, password)
+        return self
+
+    def logout(self):
+        """Logout the current user by removing the ``Authorization`` header.
+        """
+        self._authentication = None
+
+        mechbrowser = self.get_mechbrowser()
+        auth_tuples = [item for item in mechbrowser.addheaders
+                       if item[0] == 'Authorization']
+        for item in auth_tuples:
+            mechbrowser.addheaders.remove(item)
         return self
 
     def css(self, css_selector):

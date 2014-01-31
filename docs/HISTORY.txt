@@ -5,7 +5,8 @@ Changelog
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Implement `logout` on browser, logout before each login.
+  [jone]
 
 
 1.6.0 (2014-01-29)
