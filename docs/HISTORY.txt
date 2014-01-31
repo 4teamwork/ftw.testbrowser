@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.6.1 (unreleased)
+1.6.1 (2014-01-31)
 ------------------
 
 - Implement `logout` on browser, logout before each login.
