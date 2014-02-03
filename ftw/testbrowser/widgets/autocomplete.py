@@ -17,12 +17,16 @@ class AutocompleteWidget(PloneWidget):
 
     def fill(self, values):
         """Fill the autocomplete value with a key from the vocabulary.
+        For content tree widgets, the value may be a Plone object which
+        will be replaced with the object path.
 
         :param values: value to fill the autocomplete field with.
-        :type values: string
+        :type values: string or object
         """
         if not isinstance(values, (list, set, tuple)):
             values = [values]
+
+        values = self._resolve_objects_to_path(values)
 
         container = self.css('div.autocompleteInputWidget').first
         fieldname = '%s:list' % self.fieldname
@@ -66,3 +70,12 @@ class AutocompleteWidget(PloneWidget):
             query_browser.open(url, data={'q': query_string})
             return map(lambda line: line.split('|'),
                        query_browser.contents.split('\n'))
+
+    def _resolve_objects_to_path(self, values):
+        new_values = []
+        for value in values:
+            if hasattr(value, 'getPhysicalPath'):
+                new_values.append('/'.join(value.getPhysicalPath()))
+            else:
+                new_values.append(value)
+        return new_values
