@@ -24,6 +24,11 @@ class BrowserLayer(PloneSandboxLayer):
                        plone.formwidget.autocomplete,
                        context=configurationContext)
 
+        import plone.formwidget.contenttree
+        xmlconfig.file('configure.zcml',
+                       plone.formwidget.contenttree,
+                       context=configurationContext)
+
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'plone.formwidget.autocomplete:default')
 
