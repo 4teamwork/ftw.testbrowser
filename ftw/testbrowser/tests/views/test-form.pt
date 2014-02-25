@@ -10,6 +10,7 @@
             <form id="test-form" action="test-form-result">
                 <label for="textfield">Text field</label>
                 <input name="textfield" id="textfield" value="" />
+                <input type="checkbox" name="checkbox-without-value" />
 
                 <input type="submit" value="Submit" name="submit-button" />
                 <input type="submit" value="Cancel" name="cancel-button" />

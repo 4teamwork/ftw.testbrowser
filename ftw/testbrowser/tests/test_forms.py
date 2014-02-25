@@ -18,7 +18,7 @@ import lxml.html
 
 class TestBrowserForms(TestCase):
 
-    layer = PLONE_FUNCTIONAL_TESTING
+    layer = BROWSER_FUNCTIONAL_TESTING
 
     @browsing
     def test_find_form_by_field_label(self, browser):
@@ -106,6 +106,16 @@ class TestBrowserForms(TestCase):
         self.assertEquals(False, browser.find('Exclude from navigation').checked)
         browser.fill({'Exclude from navigation': True})
         self.assertEquals(True, browser.find('Exclude from navigation').checked)
+
+    @browsing
+    def test_filling_checkbox_without_a_value(self, browser):
+        # Having checkboxes without a value attribtue is invalid but common.
+        # The common default is to use "on" as the value.
+        browser.visit(view='test-form')
+        browser.fill({'checkbox-without-value': True}).submit()
+        self.assertDictContainsSubset(
+            {u'checkbox-without-value': u'on'},
+            browser.json)
 
     @browsing
     def test_at_fill_tinymce_field(self, browser):

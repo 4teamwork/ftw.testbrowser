@@ -131,7 +131,7 @@ class Form(NodeWrapper):
             # independent of the actual field value.
             if field and field.tag == 'input' and field.type == 'checkbox' \
                     and value is True:
-                values[fieldname] = field.node.attrib['value']
+                values[fieldname] = field.node.attrib.get('value', 'on')
 
         lxml.html.formfill._fill_form(self.node, values)
 

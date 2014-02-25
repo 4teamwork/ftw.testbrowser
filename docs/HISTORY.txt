@@ -5,7 +5,10 @@ Changelog
 1.7.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Form: Support checking checkboxes without a value.
+  Checkboxes without a value attribute are invalid but common.
+  The default browser behavior is to fallback to the value "on".
+  [jone]
 
 
 1.7.0 (2014-02-03)
