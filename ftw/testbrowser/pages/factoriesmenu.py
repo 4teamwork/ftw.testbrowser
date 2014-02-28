@@ -50,4 +50,4 @@ def addable_types():
     if not visible():
         raise ValueError('Factories menu is not visible.')
 
-    return map(str.strip, menu().css('.actionMenuContent a').text_content())
+    return menu().css('.actionMenuContent a').text

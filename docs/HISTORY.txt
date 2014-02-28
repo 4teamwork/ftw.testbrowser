@@ -5,7 +5,9 @@ Changelog
 1.7.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix encoding problem in factories menu page object.
+  The problem occured when having a "Restrictions..." entry in the menu.
+  [jone]
 
 
 1.7.2 (2014-02-25)
