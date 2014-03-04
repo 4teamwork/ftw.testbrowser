@@ -59,3 +59,14 @@ class OptionsNotFound(BrowserException):
 class OnlyOneValueAllowed(BrowserException):
     """The field or widget does not allow to set multiple values.
     """
+
+
+class ContextNotFound(BrowserException):
+    """When trying to access a context but the current page has no
+    context information, this exception is raised.
+    """
+
+    def __init__(self, message=None):
+        if message is None:
+            message = re.sub(r'\s+', ' ', self.__doc__.strip())
+        Exception.__init__(self, message)

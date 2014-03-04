@@ -1,6 +1,7 @@
 from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
+from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.form import Form
@@ -403,6 +404,36 @@ class Browser(object):
             button = form.find_button_by_label(label)
             if button is not None and button.within(within):
                 return button
+
+    @property
+    def context(self):
+        """Returns the current context (Plone object) of the currently
+        viewed page.
+
+        :returns: The Plone context object
+        """
+
+        if self.document is None:
+            raise ContextNotFound('Not viewing any page.')
+
+        base_tags = self.css('base')
+        if len(base_tags) == 0:
+            raise ContextNotFound('No <base> tag found on current page.')
+        elif len(base_tags) > 1:
+            raise ContextNotFound('Unexpectedly found multiple <base> tags.')
+        base, = base_tags
+
+        url = base.attrib['href']
+        path = urlparse.urlparse(url).path.rstrip('/')
+        portal = getSite()
+        portal_path = '/'.join(portal.getPhysicalPath())
+        if not path.startswith(portal_path):
+            raise ContextNotFound((
+                    'Expected URL path to start with the Plone site'
+                    ' path "%s" but it is "%s"') % (portal_path, path))
+
+        relative_path = path[len(portal_path + '/'):]
+        return portal.restrictedTraverse(relative_path)
 
     def get_mechbrowser(self):
         self._verify_setup()
