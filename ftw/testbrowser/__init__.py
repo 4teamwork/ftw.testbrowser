@@ -26,7 +26,8 @@ def browsing(func):
     """
 
     def test_function(self, *args, **kwargs):
-        with browser(self.layer['app']):
+        app = getattr(self, 'layer', {}).get('app', False)
+        with browser(app):
             args = list(args) + [browser]
             return func(self, *args, **kwargs)
     test_function.__name__ = func.__name__
