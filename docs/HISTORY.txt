@@ -6,10 +6,12 @@ Changelog
 ------------------
 
 - Add NodeWrapper-properties:
+
   - innerHTML
   - normalized_innerHTML
-  - outerHTML,
+  - outerHTML
   - normalized_outerHTML
+
   [jone, elioschmutz]
 
 
