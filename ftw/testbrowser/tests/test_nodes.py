@@ -548,9 +548,9 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_innerHTML_with_umlauts(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
+                    u'foo <p id="text">',
                     u' Some <b>b&ouml;ld</b> text. ',
-                    u'</p>')))
+                    u'</p> bar')))
         self.assertEquals(
             u'\n Some <b>b\xf6ld</b> text. \n',
             browser.css('#text').first.innerHTML)
@@ -558,29 +558,31 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_normalized_innerHTML(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
+                    u'foo <p id="text">',
                     u' Some <br>       text. ',
-                    u'</p>')))
+                    u'</p> bar')))
         self.assertEquals(
             u'Some <br> text.',
             browser.css('#text').first.normalized_innerHTML)
 
     @browsing
     def test_outerHTML(self, browser):
-        html = u'\n'.join((
+        paragraph_html =u'\n'.join((
                     u'<p id="text">',
                     u' Some <br> text. ',
                     u'</p>'))
+        html = 'foo %s bar' % paragraph_html
 
         browser.open_html(html)
-        self.assertEquals(html, browser.css('#text').first.outerHTML)
+        self.assertEquals(paragraph_html,
+                          browser.css('#text').first.outerHTML)
 
     @browsing
     def test_normalized_outerHTML(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
+                    u'foo <p id="text">',
                     u' Some <br>       text. ',
-                    u'</p>')))
+                    u'</p> bar')))
         self.assertEquals(
             u'<p id="text"> Some <br> text. </p>',
             browser.css('#text').first.normalized_outerHTML)

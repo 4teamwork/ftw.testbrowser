@@ -579,7 +579,9 @@ class NodeWrapper(object):
         :returns: HTML
         :rtype: unicode
         """
-        return lxml.html.tostring(self.node, encoding='utf8').decode('utf-8')
+        return lxml.html.tostring(self.node,
+                                  encoding='utf8',
+                                  with_tail=False).decode('utf-8')
 
     @property
     def normalized_outerHTML(self):
