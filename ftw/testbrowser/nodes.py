@@ -542,6 +542,59 @@ class NodeWrapper(object):
         else:
             return re.split(r'\s', self.attrib['class'].strip())
 
+    @property
+    def innerHTML(self):
+        """The unmodified HTML content of the current node.
+        The HTML-Tag of the current node is not included.
+
+        :returns: HTML
+        :rtype: unicode
+        """
+
+        # Remove the current opening and closing tag
+        # from outerHTML to get innerHTML.
+
+        html = self.outerHTML
+        html = html.split('>', 1)[1]
+        html = '<'.join(html.split('<')[:-1])
+        return html
+
+    @property
+    def normalized_innerHTML(self):
+        """The whitespace-normalized HTML content of the current node.
+        The HTML-Tag of the current node is not included.
+        All series of whitespaces (including non-breaking spaces) are replaced
+        with a single space.
+
+        :returns: HTML
+        :rtype: unicode
+        """
+        return normalize_spaces(self.innerHTML)
+
+    @property
+    def outerHTML(self):
+        """The whitespace-normalized HTML of the current node and its children.
+        The HTML-Tag of the current node is included.
+
+        :returns: HTML
+        :rtype: unicode
+        """
+        return lxml.html.tostring(self.node,
+                                  encoding='utf8',
+                                  with_tail=False).decode('utf-8')
+
+    @property
+    def normalized_outerHTML(self):
+        """The whitespace-normalized HTML of the current node and its children.
+        The HTML-Tag of the current node is included.
+        All series of whitespaces (including non-breaking spaces) are replaced
+        with a single space.
+
+        :returns: HTML
+        :rtype: unicode
+        """
+        return normalize_spaces(self.outerHTML)
+
 
 class LinkNode(NodeWrapper):
     """Wrapps an `<a>` node.

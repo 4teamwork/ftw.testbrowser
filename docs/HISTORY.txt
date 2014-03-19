@@ -5,7 +5,14 @@ Changelog
 1.9.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add NodeWrapper-properties:
+
+  - innerHTML
+  - normalized_innerHTML
+  - outerHTML
+  - normalized_outerHTML
+
+  [jone, elioschmutz]
 
 
 1.9.0 (2014-03-18)

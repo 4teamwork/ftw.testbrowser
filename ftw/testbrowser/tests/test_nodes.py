@@ -536,6 +536,57 @@ class TestNodeWrappers(TestCase):
         browser.open(view='test-structure')
         self.assertIn('userrole-anonymous', browser.css('body').first.classes)
 
+    @browsing
+    def test_innerHTML(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'<p id="text">',
+                    u' Some <br> text. ',
+                    u'</p>')))
+        self.assertEquals(
+            u'\n Some <br> text. \n', browser.css('#text').first.innerHTML)
+
+    @browsing
+    def test_innerHTML_with_umlauts(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'foo <p id="text">',
+                    u' Some <b>b&ouml;ld</b> text. ',
+                    u'</p> bar')))
+        self.assertEquals(
+            u'\n Some <b>b\xf6ld</b> text. \n',
+            browser.css('#text').first.innerHTML)
+
+    @browsing
+    def test_normalized_innerHTML(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'foo <p id="text">',
+                    u' Some <br>       text. ',
+                    u'</p> bar')))
+        self.assertEquals(
+            u'Some <br> text.',
+            browser.css('#text').first.normalized_innerHTML)
+
+    @browsing
+    def test_outerHTML(self, browser):
+        paragraph_html =u'\n'.join((
+                    u'<p id="text">',
+                    u' Some <br> text. ',
+                    u'</p>'))
+        html = 'foo %s bar' % paragraph_html
+
+        browser.open_html(html)
+        self.assertEquals(paragraph_html,
+                          browser.css('#text').first.outerHTML)
+
+    @browsing
+    def test_normalized_outerHTML(self, browser):
+        browser.open_html(u'\n'.join((
+                    u'foo <p id="text">',
+                    u' Some <br>       text. ',
+                    u'</p> bar')))
+        self.assertEquals(
+            u'<p id="text"> Some <br> text. </p>',
+            browser.css('#text').first.normalized_outerHTML)
+
 
 class TestNodeComparison(TestCase):
 
