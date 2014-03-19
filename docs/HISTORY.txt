@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.9.1 (unreleased)
-------------------
+1.10.0 (2014-03-19)
+-------------------
 
 - Add NodeWrapper-properties:
 
