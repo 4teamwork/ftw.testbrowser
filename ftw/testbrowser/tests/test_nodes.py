@@ -34,16 +34,16 @@ class TestNodesResultSet(TestCase):
     @browsing
     def test_text_is_list_of_text_property_of_each_node(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p>foo</p>',
-                    u'<p>bar</p>')))
+            u'<p>foo</p>',
+            u'<p>bar</p>')))
 
         self.assertEquals([u'foo', u'bar'], browser.css('p').text)
 
     @browsing
     def test_raw_text_is_list_of_raw_text_property_of_each_node(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p>foo \nbar  </p>',
-                    u'<p>foo  baz</p>')))
+            u'<p>foo \nbar  </p>',
+            u'<p>foo  baz</p>')))
 
         self.assertEquals([u'foo \nbar  ',
                            u'foo  baz'],
@@ -115,7 +115,8 @@ class TestNodesResultSet(TestCase):
     @browsing
     def test_first_is_None_when_nothing_matches(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals(None, browser.css('.not-existing-class').first_or_none)
+        self.assertEquals(
+            None, browser.css('.not-existing-class').first_or_none)
 
     @browsing
     def test_string_representation(self, browser):
@@ -128,22 +129,25 @@ class TestNodesResultSet(TestCase):
     @browsing
     def test_result_set_equal_when_containing_same_nodes(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals(browser.css('#content div'),
-                          browser.css('#content div'),
-                          'Two result sets with the same nodes should be equal.')
+        self.assertEquals(
+            browser.css('#content div'),
+            browser.css('#content div'),
+            'Two result sets with the same nodes should be equal.')
 
     @browsing
-    def test_result_set_not_equal_when_containing_different_nodes(self, browser):
+    def test_result_set_not_equal_when_containing_different_nodes(self,
+                                                                  browser):
         browser.open(view='test-structure')
         self.assertNotEquals(browser.css('#content div'),
                              browser.css('#content a'),
-                             'Two result sets with different nodes should not be'
-                             ' equal.')
+                             'Two result sets with different nodes should not '
+                             'be equal.')
 
     @browsing
     def test_merging_two_Nodes_returns_result_set_as_well(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals(Nodes, type(browser.css('.foo') + browser.css('.bar')))
+        self.assertEquals(
+            Nodes, type(browser.css('.foo') + browser.css('.bar')))
         self.assertEquals(browser.css('.foo, .bar'),
                           browser.css('.foo') + browser.css('.bar'))
 
@@ -213,7 +217,8 @@ class TestNodeWrappers(TestCase):
 
     @browsing
     def test_string_representation_with_umlauts_in_attr(self, browser):
-        browser.open_html('<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+        browser.open_html(
+            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
         node = browser.css('a').first
         self.assertEquals(
             '<LinkNode:a, title="\xc3\x84 link title", text:"Link">',
@@ -221,7 +226,8 @@ class TestNodeWrappers(TestCase):
 
     @browsing
     def test_string_representation_with_umlauts_in_attr_unicode(self, browser):
-        browser.open_html('<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+        browser.open_html(
+            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
         node = browser.css('a').first
         self.assertEquals(
             u'<LinkNode:a, title="\xc4 link title", text:"Link">',
@@ -459,8 +465,9 @@ class TestNodeWrappers(TestCase):
         browser.open(view='test-structure')
         with self.assertRaises(ValueError) as cm:
             browser.css('.foo > .bar').first.parent(css='div', xpath='div')
-        self.assertEquals('parent() requires either "css" or "xpath" argument.',
-                          str(cm.exception))
+        self.assertEquals(
+            'parent() requires either "css" or "xpath" argument.',
+            str(cm.exception))
 
     # NodeWrapper.normalized_text is deprecated.
     @browsing
@@ -483,7 +490,8 @@ class TestNodeWrappers(TestCase):
 
     # NodeWrapper.normalized_text is deprecated.
     @browsing
-    def test_nonrecursive_normalized_text_when_node_has_no_content(self, browser):
+    def test_nonrecursive_normalized_text_when_node_has_no_content(self,
+                                                                   browser):
         browser.open(view='test-structure')
         node = browser.css('.empty').first
         self.assertEquals(u'', node.raw_text,
@@ -493,12 +501,14 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_text_is_recursive(self, browser):
         browser.open_html(u'<div id="text">This is <b>some</b> text.</div>')
-        self.assertEquals(u'This is some text.', browser.css('#text').first.text)
+        self.assertEquals(
+            u'This is some text.', browser.css('#text').first.text)
 
     @browsing
     def test_text_has_nonbreaking_spaces_replaced(self, browser):
         browser.open_html(u'<div id="text">Some non&nbsp;breaking text.</div>')
-        self.assertEquals(u'Some non breaking text.', browser.css('#text').first.text)
+        self.assertEquals(
+            u'Some non breaking text.', browser.css('#text').first.text)
 
     @browsing
     def test_text_is_empty_string_when_there_is_no_text(self, browser):
@@ -513,10 +523,10 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_text_has_paragraphs_replaced_with_double_newlines(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<div id="text">',
-                    u' <p>First paragraph.</p>',
-                    u' <p>Second paragraph.</p>',
-                    u'</div>')))
+            u'<div id="text">',
+            u' <p>First paragraph.</p>',
+            u' <p>Second paragraph.</p>',
+            u'</div>')))
 
         self.assertEquals(u'First paragraph.\n\nSecond paragraph.',
                           browser.css('#text').first.text)
@@ -524,17 +534,17 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_text_has_no_trailing_whitespace(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
-                    u'Some text.<br />  ',
-                    u'</p>  ')))
+            u'<p id="text">',
+            u'Some text.<br />  ',
+            u'</p>  ')))
         self.assertEquals(u'Some text.', browser.css('#text').first.text)
 
     @browsing
     def test_text_strips_spaces_around_newlines(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
-                    u' Some <br /> text. ',
-                    u'</p>')))
+            u'<p id="text">',
+            u' Some <br /> text. ',
+            u'</p>')))
         self.assertEquals(u'Some\ntext.', browser.css('#text').first.text)
 
     @browsing
@@ -545,7 +555,8 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_raw_text_is_original_raw_text(self, browser):
         browser.open_html(u'<div id="text">Some  text.\n </div>')
-        self.assertEquals('Some  text.\n ', browser.css('#text').first.raw_text)
+        self.assertEquals(
+            'Some  text.\n ', browser.css('#text').first.raw_text)
 
     @browsing
     def test_classes(self, browser):
@@ -555,18 +566,18 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_innerHTML(self, browser):
         browser.open_html(u'\n'.join((
-                    u'<p id="text">',
-                    u' Some <br> text. ',
-                    u'</p>')))
+            u'<p id="text">',
+            u' Some <br> text. ',
+            u'</p>')))
         self.assertEquals(
             u'\n Some <br> text. \n', browser.css('#text').first.innerHTML)
 
     @browsing
     def test_innerHTML_with_umlauts(self, browser):
         browser.open_html(u'\n'.join((
-                    u'foo <p id="text">',
-                    u' Some <b>b&ouml;ld</b> text. ',
-                    u'</p> bar')))
+            u'foo <p id="text">',
+            u' Some <b>b&ouml;ld</b> text. ',
+            u'</p> bar')))
         self.assertEquals(
             u'\n Some <b>b\xf6ld</b> text. \n',
             browser.css('#text').first.innerHTML)
@@ -574,19 +585,19 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_normalized_innerHTML(self, browser):
         browser.open_html(u'\n'.join((
-                    u'foo <p id="text">',
-                    u' Some <br>       text. ',
-                    u'</p> bar')))
+            u'foo <p id="text">',
+            u' Some <br>       text. ',
+            u'</p> bar')))
         self.assertEquals(
             u'Some <br> text.',
             browser.css('#text').first.normalized_innerHTML)
 
     @browsing
     def test_outerHTML(self, browser):
-        paragraph_html =u'\n'.join((
-                    u'<p id="text">',
-                    u' Some <br> text. ',
-                    u'</p>'))
+        paragraph_html = u'\n'.join((
+            u'<p id="text">',
+            u' Some <br> text. ',
+            u'</p>'))
         html = 'foo %s bar' % paragraph_html
 
         browser.open_html(html)
@@ -596,9 +607,9 @@ class TestNodeWrappers(TestCase):
     @browsing
     def test_normalized_outerHTML(self, browser):
         browser.open_html(u'\n'.join((
-                    u'foo <p id="text">',
-                    u' Some <br>       text. ',
-                    u'</p> bar')))
+            u'foo <p id="text">',
+            u' Some <br>       text. ',
+            u'</p> bar')))
         self.assertEquals(
             u'<p id="text"> Some <br> text. </p>',
             browser.css('#text').first.normalized_outerHTML)
@@ -613,8 +624,8 @@ class TestNodeComparison(TestCase):
         browser.open(view='test-structure')
         self.assertEquals(browser.css('.foo a').first,
                           browser.css('.foo a').first,
-                          'Looking up two time the same elements should compare '
-                          'to be similar.')
+                          'Looking up two time the same elements should '
+                          'compare to be similar.')
 
     @browsing
     def test_comparing_different_elements(self, browser):
@@ -669,12 +680,14 @@ class TestDefinitionListNode(TestCase):
     @browsing
     def test_items_returns_list_of_dt_to_dd_mapping(self, browser):
         browser.open(view='test-structure')
-        self.assertEquals(zip(browser.css('#definition-list-of-links dt'),
-                              browser.css('#definition-list-of-links dd')),
-                          browser.css('#definition-list-of-links').first.items())
+        self.assertEquals(
+            zip(browser.css('#definition-list-of-links dt'),
+                browser.css('#definition-list-of-links dd')),
+            browser.css('#definition-list-of-links').first.items())
 
     @browsing
-    def test_items_text_returns_list_of_dt_to_dd_mapping_as_text(self, browser):
+    def test_items_text_returns_list_of_dt_to_dd_mapping_as_text(self,
+                                                                 browser):
         browser.open(view='test-structure')
         self.assertEquals(
             [('Mails', 'mail.google.com'),
@@ -683,7 +696,8 @@ class TestDefinitionListNode(TestCase):
             browser.css('#definition-list-of-links').first.items_text())
 
     @browsing
-    def test_text_to_nodes_returns_dict_of_text_terms_to_node_defs(self, browser):
+    def test_text_to_nodes_returns_dict_of_text_terms_to_node_defs(self,
+                                                                   browser):
         browser.open(view='test-structure')
         self.assertEquals(
             dict(zip(['Mails', 'Search', 'Maps'],
