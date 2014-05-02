@@ -317,7 +317,13 @@ class NodeWrapper(object):
             repr = ', '.join((self.tag, attribs, 'text:"%s"' % text))
         else:
             repr = ', '.join((self.tag, attribs))
+
+        if isinstance(repr, unicode):
+            repr = repr.encode('utf-8')
         return '<%s:%s>' % (self.__class__.__name__, repr)
+
+    def __unicode__(self):
+        return str(self).decode('utf-8')
 
     @property
     def browser(self):

@@ -89,7 +89,10 @@ class Browser(object):
             _, path = tempfile.mkstemp(suffix='.html',
                                        prefix='ftw.testbrowser-')
             with open(path, 'w+') as file_:
-                file_.write(self.contents)
+                source = self.contents
+                if isinstance(source, unicode):
+                    source = source.encode('utf-8')
+                file_.write(source)
             print '\nftw.testbrowser dump:', path,
 
         self.reset()

@@ -212,6 +212,22 @@ class TestNodeWrappers(TestCase):
                           str(node))
 
     @browsing
+    def test_string_representation_with_umlauts_in_attr(self, browser):
+        browser.open_html('<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+        node = browser.css('a').first
+        self.assertEquals(
+            '<LinkNode:a, title="\xc3\x84 link title", text:"Link">',
+            str(node))
+
+    @browsing
+    def test_string_representation_with_umlauts_in_attr_unicode(self, browser):
+        browser.open_html('<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+        node = browser.css('a').first
+        self.assertEquals(
+            u'<LinkNode:a, title="\xc4 link title", text:"Link">',
+            unicode(node))
+
+    @browsing
     def test_string_representation_without_text(self, browser):
         browser.open(view='test-structure')
         node = browser.css('.foo').first
