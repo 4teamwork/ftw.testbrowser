@@ -5,6 +5,24 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Refactor Form: eliminate class methods and do not use the global browser.
+  This improves form support when running multiple browser instances concurrently.
+
+  - Form.field_labels (class method) is now a instance property and public API.
+  - Form.find_widget_in_form (class method) is removed and replaced with
+    Form.find_widget (instance method).
+  - Form.find_field_in_form (class method) is removed and replaced
+    Form.get_field (instance method).
+  - Form.find_form_element_by_label_or_name (class method) is removed and replaced
+    with browser.find_form_by_field.
+  - Form.find_form_by_labels_or_names (class method) is removed and replaced with
+    browser.find_form_by_fields.
+
+  [jone]
+
+- Fix wrapping input.label - this did only work for a part of field types.
+  [jone]
+
 - Fix UnicodeDecodeError in node string representation.
   [mathias.leimgruber]
 
