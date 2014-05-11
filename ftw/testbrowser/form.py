@@ -205,9 +205,29 @@ class Form(NodeWrapper):
         """
         field = self.__class__.find_field_in_form(self.node, label)
         if field is None:
-            labels = self.__class__.field_labels(self.node)
-            raise FormFieldNotFound(label, labels)
+            raise FormFieldNotFound(label, self.field_labels)
         return getattr(field, 'name', None)
+
+    @property
+    def field_labels(self):
+        """A list of label texts and field names of each field in this form.
+
+        The list contains the whitespace normalized label text of the each field.
+        If there is no label or it has an empty text, the fieldname is used instead.
+
+        :returns: A list of label texts (and field names).
+        :rtype: list of strings
+        """
+        labels = []
+        for input in self.inputs:
+            label = (input.label is not None
+                     and normalize_spaces(input.label.text))
+            if label:
+                labels.append(label)
+            elif input.name:
+                labels.append(input.name)
+
+        return labels
 
     @classmethod
     def get_browser(klass):
@@ -224,19 +244,21 @@ class Form(NodeWrapper):
         :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
         :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
         """
+        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
+        from ftw.testbrowser import browser
 
         form_element = None
         for label_or_name in labels_or_names:
             form = klass.find_form_element_by_label_or_name(label_or_name)
             if form is None:
-                labels = klass.field_labels(form_element)
+                labels = reduce(
+                    list.__add__,
+                    [form.field_labels for form in browser.forms.values()])
                 raise FormFieldNotFound(label_or_name, labels)
             if form_element is not None and form != form_element:
                 raise AmbiguousFormFields()
             form_element = form
 
-        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
-        from ftw.testbrowser import browser
         return Form(form_element, browser)
 
     @classmethod
@@ -323,23 +345,6 @@ class Form(NodeWrapper):
                 return field
 
         return None
-
-    @classmethod
-    def field_labels(klass, form=None):
-        forms = form and [form] or klass.get_browser().root.forms
-
-        labels = []
-
-        for form in forms:
-            for input in form.inputs:
-                label = (input.label is not None
-                         and normalize_spaces(input.label.text))
-                if label:
-                    labels.append(label)
-                elif input.name:
-                    labels.append(input.name)
-
-        return labels
 
     def _submit_form(self, method, URL, values):
         request = self._make_mechanize_multipart_request(URL, values)
