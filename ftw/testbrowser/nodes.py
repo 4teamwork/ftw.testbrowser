@@ -41,32 +41,47 @@ RESULT_SET_TYPES = (types.ListType,
 _marker = object()
 
 
-def wrapped_nodes(func):
+def wrapped_nodes(func, browser=_marker):
     """A method decorator wrapping the returned results.
     """
+    if browser is not _marker:
+        def wrapper_method(*args, **kwargs):
+            result = func(*args, **kwargs)
+            return wrap_nodes(result, browser)
 
-    def wrapper_method(*args, **kwargs):
-        result = func(*args, **kwargs)
-        return wrap_nodes(result)
+    else:
+        def wrapper_method(self, *args, **kwargs):
+            browser = getattr(self, 'browser', _marker)
+            if browser is _marker and self.__class__.__name__ == 'Browser':
+                browser = self
+            if browser is _marker:
+                raise ValueError(
+                    '{1}.{2} uses the wrapped_nodes decorator but does not'
+                    ' provide a `self.browser`.'.format(
+                        self.__class__.__name__,
+                        func.__name__))
+
+            result = func(self, *args, **kwargs)
+            return wrap_nodes(result, browser)
 
     wrapper_method.__name__ = func.__name__
     wrapper_method.__doc__ = func.__doc__
     return wrapper_method
 
 
-def wrap_nodes(nodes):
+def wrap_nodes(nodes, browser):
     """Wrap one or many nodes.
     """
     if not isinstance(nodes, RESULT_SET_TYPES):
-        return wrap_node(nodes)
+        return wrap_node(nodes, browser)
 
     result = Nodes()
     for node in nodes:
-        result.append(wrap_node(node))
+        result.append(wrap_node(node, browser))
     return result
 
 
-def wrap_node(node):
+def wrap_node(node, browser):
     """Wrap a single node.
     """
 
@@ -77,49 +92,49 @@ def wrap_node(node):
         return node
 
     if node.tag == 'a':
-        return LinkNode(node)
+        return LinkNode(node, browser)
 
     if node.tag == 'form':
         from ftw.testbrowser.form import Form
-        return Form(node)
+        return Form(node, browser)
 
     if node.tag == 'input' and node.attrib.get('type', None) == 'submit':
         from ftw.testbrowser.form import SubmitButton
-        return SubmitButton(node)
+        return SubmitButton(node, browser)
 
     if node.tag == 'input' and node.attrib.get('type', None) == 'file':
         from ftw.testbrowser.form import FileField
-        return FileField(node)
+        return FileField(node, browser)
 
     if node.tag == 'textarea':
         from ftw.testbrowser.form import TextAreaField
-        return TextAreaField(node)
+        return TextAreaField(node, browser)
 
     if node.tag == 'dl':
-        return DefinitionListNode(node)
+        return DefinitionListNode(node, browser)
 
     if node.tag == 'table':
         from ftw.testbrowser.table import Table
-        return Table(node)
+        return Table(node, browser)
 
     if node.tag == 'tr':
         from ftw.testbrowser.table import TableRow
-        return TableRow(node)
+        return TableRow(node, browser)
 
     if node.tag in ('td', 'th'):
         from ftw.testbrowser.table import TableCell
-        return TableCell(node)
+        return TableCell(node, browser)
 
     if node.tag in ('colgroup', 'col', 'thead', 'tbody', 'tfoot'):
         from ftw.testbrowser.table import TableComponent
-        return TableComponent(node)
+        return TableComponent(node, browser)
 
     from ftw.testbrowser.widgets.base import WIDGETS
     for widget_klass in WIDGETS:
-        if widget_klass.match(NodeWrapper(node)):
-            return widget_klass(node)
+        if widget_klass.match(NodeWrapper(node, browser)):
+            return widget_klass(node, browser)
 
-    return NodeWrapper(node)
+    return NodeWrapper(node, browser)
 
 
 class Nodes(list):
@@ -283,16 +298,17 @@ class NodeWrapper(object):
     There are more specific node wrapper classes for some elements.
     """
 
-    def __init__(self, node):
+    def __init__(self, node, browser):
         self.node = node
+        self._browser = browser
 
     def __getattr__(self, name):
         result = getattr(self.node, name)
         if name in METHODS_TO_WRAP:
-            return wrapped_nodes(result)
+            return wrapped_nodes(result, browser=self.browser)
 
         elif name in PROPERTIES_TO_WRAP:
-            return wrap_nodes(result)
+            return wrap_nodes(result, self.browser)
         else:
             return result
 
@@ -329,8 +345,7 @@ class NodeWrapper(object):
     def browser(self):
         """The current browser instance.
         """
-        from ftw.testbrowser import browser
-        return browser
+        return self._browser
 
     def css(self, css_selector):
         """Find nodes within this node by a *css* selector.
@@ -415,7 +430,7 @@ class NodeWrapper(object):
         """
         for element, attribute, link, pos in self.node.iterlinks(
             *args, **kwargs):
-            yield wrap_node(element), attribute, link, pos
+            yield wrap_node(element, self.browser), attribute, link, pos
 
     def find(self, text):
         """Find an element by text within the current node.

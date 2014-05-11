@@ -58,7 +58,7 @@ class Form(NodeWrapper):
                 continue
             if getattr(field, 'type', None) != 'submit':
                 continue
-            button = SubmitButton(field)
+            button = SubmitButton(field, self.browser)
             if button.form != self:
                 continue
             yield button
@@ -235,7 +235,9 @@ class Form(NodeWrapper):
                 raise AmbiguousFormFields()
             form_element = form
 
-        return Form(form_element)
+        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
+        from ftw.testbrowser import browser
+        return Form(form_element, browser)
 
     @classmethod
     def find_form_element_by_label_or_name(klass, label_or_name):
@@ -270,8 +272,11 @@ class Form(NodeWrapper):
 
         label = normalize_spaces(label_or_name)
 
+        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
+        from ftw.testbrowser import browser
+
         for input in form.inputs:
-            input = wrap_node(input)
+            input = wrap_node(input, browser)
             if input.name == label_or_name:
                 return input
 
@@ -298,8 +303,10 @@ class Form(NodeWrapper):
         :returns: Returns the field node or `None`.
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
         """
+        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
+        from ftw.testbrowser import browser
         label = normalize_spaces(label)
-        form = wrap_node(form)
+        form = wrap_node(form, browser)
 
         label_node_xpath = '//label[normalize-space(text())="%s"]' % label
         div_node_xpath = '//div[contains(concat(" ",' + \
@@ -308,7 +315,7 @@ class Form(NodeWrapper):
         label_xpath = ' | '.join((label_node_xpath, div_node_xpath))
 
         for label_node in form.xpath(label_xpath):
-            if not label_node.within(wrap_node(form)):
+            if not label_node.within(wrap_node(form, browser)):
                 continue
 
             field = label_node.parent(css='div.field')
@@ -336,7 +343,7 @@ class Form(NodeWrapper):
 
     def _submit_form(self, method, URL, values):
         request = self._make_mechanize_multipart_request(URL, values)
-        self.__class__.get_browser().open(request)
+        self.browser.open(request)
 
     def _make_mechanize_multipart_request(self, URL, values):
         data = StringIO()
@@ -377,8 +384,8 @@ class TextAreaField(NodeWrapper):
     widget is not standard.
     """
 
-    def __init__(self, node):
-        super(TextAreaField, self).__init__(node)
+    def __init__(self, node, browser):
+        super(TextAreaField, self).__init__(node, browser)
         self._setup_label()
 
     def _setup_label(self):
@@ -438,7 +445,7 @@ class FileField(NodeWrapper):
         control._write_mime_data(mime_writer, None, None)
 
     def _get_mechbrowser_control(self):
-        mechbrowser = self._get_browser().get_mechbrowser()
+        mechbrowser = self.browser.get_mechbrowser()
 
         form = self.parent('form')
         form_name = form.attrib.get('name')
@@ -478,7 +485,3 @@ class FileField(NodeWrapper):
             value = StringIO(value)
 
         return value, filename, content_type
-
-    def _get_browser(self):
-        from ftw.testbrowser import browser
-        return browser
