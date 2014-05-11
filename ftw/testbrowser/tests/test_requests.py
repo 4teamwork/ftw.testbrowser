@@ -2,9 +2,13 @@ from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from ftw.builder import Builder
 from ftw.builder import create
+from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
+from ftw.testbrowser.core import LIB_MECHANIZE
+from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
 from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -15,7 +19,7 @@ from unittest2 import TestCase
 from zope.publisher.browser import BrowserView
 
 
-class TestBrowserRequests(TestCase):
+class TestMechanizeBrowserRequests(TestCase):
 
     layer = BROWSER_FUNCTIONAL_TESTING
 
@@ -188,3 +192,40 @@ class TestBrowserRequests(TestCase):
         browser.clear_request_header('Authorization')
         browser.open()
         self.assertEquals(False, plone.logged_in())
+
+
+class TestRequestslibBrowserRequests(TestCase):
+
+    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
+
+    @browsing
+    def test_open_supports_choosing_library_when_doing_request(self, browser):
+        browser.open(library=LIB_MECHANIZE)
+        self.assertEquals('mechanize',
+                          browser.response.__class__.__module__.split('.')[0])
+
+        browser.open(library=LIB_REQUESTS)
+        self.assertEquals('requests',
+                          browser.response.__class__.__module__.split('.')[0])
+
+    @browsing
+    def test_visit_supports_choosing_library_when_doing_request(self, browser):
+        browser.visit(library=LIB_MECHANIZE)
+        self.assertEquals('mechanize',
+                          browser.response.__class__.__module__.split('.')[0])
+
+        browser.visit(library=LIB_REQUESTS)
+        self.assertEquals('requests',
+                          browser.response.__class__.__module__.split('.')[0])
+
+    @browsing
+    def test_url_with_requests_libr(self, browser):
+        browser.open(library=LIB_REQUESTS)
+        self.assertEquals(self.layer['portal'].absolute_url(),
+                          browser.url)
+
+    def test_no_browser_setup_uses_requests_library(self):
+        with Browser() as browser:
+            browser.open(self.layer['portal'].absolute_url())
+            self.assertEquals('requests',
+                              browser.response.__class__.__module__.split('.')[0])

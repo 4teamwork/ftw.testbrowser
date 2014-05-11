@@ -9,7 +9,6 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
-from mechanize import BrowserStateError
 from operator import attrgetter
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
@@ -19,10 +18,18 @@ from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
+import lxml.html
 import requests
 import tempfile
 import urllib
 import urlparse
+
+
+#: Constant for choosing the mechanize library (interally dispatched requests)
+LIB_MECHANIZE = 'mechanize library'
+
+#: Constant for choosing the requests library (actual requests)
+LIB_REQUESTS = 'requests library'
 
 
 class Browser(object):
@@ -69,6 +76,8 @@ class Browser(object):
         """Resets the browser: closes active sessions and resets the internal
         state.
         """
+        self.request_library = None
+        self.previous_request_library = None
         self.next_app = None
         self.app = None
         self.mechbrowser = None
@@ -79,7 +88,9 @@ class Browser(object):
 
     def __enter__(self):
         if self.next_app is None:
-            raise BrowserNotSetUpException()
+            self.request_library = LIB_REQUESTS
+        else:
+            self.request_library = LIB_MECHANIZE
 
         self.app = self.next_app
         return self
@@ -97,8 +108,19 @@ class Browser(object):
 
         self.reset()
 
-    def open(self, url_or_object=None, data=None, view=None):
+    def open(self, url_or_object=None, data=None, view=None, library=None):
         """Opens a page in the browser.
+
+        *Request library:*
+        When running tests on a Plone testing layer and using the ``@browsing``
+        decorator, the ``mechanize`` library is used by default, dispatching the
+        request internal directly into Zope.
+        When the testbrowser is used differently (no decorator nor zope app setup),
+        the ``requests`` library is used, doing actual requests.
+        If the default does not fit your needs you can change the library per
+        request by passing in ``LIB_MECHANIZE`` or ``LIB_REQUESTS`` or you can
+        change the library for the session by setting ``browser.request_library``
+        to either of those constants.
 
         :param url_or_object: A full qualified URL or a Plone object (which has
           an ``absolute_url`` method). Defaults to the Plone Site URL.
@@ -107,16 +129,24 @@ class Browser(object):
         :param view: The name of a view which will be added at the end of the
           current URL.
         :type view: string
+        :param library: Lets you explicitly choose the request library to be
+          used for this request.
+        :type library: ``LIB_MECHANIZE`` or ``LIB_REQUESTS``
 
         .. seealso:: :py:func:`visit`
+        .. seealso:: :py:const:`LIB_MECHANIZE`
+        .. seealso:: :py:const:`LIB_REQUESTS`
         """
         self._verify_setup()
-        try:
-            self.previous_url = self.url
-        except BrowserStateError:
-            pass
+        library = library or self.request_library
         url = self._normalize_url(url_or_object, view=view)
-        self._open_with_mechanize(url, data=data)
+
+        if library == LIB_MECHANIZE:
+            self._open_with_mechanize(url, data=data)
+
+        elif library == LIB_REQUESTS:
+            self._open_with_requests(url, data=data)
+
         return self
 
     def open_html(self, html):
@@ -157,11 +187,6 @@ class Browser(object):
         :type headers: dict
         """
         self._verify_setup()
-        try:
-            self.previous_url = self.url
-        except BrowserStateError:
-            pass
-
         url = self._normalize_url(url_or_object, view=view)
         self._open_with_requests(url, data=data, method=method, headers=headers)
         return self
@@ -176,9 +201,11 @@ class Browser(object):
         :type data: dict
         """
 
+        self.previous_url = self.url
         data = self._prepare_post_data(data)
         self.response = self.get_mechbrowser().open(url, data=data)
         self._load_html(self.response)
+        self.previous_request_library = LIB_MECHANIZE
 
     def _open_with_requests(self, url, data=None, method='GET', headers=None):
         """Opens a request with the requests library.
@@ -196,6 +223,7 @@ class Browser(object):
         :type headers: dict
         """
 
+        self.previous_url = self.url
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
@@ -205,6 +233,7 @@ class Browser(object):
                                              headers=headers)
 
         self._load_html(self.response)
+        self.previous_request_library = LIB_REQUESTS
 
     @property
     def contents(self):
@@ -297,7 +326,13 @@ class Browser(object):
     def url(self):
         """The URL of the current page.
         """
-        return self.get_mechbrowser().geturl()
+        if not self.response:
+            return None
+
+        if self.previous_request_library is LIB_MECHANIZE:
+            return self.get_mechbrowser().geturl()
+        elif self.previous_request_library is LIB_REQUESTS:
+            return self.response.url
 
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
@@ -570,6 +605,10 @@ class Browser(object):
 
     def get_mechbrowser(self):
         self._verify_setup()
+
+        if self.app is None:
+            raise BrowserNotSetUpException()
+
         if self.mechbrowser is None:
             self.mechbrowser = Zope2MechanizeBrowser(self.app)
             self.get_mechbrowser().addheaders.append((
@@ -577,7 +616,7 @@ class Browser(object):
         return self.mechbrowser
 
     def _verify_setup(self):
-        if self.app is None:
+        if self.request_library is None:
             raise BrowserNotSetUpException()
         return True
 

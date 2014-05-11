@@ -5,6 +5,11 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Support choosing requests library, make Zope app setup optional.
+  When no Zope app is set up, the ``requests`` library is set as default,
+  otherwise ``mechanize``.
+  [jone]
+
 - Login improvements:
 
   - Support passing member objects to browser.login().
