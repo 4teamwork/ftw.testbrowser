@@ -179,12 +179,12 @@ class TestBrowserRequests(TestCase):
         self.assertEquals('Doe John', plone.logged_in())
 
     @browsing
-    def test_clear_request_headers_with_header_selection(self, browser):
+    def test_clear_request_header_with_header_selection(self, browser):
         browser.append_request_header('Authorization', 'Basic {0}:{1}'.format(
                 TEST_USER_NAME, TEST_USER_PASSWORD))
         browser.open()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
-        browser.clear_request_headers('Authorization')
+        browser.clear_request_header('Authorization')
         browser.open()
         self.assertEquals(False, plone.logged_in())

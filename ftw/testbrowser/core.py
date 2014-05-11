@@ -216,6 +216,7 @@ class Browser(object):
         :type name: string
         :param value: Value of the request header
         :type value: string
+
         .. seealso:: :py:func:`replace_request_header`
         .. seealso:: :py:func:`clear_request_header`
         """
@@ -230,27 +231,26 @@ class Browser(object):
         :type name: string
         :param value: Value of the request header
         :type value: string
+
         .. seealso:: :py:func:`replace_request_header`
         .. seealso:: :py:func:`clear_request_header`
         """
 
-        self.clear_request_headers(name)
+        self.clear_request_header(name)
         self.append_request_header(name, value)
 
-    def clear_request_headers(self, *names):
-        """Removes one or many permanent headers from the request headers.
-        Pass in the names of all headers to remove as positional arguments.
+    def clear_request_header(self, name):
+        """Removes a permanent header.
         If there are no such headers, the removal is silently skipped.
-        If no headers are passed in at all, no headers are removed!
 
-        :param *names: Names of the request header
-        :type *names: string
+        :param name: Name of the request header as positional arguments
+        :type name: string
         """
         addheaders = self.get_mechbrowser().addheaders
 
-        for name, value in addheaders[:]:
-            if name in names:
-                addheaders.remove((name, value))
+        for header_name, value in addheaders[:]:
+            if header_name == name:
+                addheaders.remove((header_name, value))
 
     @property
     def cookies(self):
@@ -285,7 +285,7 @@ class Browser(object):
         """Logout the current user by removing the ``Authorization`` header.
         """
         self._authentication = None
-        self.clear_request_headers('Authorization')
+        self.clear_request_header('Authorization')
         return self
 
     def css(self, css_selector):
