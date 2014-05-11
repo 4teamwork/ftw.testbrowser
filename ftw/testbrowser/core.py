@@ -272,6 +272,10 @@ class Browser(object):
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
         """
+
+        if hasattr(username, 'getUserName'):
+            username = username.getUserName()
+
         self.logout()
         self.get_mechbrowser().addheaders.append(
             ('Authorization', 'Basic %s:%s' % (username, password)))

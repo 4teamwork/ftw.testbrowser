@@ -1,3 +1,4 @@
+from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
 from ftw.builder import Builder
 from ftw.builder import create
@@ -131,6 +132,24 @@ class TestBrowserRequests(TestCase):
         john = create(Builder('user').named('John', 'Doe'))
         browser.login(john.getId()).open()
         self.assertEquals('Doe John', plone.logged_in())
+
+    @browsing
+    def test_login_with_member_object_works(self, browser):
+        # Use the test user which has different ID and NAME,
+        # but pass in the member object.
+        mtool = getToolByName(self.layer['portal'], 'portal_membership')
+        member = mtool.getMemberById(TEST_USER_ID)
+        browser.login(member).open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_login_with_user_object_works(self, browser):
+        # Use the test user which has different ID and NAME,
+        # but pass in the user object.
+        acl_users = getToolByName(self.layer['portal'], 'acl_users')
+        user = acl_users.getUserById(TEST_USER_ID)
+        browser.login(user).open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     @browsing
     def test_append_request_header(self, browser):
