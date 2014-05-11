@@ -204,6 +204,54 @@ class Browser(object):
         else:
             return CaseInsensitiveDict(self.response.info().items())
 
+    def append_request_header(self, name, value):
+        """Add a new permanent request header which is sent with every request
+        until it is cleared.
+
+        HTTP allows multiple request headers with the same name.
+        Therefore this method does not replace existing names.
+        Use `replace_request_header` for replacing headers.
+
+        :param name: Name of the request header
+        :type name: string
+        :param value: Value of the request header
+        :type value: string
+        .. seealso:: :py:func:`replace_request_header`
+        .. seealso:: :py:func:`clear_request_header`
+        """
+        self.get_mechbrowser().addheaders.append((name, value))
+
+    def replace_request_header(self, name, value):
+        """Adds a permanent request header which is sent with every request.
+        Before adding the request header all existing request headers with the
+        same name are removed.
+
+        :param name: Name of the request header
+        :type name: string
+        :param value: Value of the request header
+        :type value: string
+        .. seealso:: :py:func:`replace_request_header`
+        .. seealso:: :py:func:`clear_request_header`
+        """
+
+        self.clear_request_headers(name)
+        self.append_request_header(name, value)
+
+    def clear_request_headers(self, *names):
+        """Removes one or many permanent headers from the request headers.
+        Pass in the names of all headers to remove as positional arguments.
+        If there are no such headers, the removal is silently skipped.
+        If no headers are passed in at all, no headers are removed!
+
+        :param *names: Names of the request header
+        :type *names: string
+        """
+        addheaders = self.get_mechbrowser().addheaders
+
+        for name, value in addheaders[:]:
+            if name in names:
+                addheaders.remove((name, value))
+
     @property
     def cookies(self):
         """A read-only dict of current cookies.

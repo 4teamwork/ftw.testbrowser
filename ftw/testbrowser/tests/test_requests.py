@@ -131,3 +131,41 @@ class TestBrowserRequests(TestCase):
         john = create(Builder('user').named('John', 'Doe'))
         browser.login(john.getId()).open()
         self.assertEquals('Doe John', plone.logged_in())
+
+    @browsing
+    def test_append_request_header(self, browser):
+        browser.open()
+        self.assertEquals(False, plone.logged_in())
+
+        browser.append_request_header('Authorization', 'Basic {0}:{1}'.format(
+                TEST_USER_NAME, TEST_USER_PASSWORD))
+        browser.open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_replace_request_header(self, browser):
+        hugo = create(Builder('user').named('Hugo', 'Boss'))
+        john = create(Builder('user').named('John', 'Doe'))
+
+        browser.append_request_header(
+            'Authorization',
+            'Basic {0}:{1}'.format(hugo.getId(), TEST_USER_PASSWORD))
+        browser.open()
+        self.assertEquals('Boss Hugo', plone.logged_in())
+
+        browser.replace_request_header(
+            'Authorization',
+            'Basic {0}:{1}'.format(john.getId(), TEST_USER_PASSWORD))
+        browser.open()
+        self.assertEquals('Doe John', plone.logged_in())
+
+    @browsing
+    def test_clear_request_headers_with_header_selection(self, browser):
+        browser.append_request_header('Authorization', 'Basic {0}:{1}'.format(
+                TEST_USER_NAME, TEST_USER_PASSWORD))
+        browser.open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.clear_request_headers('Authorization')
+        browser.open()
+        self.assertEquals(False, plone.logged_in())

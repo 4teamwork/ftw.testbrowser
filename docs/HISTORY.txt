@@ -5,6 +5,14 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Add request header methods for managing permanent request headers:
+
+  - browser.append_request_header
+  - browser.replace_request_header
+  - browser.clear_request_headers
+
+  [jone]
+
 - Refactor Form: eliminate class methods and do not use the global browser.
   This improves form support when running multiple browser instances concurrently.
 
