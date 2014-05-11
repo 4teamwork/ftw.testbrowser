@@ -4,13 +4,13 @@ from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import ZServerRequired
-from ftw.testbrowser.form import Form
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
 from mechanize import BrowserStateError
+from operator import attrgetter
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
@@ -310,7 +310,7 @@ class Browser(object):
         :returns: The form node.
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
-        form = Form.find_form_by_labels_or_names(*values.keys())
+        form = self.find_form_by_fields(*values.keys())
         return form.fill(values)
 
     def find(self, text, within=None):
@@ -378,16 +378,12 @@ class Browser(object):
         if within is None:
             within = self.root
 
-        try:
-            form = Form.find_form_by_labels_or_names(text)
-        except (AmbiguousFormFields, FormFieldNotFound):
-            return None
+        for form in self.forms.values():
+            field = form.find_field(text)
+            if field and field.within(within):
+                return field
 
-        field = form.find_field(text)
-        if field is not None and field.within(within):
-            return field
-        else:
-            return None
+        return None
 
     def find_button_by_label(self, label, within=None):
         """Finds a form button by its text label.
@@ -424,6 +420,46 @@ class Browser(object):
             if form.find_field(field_label_or_name):
                 return form
         return None
+
+    def find_form_by_fields(self, *labels_or_names):
+        """Searches for the form which has fields for the labels passed as
+        arguments and returns the form node.
+
+        :returns: The form instance which has the searched fields.
+        :rtype: :py:class:`ftw.testbrowser.form.Form`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
+        """
+
+        previous_form = None
+
+        for label_or_name in labels_or_names:
+            form = self.find_form_by_field(label_or_name)
+
+            if form is None:
+                raise FormFieldNotFound(label_or_name, self.form_field_labels)
+
+            if previous_form is not None and form != previous_form:
+                raise AmbiguousFormFields()
+
+            previous_form = form
+
+        return previous_form
+
+    @property
+    def form_field_labels(self):
+        """A list of label texts and field names of each field in any form on
+        the current page.
+
+        The list contains the whitespace normalized label text of the each field.
+        If there is no label or it has an empty text, the fieldname is used instead.
+
+        :returns: A list of label texts (and field names).
+        :rtype: list of strings
+        """
+        return reduce(list.__add__,
+                      map(attrgetter('field_labels'),
+                          self.forms.values()))
 
     @property
     def context(self):

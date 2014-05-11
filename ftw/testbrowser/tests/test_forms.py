@@ -23,13 +23,13 @@ class TestBrowserForms(TestCase):
     @browsing
     def test_find_form_by_field_label(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(Form, type(Form.find_form_by_labels_or_names('Login Name')))
+        self.assertEquals(Form, type(browser.find_form_by_fields('Login Name')))
 
     @browsing
     def test_exception_when_field_not_found(self, browser):
         browser.open(view='login_form')
         with self.assertRaises(FormFieldNotFound) as cm:
-            Form.find_form_by_labels_or_names('First Name')
+            browser.find_form_by_fields('First Name')
         self.assertTrue(
             str(cm.exception).startswith('Could not find form field: "First Name".'
                                          ' Fields: '),
@@ -39,7 +39,7 @@ class TestBrowserForms(TestCase):
     def test_exception_when_chaning_fields_in_different_forms(self, browser):
         browser.open(view='login_form')
         with self.assertRaises(AmbiguousFormFields):
-            Form.find_form_by_labels_or_names('Login Name', 'Search Site')
+            browser.find_form_by_fields('Login Name', 'Search Site')
 
     @browsing
     def test_fill_field_by_name(self, browser):
@@ -145,7 +145,7 @@ class TestBrowserForms(TestCase):
     def test_find_widget(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
-        form = Form.find_form_by_labels_or_names('Title')
+        form = browser.find_form_by_fields('Title')
         widget = form.find_widget('Title')
         self.assertEquals('div', widget.tag)
         self.assertEquals(PloneWidget, type(widget))

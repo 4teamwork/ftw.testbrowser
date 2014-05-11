@@ -1,5 +1,4 @@
 from StringIO import StringIO
-from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
@@ -266,38 +265,6 @@ class Form(NodeWrapper):
                 return field
 
         return None
-
-    @classmethod
-    def get_browser(klass):
-        from ftw.testbrowser import browser
-        return browser
-
-    @classmethod
-    def find_form_by_labels_or_names(klass, *labels_or_names):
-        """Searches for the form which has fields for the labels passed as
-        arguments and returns the form node.
-
-        :returns: The form instance which has the searched fields.
-        :rtype: :py:class:`ftw.testbrowser.form.Form`
-        :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
-        :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
-        """
-        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
-        from ftw.testbrowser import browser
-
-        form_element = None
-        for label_or_name in labels_or_names:
-            form = browser.find_form_by_field(label_or_name)
-            if form is None:
-                labels = reduce(
-                    list.__add__,
-                    [form.field_labels for form in browser.forms.values()])
-                raise FormFieldNotFound(label_or_name, labels)
-            if form_element is not None and form != form_element:
-                raise AmbiguousFormFields()
-            form_element = form
-
-        return form_element
 
     def _submit_form(self, method, URL, values):
         request = self._make_mechanize_multipart_request(URL, values)
