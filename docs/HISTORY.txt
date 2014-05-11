@@ -10,6 +10,8 @@ Changelog
   - Support passing member objects to browser.login().
     The users / members are still expected to hav TEST_USER_PASSWORD as password.
 
+  - Refactor login to use the new request header methods.
+
   [jone]
 
 - Add request header methods for managing permanent request headers:

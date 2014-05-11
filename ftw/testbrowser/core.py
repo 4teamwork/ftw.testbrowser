@@ -276,9 +276,8 @@ class Browser(object):
         if hasattr(username, 'getUserName'):
             username = username.getUserName()
 
-        self.logout()
-        self.get_mechbrowser().addheaders.append(
-            ('Authorization', 'Basic %s:%s' % (username, password)))
+        self.replace_request_header('Authorization',
+                                    'Basic {0}:{1}'.format(username, password))
         self._authentication = (username, password)
         return self
 
@@ -286,12 +285,7 @@ class Browser(object):
         """Logout the current user by removing the ``Authorization`` header.
         """
         self._authentication = None
-
-        mechbrowser = self.get_mechbrowser()
-        auth_tuples = [item for item in mechbrowser.addheaders
-                       if item[0] == 'Authorization']
-        for item in auth_tuples:
-            mechbrowser.addheaders.remove(item)
+        self.clear_request_headers('Authorization')
         return self
 
     def css(self, css_selector):
