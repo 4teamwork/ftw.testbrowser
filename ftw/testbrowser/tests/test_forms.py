@@ -142,11 +142,11 @@ class TestBrowserForms(TestCase):
         self.assertEquals('Log in', button.value)
 
     @browsing
-    def test_find_widget_in_form(self, browser):
+    def test_find_widget(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
         form = Form.find_form_by_labels_or_names('Title')
-        widget = Form.find_widget_in_form(form, 'Title')
+        widget = form.find_widget('Title')
         self.assertEquals('div', widget.tag)
         self.assertEquals(PloneWidget, type(widget))
 

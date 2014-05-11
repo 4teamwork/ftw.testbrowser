@@ -229,6 +229,33 @@ class Form(NodeWrapper):
 
         return labels
 
+    def find_widget(self, label):
+        """Finds a Plone widget (div.field) in a form.
+
+        :param label: The label of the widget.
+        :type label: string
+        :returns: Returns the field node or `None`.
+        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
+        """
+
+        label = normalize_spaces(label)
+
+        label_node_xpath = '//label[normalize-space(text())="%s"]' % label
+        div_node_xpath = '//div[contains(concat(" ",' + \
+            'normalize-space(@class)," ")," label ")]' + \
+            '[normalize-space(text())="%s"]' % label
+        label_xpath = ' | '.join((label_node_xpath, div_node_xpath))
+
+        for label_node in self.xpath(label_xpath):
+            if not label_node.within(self):
+                continue
+
+            field = label_node.parent(css='div.field')
+            if field:
+                return field
+
+        return None
+
     @classmethod
     def get_browser(klass):
         from ftw.testbrowser import browser
@@ -311,40 +338,7 @@ class Form(NodeWrapper):
             if normalize_spaces(input.label.text_content()) == label:
                 return input
 
-        return klass.find_widget_in_form(form, label_or_name)
-
-    @classmethod
-    @wrapped_nodes
-    def find_widget_in_form(klass, form, label):
-        """Finds a Plone widget (div.field) in a form.
-
-        :param form: The form node.
-        :type form: :py:class:`ftw.testbrowser.form.Form`
-        :param label: The label of the widget.
-        :type label: string
-        :returns: Returns the field node or `None`.
-        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
-        """
-        # XXX REFACTOR TO NOT USE GLOBAL BROWSER
-        from ftw.testbrowser import browser
-        label = normalize_spaces(label)
-        form = wrap_node(form, browser)
-
-        label_node_xpath = '//label[normalize-space(text())="%s"]' % label
-        div_node_xpath = '//div[contains(concat(" ",' + \
-            'normalize-space(@class)," ")," label ")]' + \
-            '[normalize-space(text())="%s"]' % label
-        label_xpath = ' | '.join((label_node_xpath, div_node_xpath))
-
-        for label_node in form.xpath(label_xpath):
-            if not label_node.within(wrap_node(form, browser)):
-                continue
-
-            field = label_node.parent(css='div.field')
-            if field:
-                return field
-
-        return None
+        return wrap_node(form, browser).find_widget(label_or_name)
 
     def _submit_form(self, method, URL, values):
         request = self._make_mechanize_multipart_request(URL, values)
