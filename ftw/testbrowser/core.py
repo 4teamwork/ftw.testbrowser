@@ -116,9 +116,7 @@ class Browser(object):
         except BrowserStateError:
             pass
         url = self._normalize_url(url_or_object, view=view)
-        data = self._prepare_post_data(data)
-        self.response = self.get_mechbrowser().open(url, data=data)
-        self._load_html(self.response)
+        self._open_with_mechanize(url, data=data)
         return self
 
     def open_html(self, html):
@@ -165,6 +163,39 @@ class Browser(object):
             pass
 
         url = self._normalize_url(url_or_object, view=view)
+        self._open_with_requests(url, data=data, method=method, headers=headers)
+        return self
+
+    def _open_with_mechanize(self, url, data=None):
+        """Opens an internal request with the mechanize library.
+        Since the request is internally dispatched, no open server port is required.
+
+        :param url: A full qualified URL.
+        :type url: string
+        :param data: A dict with data which is posted using a `POST` request.
+        :type data: dict
+        """
+
+        data = self._prepare_post_data(data)
+        self.response = self.get_mechbrowser().open(url, data=data)
+        self._load_html(self.response)
+
+    def _open_with_requests(self, url, data=None, method='GET', headers=None):
+        """Opens a request with the requests library.
+        Since this request is actually executed over TCP/IP, an open server port
+        is required.
+
+        :param url: A full qualified URL.
+        :type url: string
+        :param data: A dict with data which is posted using a `POST` request or
+          a string with data.
+        :type data: dict or string
+        :param method: The request method, defaults to 'GET'.
+        :type method: string
+        :param headers: A dict with custom headers for this request.
+        :type headers: dict
+        """
+
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
@@ -174,7 +205,6 @@ class Browser(object):
                                              headers=headers)
 
         self._load_html(self.response)
-        return self
 
     @property
     def contents(self):
