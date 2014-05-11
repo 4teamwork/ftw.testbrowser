@@ -125,7 +125,7 @@ class TestMechanizeBrowserRequests(TestCase):
         self.assertEquals('Boss Hugo', plone.logged_in())
 
         browser.logout().open()
-        self.assertEquals(False, plone.logged_in())
+        self.assertFalse(plone.logged_in())
 
     @browsing
     def test_relogin_works(self, browser):
@@ -158,11 +158,14 @@ class TestMechanizeBrowserRequests(TestCase):
     @browsing
     def test_append_request_header(self, browser):
         browser.open()
-        self.assertEquals(False, plone.logged_in())
+        self.assertFalse(plone.logged_in())
 
-        browser.append_request_header('Authorization', 'Basic {0}:{1}'.format(
-                TEST_USER_NAME, TEST_USER_PASSWORD))
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
         browser.open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.open()  # reload
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     @browsing
@@ -170,28 +173,26 @@ class TestMechanizeBrowserRequests(TestCase):
         hugo = create(Builder('user').named('Hugo', 'Boss'))
         john = create(Builder('user').named('John', 'Doe'))
 
-        browser.append_request_header(
-            'Authorization',
-            'Basic {0}:{1}'.format(hugo.getId(), TEST_USER_PASSWORD))
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((hugo.getId(), TEST_USER_PASSWORD)).encode('base64')))
         browser.open()
         self.assertEquals('Boss Hugo', plone.logged_in())
 
-        browser.replace_request_header(
-            'Authorization',
-            'Basic {0}:{1}'.format(john.getId(), TEST_USER_PASSWORD))
+        browser.replace_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((john.getId(), TEST_USER_PASSWORD)).encode('base64')))
         browser.open()
         self.assertEquals('Doe John', plone.logged_in())
 
     @browsing
     def test_clear_request_header_with_header_selection(self, browser):
-        browser.append_request_header('Authorization', 'Basic {0}:{1}'.format(
-                TEST_USER_NAME, TEST_USER_PASSWORD))
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
         browser.open()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
         browser.clear_request_header('Authorization')
         browser.open()
-        self.assertEquals(False, plone.logged_in())
+        self.assertFalse(plone.logged_in())
 
 
 class TestRequestslibBrowserRequests(TestCase):
@@ -236,3 +237,57 @@ class TestRequestslibBrowserRequests(TestCase):
             browser.css('#test-form').first.submit()
             self.assertEquals({'textfield': '',
                                'submit-button': 'Submit'}, browser.json)
+
+    @browsing
+    def test_append_request_header(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open()
+        self.assertFalse(plone.logged_in())
+
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.open()  # reload
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_replace_request_header(self, browser):
+        browser.request_library = LIB_REQUESTS
+        hugo = create(Builder('user').named('Hugo', 'Boss'))
+        john = create(Builder('user').named('John', 'Doe'))
+
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((hugo.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.open()
+        self.assertEquals('Boss Hugo', plone.logged_in())
+
+        browser.replace_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((john.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.open()
+        self.assertEquals('Doe John', plone.logged_in())
+
+    @browsing
+    def test_clear_request_header_with_header_selection(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.append_request_header('Authorization', 'Basic {0}'.format(
+                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.clear_request_header('Authorization')
+        browser.open()
+        self.assertFalse(plone.logged_in())
+
+    @browsing
+    def test_login_and_logout(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open()
+        self.assertFalse(plone.logged_in())
+
+        browser.login().open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.logout().open()
+        self.assertFalse(plone.logged_in())

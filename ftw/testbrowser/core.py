@@ -84,7 +84,9 @@ class Browser(object):
         self.response = None
         self.document = None
         self.previous_url = None
-        self._authentication = None
+
+        # for requests lib only
+        self._request_headers = CaseInsensitiveDict()
 
     def __enter__(self):
         if self.next_app is None:
@@ -227,10 +229,13 @@ class Browser(object):
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
+        request_headers = self._request_headers.copy()
+        if headers:
+            request_headers.update(CaseInsensitiveDict(headers))
+
         with verbose_logging():
             self.response = requests.request(method, url, data=data,
-                                             auth=self._authentication,
-                                             headers=headers)
+                                             headers=request_headers)
 
         self._load_html(self.response)
         self.previous_request_library = LIB_REQUESTS
@@ -271,6 +276,10 @@ class Browser(object):
         Therefore this method does not replace existing names.
         Use `replace_request_header` for replacing headers.
 
+        Be aware that the ``requests`` library does not support multiple headers
+        with the same name, therefore it is always a replace for the requests
+        module.
+
         :param name: Name of the request header
         :type name: string
         :param value: Value of the request header
@@ -279,7 +288,13 @@ class Browser(object):
         .. seealso:: :py:func:`replace_request_header`
         .. seealso:: :py:func:`clear_request_header`
         """
-        self.get_mechbrowser().addheaders.append((name, value))
+
+        self._request_headers[name] = value
+
+        try:
+            self.get_mechbrowser().addheaders.append((name, value))
+        except BrowserNotSetUpException:
+            pass
 
     def replace_request_header(self, name, value):
         """Adds a permanent request header which is sent with every request.
@@ -305,11 +320,19 @@ class Browser(object):
         :param name: Name of the request header as positional arguments
         :type name: string
         """
-        addheaders = self.get_mechbrowser().addheaders
 
-        for header_name, value in addheaders[:]:
-            if header_name == name:
-                addheaders.remove((header_name, value))
+        if name in self._request_headers:
+            del self._request_headers[name]
+
+
+        try:
+            addheaders = self.get_mechbrowser().addheaders
+        except BrowserNotSetUpException:
+            pass
+        else:
+            for header_name, value in addheaders[:]:
+                if header_name == name:
+                    addheaders.remove((header_name, value))
 
     @property
     def cookies(self):
@@ -341,15 +364,14 @@ class Browser(object):
         if hasattr(username, 'getUserName'):
             username = username.getUserName()
 
-        self.replace_request_header('Authorization',
-                                    'Basic {0}:{1}'.format(username, password))
-        self._authentication = (username, password)
+        self.replace_request_header(
+            'Authorization', 'Basic {0}'.format(
+                ':'.join((username, password)).encode('base64').strip()))
         return self
 
     def logout(self):
         """Logout the current user by removing the ``Authorization`` header.
         """
-        self._authentication = None
         self.clear_request_header('Authorization')
         return self
 

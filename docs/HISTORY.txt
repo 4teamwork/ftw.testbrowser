@@ -5,6 +5,9 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Improve login and header support for equests library requests.
+  [jone]
+
 - Support form submitting with requests library.
   [jone]
 
