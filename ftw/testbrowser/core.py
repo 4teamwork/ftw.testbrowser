@@ -404,7 +404,6 @@ class Browser(object):
             if button is not None and button.within(within):
                 return button
 
-
     def find_form_by_field(self, field_label_or_name):
         """Searches for a field and returns the form containing the field.
         The field is searched by label text or field name.
@@ -451,8 +450,10 @@ class Browser(object):
         """A list of label texts and field names of each field in any form on
         the current page.
 
-        The list contains the whitespace normalized label text of the each field.
-        If there is no label or it has an empty text, the fieldname is used instead.
+        The list contains the whitespace normalized label text of the
+        each field.
+        If there is no label or it has an empty text, the fieldname is
+        used instead.
 
         :returns: A list of label texts (and field names).
         :rtype: list of strings

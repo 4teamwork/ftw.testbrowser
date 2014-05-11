@@ -49,7 +49,8 @@ class Form(NodeWrapper):
             if input.label is None:
                 continue
 
-            if label in (input.label.text, normalize_spaces(input.label.raw_text)):
+            if label in (input.label.text,
+                         normalize_spaces(input.label.raw_text)):
                 return input
 
         return self.find_widget(label_or_name)
@@ -222,8 +223,10 @@ class Form(NodeWrapper):
     def field_labels(self):
         """A list of label texts and field names of each field in this form.
 
-        The list contains the whitespace normalized label text of the each field.
-        If there is no label or it has an empty text, the fieldname is used instead.
+        The list contains the whitespace normalized label text of
+        each field.
+        If there is no label or it has an empty text, the fieldname
+        is used instead.
 
         :returns: A list of label texts (and field names).
         :rtype: list of strings

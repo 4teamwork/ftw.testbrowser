@@ -12,7 +12,7 @@ class SequenceWidget(PloneWidget):
 
     @staticmethod
     def match(node):
-        if not node.tag == 'div' or not 'field' in node.classes:
+        if not node.tag == 'div' or 'field' not in node.classes:
             return False
 
         if len(node.css('span.option')) == 0:

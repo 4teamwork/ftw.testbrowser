@@ -11,7 +11,7 @@ class ATMultiSelectionWidget(PloneWidget):
 
     @staticmethod
     def match(node):
-        if not node.tag == 'div' or not 'field' in node.classes:
+        if not node.tag == 'div' or 'field' not in node.classes:
             return False
 
         inputs = node.css('div.ArchetypesMultiSelectionValue input')
@@ -52,7 +52,8 @@ class ATMultiSelectionWidget(PloneWidget):
                 values.remove(input.attrib['value'])
 
         if values:
-            raise OptionsNotFound(normalize_spaces(self.label.raw_text), values)
+            raise OptionsNotFound(normalize_spaces(self.label.raw_text),
+                                  values)
 
     @property
     def label(self):
