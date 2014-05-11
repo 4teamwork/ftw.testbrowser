@@ -42,7 +42,19 @@ class Form(NodeWrapper):
         :returns: The field node
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
         """
-        return self.__class__.find_field_in_form(self.node, label_or_name)
+        label = normalize_spaces(label_or_name)
+
+        for input in self.inputs:
+            if input.name == label_or_name:
+                return input
+
+            if input.label is None:
+                continue
+
+            if label in (input.label.text, normalize_spaces(input.label.raw_text)):
+                return input
+
+        return self.find_widget(label_or_name)
 
     @wrapped_nodes
     def find_submit_buttons(self):
@@ -103,7 +115,7 @@ class Form(NodeWrapper):
         widgets = []
 
         for fieldname, value in values.items():
-            field = self.__class__.find_field_in_form(self.node, fieldname)
+            field = self.find_field(fieldname)
             if isinstance(field, PloneWidget):
                 widgets.append((field, value))
                 continue
@@ -203,7 +215,7 @@ class Form(NodeWrapper):
         :returns: The field name of the field.
         :rtype: string
         """
-        field = self.__class__.find_field_in_form(self.node, label)
+        field = self.find_field(label)
         if field is None:
             raise FormFieldNotFound(label, self.field_labels)
         return getattr(field, 'name', None)
@@ -300,45 +312,13 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`.
         """
 
-        for form in klass.get_browser().root.forms:
-            if klass.find_field_in_form(form, label_or_name) is not None:
-                return form
-        return None
-
-    @classmethod
-    @wrapped_nodes
-    def find_field_in_form(klass, form, label_or_name):
-        """Finds and returns a field with the passed label or name in the
-        passed form.
-
-        :param form: The form node.
-        :type form: :py:class:`ftw.testbrowser.form.Form`
-        :param label_or_name: The label or the name of the field.
-        :type label_or_name: string
-        :returns: Returns the field node or `None`.
-        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
-        """
-
-        label = normalize_spaces(label_or_name)
-
         # XXX REFACTOR TO NOT USE GLOBAL BROWSER
         from ftw.testbrowser import browser
 
-        for input in form.inputs:
-            input = wrap_node(input, browser)
-            if input.name == label_or_name:
-                return input
-
-            if input.label is None:
-                continue
-
-            if normalize_spaces(input.label.text) == label:
-                return input
-
-            if normalize_spaces(input.label.text_content()) == label:
-                return input
-
-        return wrap_node(form, browser).find_widget(label_or_name)
+        for form in klass.get_browser().root.forms:
+            if wrap_node(form, browser).find_field(label_or_name) is not None:
+                return form
+        return None
 
     def _submit_form(self, method, URL, values):
         request = self._make_mechanize_multipart_request(URL, values)
@@ -351,7 +331,7 @@ class Form(NodeWrapper):
         mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
 
         for fieldname, value in values:
-            field = self.__class__.find_field_in_form(self.node, fieldname)
+            field = self.find_field(fieldname)
             if isinstance(field, FileField):
                 field.write_mime_data(mw)
             else:
