@@ -408,6 +408,23 @@ class Browser(object):
             if button is not None and button.within(within):
                 return button
 
+
+    def find_form_by_field(self, field_label_or_name):
+        """Searches for a field and returns the form containing the field.
+        The field is searched by label text or field name.
+        If no field was found, `None` is returned.
+
+        :param label_or_name: The label or the name of the field.
+        :type label_or_name: string
+        :returns: The form instance which has the searched fields or `None`
+        :rtype: :py:class:`ftw.testbrowser.form.Form`.
+        """
+
+        for form in self.forms.values():
+            if form.find_field(field_label_or_name):
+                return form
+        return None
+
     @property
     def context(self):
         """Returns the current context (Plone object) of the currently

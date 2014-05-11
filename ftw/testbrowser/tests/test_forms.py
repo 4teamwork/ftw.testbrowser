@@ -137,7 +137,7 @@ class TestBrowserForms(TestCase):
     @browsing
     def test_find_submit_buttons(self, browser):
         browser.open(view='login_form')
-        form = Form(Form.find_form_element_by_label_or_name('Login Name'), browser)
+        form = browser.find_form_by_field('Login Name')
         button = form.find_submit_buttons().first
         self.assertEquals('Log in', button.value)
 

@@ -46,7 +46,6 @@ Forms, fields and widgets
    :members:
 
    .. py:classmethod:: find_form_by_labels_or_names
-   .. py:classmethod:: find_form_element_by_label_or_name
 
 .. autoclass:: ftw.testbrowser.form.TextAreaField
    :show-inheritance:
