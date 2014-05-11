@@ -26,6 +26,7 @@ METHODS_TO_WRAP = (
 
 PROPERTIES_TO_WRAP = (
     'body',
+    'label',
     )
 
 
