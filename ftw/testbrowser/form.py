@@ -1,4 +1,6 @@
 from StringIO import StringIO
+from ftw.testbrowser.core import LIB_MECHANIZE
+from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
@@ -8,6 +10,7 @@ from mechanize import Request
 from mechanize._form import MimeWriter
 import lxml.html.formfill
 import mimetypes
+import urlparse
 
 
 class Form(NodeWrapper):
@@ -270,10 +273,43 @@ class Form(NodeWrapper):
         return None
 
     def _submit_form(self, method, URL, values):
-        request = self._make_mechanize_multipart_request(URL, values)
-        self.browser.open(request)
+        if not urlparse.urlparse(URL).scheme:
+            # We have a relative URL - make it absolute by using
+            # the last request URL as base.
+            URL = urlparse.urljoin(self.browser.url, URL)
 
-    def _make_mechanize_multipart_request(self, URL, values):
+        if self.browser.request_library == LIB_MECHANIZE:
+            return self._make_mechanize_multipart_request(URL, values)
+        elif self.browser.request_library == LIB_REQUESTS:
+            return self._make_requests_multipart_request(URL, values)
+        else:
+            raise ValueError('Unkown request library: {0}'.format(
+                    self.browser.request_library))
+
+    def _make_mechanize_multipart_request(self, url, values):
+        request_body, request_headers = self._prepare_multipart_request(url, values)
+
+        request = Request(url, request_body)
+        for key, val in request_headers:
+            add_hdr = request.add_header
+            if key.lower() == "content-type":
+                try:
+                    add_hdr = request.add_unredirected_header
+                except AttributeError:
+                    # pre-2.4 and not using ClientCookie
+                    pass
+            add_hdr(key, val)
+
+        return self.browser._open_with_mechanize(request)
+
+    def _make_requests_multipart_request(self, url, values):
+        request_body, request_headers = self._prepare_multipart_request(url, values)
+        return self.browser._open_with_requests(url,
+                                                data=request_body,
+                                                headers=dict(request_headers),
+                                                method='POST')
+
+    def _prepare_multipart_request(self, URL, values):
         data = StringIO()
         http_headers = []
         mw = MimeWriter(data, http_headers)
@@ -291,19 +327,7 @@ class Form(NodeWrapper):
                 f.write(value)
 
         mw.lastpart()
-
-        request = Request(URL, data.getvalue().encode('utf-8'))
-        for key, val in http_headers:
-            add_hdr = request.add_header
-            if key.lower() == "content-type":
-                try:
-                    add_hdr = request.add_unredirected_header
-                except AttributeError:
-                    # pre-2.4 and not using ClientCookie
-                    pass
-            add_hdr(key, val)
-
-        return request
+        return data.getvalue().encode('utf-8'), http_headers
 
 
 class TextAreaField(NodeWrapper):

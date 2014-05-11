@@ -229,3 +229,10 @@ class TestRequestslibBrowserRequests(TestCase):
             browser.open(self.layer['portal'].absolute_url())
             self.assertEquals('requests',
                               browser.response.__class__.__module__.split('.')[0])
+
+    def test_form_submitting_with_requests_library(self):
+        with Browser() as browser:
+            browser.visit(view='test-form')
+            browser.css('#test-form').first.submit()
+            self.assertEquals({'textfield': '',
+                               'submit-button': 'Submit'}, browser.json)
