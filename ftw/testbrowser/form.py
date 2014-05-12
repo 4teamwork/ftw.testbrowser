@@ -10,6 +10,7 @@ from mechanize import Request
 from mechanize._form import MimeWriter
 import lxml.html.formfill
 import mimetypes
+import shutil
 import urlparse
 
 
@@ -387,28 +388,30 @@ class FileField(NodeWrapper):
         if attrname != 'value':
             return self.node.set(attrname, value)
 
-        data, filename, content_type = self._normalize_value(value)
-        control = self._get_mechbrowser_control()
-        control.add_file(data, content_type, filename)
+        # store the value into the browser cache, since the lxml document
+        # can only store strings.
+        self.browser.form_files[self.node] = self._normalize_value(value)
         self.node.set('value', '____marker____')
 
     def write_mime_data(self, mime_writer):
-        control = self._get_mechbrowser_control()
-        control._write_mime_data(mime_writer, None, None)
+        value = self.browser.form_files.get(self.node, None)
+        if value is None:
+            file_object = StringIO()
+            filename = ''
+            content_type = 'application/octet-stream'
+        else:
+            file_object, filename, content_type = value
 
-    def _get_mechbrowser_control(self):
-        mechbrowser = self.browser.get_mechbrowser()
+        mime_part = mime_writer.nextpart()
+        mime_part.addheader(
+            'Content-Disposition',
+            'form-data; name="{0}"; filename="{1}"'.format(
+                self.name, filename),
+            prefix=1)
 
-        form = self.parent('form')
-        form_name = form.attrib.get('name')
-        assert form_name, ('The form %s has no name attribute,'
-                           ' which is required for file uploads.') % form
-        mechbrowser.select_form(name=form_name)
-
-        field_name = self.attrib.get('name')
-        assert field_name, ('The field %s has no name,'
-                            ' which is required for file uploads.') % self
-        return mechbrowser.find_control(name=field_name)
+        filehandle = mime_part.startbody(content_type, prefix=0)
+        file_object.seek(0)
+        shutil.copyfileobj(file_object, filehandle)
 
     def _normalize_value(self, value):
         filename = None

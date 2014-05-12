@@ -84,6 +84,7 @@ class Browser(object):
         self.response = None
         self.document = None
         self.previous_url = None
+        self.form_files = {}
 
         # for requests lib only
         self._request_headers = CaseInsensitiveDict()
@@ -659,6 +660,8 @@ class Browser(object):
         return url
 
     def _load_html(self, html):
+        self.form_files = {}
+
         if hasattr(html, 'seek'):
             html.seek(0)
 
