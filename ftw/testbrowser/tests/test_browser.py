@@ -1,6 +1,7 @@
 from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
 from plone.app.testing import TEST_USER_NAME
@@ -52,9 +53,21 @@ class TestBrowserCore(TestCase):
             Browser().contents
 
     @browsing
+    def test_contents_raises_when_on_blank_page(self, browser):
+        with self.assertRaises(BlankPage) as cm:
+            browser.contents
+        self.assertEquals('The browser is on a blank page.', str(cm.exception))
+
+    @browsing
     def test_json(self, browser):
         browser.open_html('{"foo": "bar"}')
         self.assertEquals({'foo': 'bar'}, browser.json)
+
+    @browsing
+    def test_json_raises_when_on_blank_page(self, browser):
+        with self.assertRaises(BlankPage) as cm:
+            browser.json
+        self.assertEquals('The browser is on a blank page.', str(cm.exception))
 
     @browsing
     def test_json_raises_when_parsing_not_possible(self, browser):

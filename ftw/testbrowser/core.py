@@ -271,6 +271,9 @@ class Browser(object):
         """
         self._verify_setup()
 
+        if self.response is None:
+            raise BlankPage()
+
         if isinstance(self.response, requests.Response):
             return self.response.content
         else:
