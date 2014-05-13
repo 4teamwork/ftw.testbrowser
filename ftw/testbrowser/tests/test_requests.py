@@ -301,6 +301,12 @@ class TestRequestslibBrowserRequests(TestCase):
                                'submit-button': 'Submit'}, browser.json)
 
     @browsing
+    def test_post_request_with_umlauts(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
+        self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
+
+    @browsing
     def test_requests_library_keeps_cookies_in_session(self, browser):
         browser.request_library = LIB_REQUESTS
         browser.open(view='login_form')

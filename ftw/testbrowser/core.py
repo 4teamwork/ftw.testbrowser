@@ -258,7 +258,8 @@ class Browser(object):
         :param data: A dict with data which is posted using a `POST` request or
           a string with data.
         :type data: dict or string
-        :param method: The request method, defaults to 'GET'.
+        :param method: The request method, defaults to 'GET', unless ``data`` is
+          provided, then its set to 'POST'.
         :type method: string
         :param headers: A dict with custom headers for this request.
         :type headers: dict
@@ -270,6 +271,9 @@ class Browser(object):
         self.previous_url = self.url
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
+
+        if data and method == 'GET':
+            method = 'POST'
 
         with verbose_logging():
             self.response = self.requests_session.request(method,

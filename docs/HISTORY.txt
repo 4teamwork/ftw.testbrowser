@@ -23,6 +23,7 @@ Changelog
   - Improve login and header support for equests library requests.
   - Add browser.cookies support for requests library requests.
   - Use requests library sessions, so that cookies and headers persist.
+  - Automatically use "POST" when data is submitted.
 
   [jone]
 
