@@ -6,10 +6,12 @@ version = '1.10.1.dev0'
 
 
 tests_require = [
+    'Products.CMFCore',
     'Products.statusmessages',
     'ftw.builder',
     'plone.app.contenttypes',
     'plone.formwidget.autocomplete',
+    'plone.formwidget.contenttree',
     'plone.z3cform',
     'unittest2',
     'z3c.form',
@@ -53,6 +55,7 @@ setup(name='ftw.testbrowser',
         'requests',
         'setuptools',
         'zope.component',
+        'zope.deprecation',
         'zope.interface',
         ],
 
