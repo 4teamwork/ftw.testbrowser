@@ -5,6 +5,9 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Implement browser.reload method, reloading the current page.
+  [jone]
+
 - Improve login and header support for equests library requests.
   [jone]
 

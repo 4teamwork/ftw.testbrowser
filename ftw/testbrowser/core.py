@@ -1,5 +1,6 @@
 from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
+from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
@@ -85,6 +86,8 @@ class Browser(object):
         self.document = None
         self.previous_url = None
         self.form_files = {}
+
+        self.previous_request = None
 
         # for requests lib only
         self._request_headers = CaseInsensitiveDict()
@@ -203,6 +206,9 @@ class Browser(object):
         :param data: A dict with data which is posted using a `POST` request.
         :type data: dict
         """
+        args = locals().copy()
+        del args['self']
+        self.previous_request = ('_open_with_mechanize', args)
 
         self.previous_url = self.url
         data = self._prepare_post_data(data)
@@ -225,6 +231,9 @@ class Browser(object):
         :param headers: A dict with custom headers for this request.
         :type headers: dict
         """
+        args = locals().copy()
+        del args['self']
+        self.previous_request = ('_open_with_requests', args)
 
         self.previous_url = self.url
         if urlparse.urlparse(url).hostname == 'nohost':
@@ -240,6 +249,21 @@ class Browser(object):
 
         self._load_html(self.response)
         self.previous_request_library = LIB_REQUESTS
+
+    def reload(self):
+        """Reloads the current page by redoing the previous requests with
+        the same arguments.
+        This applies for GET as well as POST requests.
+
+        :raises: :py:exc:`ftw.testbrowser.exceptions.BlankPage`
+        """
+        if self.previous_request is None:
+            raise BlankPage('Cannot reload.')
+
+        request_opener_name, arguments = self.previous_request
+        request_opener = getattr(self, request_opener_name)
+        request_opener(**arguments)
+        return self
 
     @property
     def contents(self):

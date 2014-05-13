@@ -6,6 +6,7 @@ from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
@@ -194,6 +195,34 @@ class TestMechanizeBrowserRequests(TestCase):
         browser.open()
         self.assertFalse(plone.logged_in())
 
+    @browsing
+    def test_reload_GET_request(self, browser):
+        browser.open(view='login_form')
+        browser.fill({'Login Name': 'the-user-id'})
+        self.assertDictContainsSubset(
+            {'__ac_name': 'the-user-id'},
+            dict(browser.forms['login_form'].values))
+
+        browser.reload()
+        self.assertDictContainsSubset(
+            {'__ac_name': ''},
+            dict(browser.forms['login_form'].values))
+
+    @browsing
+    def test_reload_POST_reqest(self, browser):
+        browser.visit(view='test-form')
+        browser.fill({'Text field': 'Some Value'}).submit()
+        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
+        browser.reload()
+        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
+
+    @browsing
+    def test_reload_when_not_viewing_a_page(self, browser):
+        with self.assertRaises(BlankPage) as cm:
+            browser.reload()
+        self.assertEquals('The browser is on a blank page. Cannot reload.',
+                          str(cm.exception))
+
 
 class TestRequestslibBrowserRequests(TestCase):
 
@@ -291,3 +320,26 @@ class TestRequestslibBrowserRequests(TestCase):
 
         browser.logout().open()
         self.assertFalse(plone.logged_in())
+
+    @browsing
+    def test_reload_GET_request(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(view='login_form')
+        browser.fill({'Login Name': 'the-user-id'})
+        self.assertDictContainsSubset(
+            {'__ac_name': 'the-user-id'},
+            dict(browser.forms['login_form'].values))
+
+        browser.reload()
+        self.assertDictContainsSubset(
+            {'__ac_name': ''},
+            dict(browser.forms['login_form'].values))
+
+    @browsing
+    def test_reload_POST_reqest(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.visit(view='test-form')
+        browser.fill({'Text field': 'Some Value'}).submit()
+        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
+        browser.reload()
+        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
