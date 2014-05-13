@@ -5,27 +5,22 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
-- Use requests library sessions, so that cookies and headers persist.
-  [jone]
-
 - New browser.on method, a lazy variant of browser.open.
   [jone]
 
-- Add browser.cookies support for requests library requests.
+- New browser.reload method, reloading the current page.
   [jone]
 
-- Implement browser.reload method, reloading the current page.
-  [jone]
+- Improve requests library support:
 
-- Improve login and header support for equests library requests.
-  [jone]
+  - Support choosing requests library, make Zope app setup optional.
+    When no Zope app is set up, the ``requests`` library is set as default,
+    otherwise ``mechanize``.
+  - Support form submitting with requests library.
+  - Improve login and header support for equests library requests.
+  - Add browser.cookies support for requests library requests.
+  - Use requests library sessions, so that cookies and headers persist.
 
-- Support form submitting with requests library.
-  [jone]
-
-- Support choosing requests library, make Zope app setup optional.
-  When no Zope app is set up, the ``requests`` library is set as default,
-  otherwise ``mechanize``.
   [jone]
 
 - Login improvements:
