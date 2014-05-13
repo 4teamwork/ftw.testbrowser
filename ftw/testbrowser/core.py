@@ -17,6 +17,7 @@ from zope.interface import implements
 import json
 import lxml
 import lxml.html
+import os
 import pkg_resources
 import requests
 import tempfile
@@ -709,6 +710,23 @@ class Browser(object):
             self.get_mechbrowser().addheaders.append((
                     'X-zope-handle-errors', 'False'))
         return self.mechbrowser
+
+    def debug(self):
+        """Open the current page in your real browser by writing the contents
+        into a temporary file and opening it with os.system ``open [FILE]``.
+
+        This is meant to be used in pdb, not in actual code.
+        """
+        _, path = tempfile.mkstemp(suffix='.html',
+                                   prefix='ftw.testbrowser-')
+        with open(path, 'w+') as file_:
+            source = self.contents
+            if isinstance(source, unicode):
+                source = source.encode('utf-8')
+            file_.write(source)
+        cmd = 'open {0}'.format(path)
+        print '> {0}'.format(cmd)
+        os.system(cmd)
 
     def _verify_setup(self):
         if self.request_library is None:

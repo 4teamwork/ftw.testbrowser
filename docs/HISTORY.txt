@@ -5,6 +5,9 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- New browser.debug method, opening the current page in your real browser.
+  [jone]
+
 - New browser.on method, a lazy variant of browser.open.
   [jone]
 
