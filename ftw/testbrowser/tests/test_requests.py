@@ -301,6 +301,25 @@ class TestRequestslibBrowserRequests(TestCase):
                                'submit-button': 'Submit'}, browser.json)
 
     @browsing
+    def test_requests_library_keeps_cookies_in_session(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(view='login_form')
+        self.assertEquals(0, len(browser.cookies))
+
+        browser.fill({'Login Name': TEST_USER_NAME,
+                      'Password': TEST_USER_PASSWORD}).submit()
+        self.assertIn('__ac', browser.cookies)
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.open()
+        self.assertIn('__ac', browser.cookies)
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        browser.open()
+        self.assertIn('__ac', browser.cookies)
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
     def test_append_request_header(self, browser):
         browser.request_library = LIB_REQUESTS
         browser.open()

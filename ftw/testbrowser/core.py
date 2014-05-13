@@ -88,9 +88,7 @@ class Browser(object):
         self.form_files = {}
 
         self.previous_request = None
-
-        # for requests lib only
-        self._request_headers = CaseInsensitiveDict()
+        self.requests_session = requests.Session()
 
     def __enter__(self):
         if self.next_app is None:
@@ -255,13 +253,11 @@ class Browser(object):
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
-        request_headers = self._request_headers.copy()
-        if headers:
-            request_headers.update(CaseInsensitiveDict(headers))
-
         with verbose_logging():
-            self.response = requests.request(method, url, data=data,
-                                             headers=request_headers)
+            self.response = self.requests_session.request(method,
+                                                          url,
+                                                          data=data,
+                                                          headers=headers)
 
         self._load_html(self.response)
         self.previous_request_library = LIB_REQUESTS
@@ -336,7 +332,7 @@ class Browser(object):
         .. seealso:: :py:func:`clear_request_header`
         """
 
-        self._request_headers[name] = value
+        self.requests_session.headers.update({name: value})
 
         try:
             self.get_mechbrowser().addheaders.append((name, value))
@@ -368,9 +364,8 @@ class Browser(object):
         :type name: string
         """
 
-        if name in self._request_headers:
-            del self._request_headers[name]
-
+        if name in self.requests_session.headers:
+            del self.requests_session.headers[name]
 
         try:
             addheaders = self.get_mechbrowser().addheaders
@@ -394,7 +389,7 @@ class Browser(object):
                 cookies[cookie.name] = vars(cookie)
 
         elif self.previous_request_library is LIB_REQUESTS:
-            for domain_cookies in self.response.cookies._cookies.values():
+            for domain_cookies in self.requests_session.cookies._cookies.values():
                 for path_cookies in domain_cookies.values():
                     for cookie_name, cookie in path_cookies.items():
                         cookies[cookie_name] = vars(cookie)
