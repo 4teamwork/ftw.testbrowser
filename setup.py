@@ -10,6 +10,7 @@ tests_require = [
     'Products.statusmessages',
     'ftw.builder',
     'plone.app.contenttypes',
+    'plone.app.testing',
     'plone.formwidget.autocomplete',
     'plone.formwidget.contenttree',
     'plone.z3cform',
@@ -20,6 +21,11 @@ tests_require = [
     'zope.publisher',
     'zope.schema',
     ]
+
+
+extras_require = {
+    'tests': tests_require,
+    'plone': ['plone.app.testing']}
 
 
 setup(name='ftw.testbrowser',
@@ -50,7 +56,6 @@ setup(name='ftw.testbrowser',
       install_requires=[
         'lxml',
         'mechanize',
-        'plone.app.testing',
         'plone.testing',
         'requests',
         'setuptools',
@@ -60,7 +65,7 @@ setup(name='ftw.testbrowser',
         ],
 
       tests_require=tests_require,
-      extras_require=dict(tests=tests_require),
+      extras_require=extras_require,
 
       entry_points="""
       # -*- Entry points: -*-

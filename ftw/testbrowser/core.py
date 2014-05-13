@@ -11,19 +11,36 @@ from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
 from operator import attrgetter
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import TEST_USER_PASSWORD
-from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
 from requests.structures import CaseInsensitiveDict
 from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
 import lxml.html
+import pkg_resources
 import requests
 import tempfile
 import urllib
 import urlparse
+
+
+try:
+    pkg_resources.get_distribution('plone.app.testing')
+except pkg_resources.DistributionNotFound:
+    TEST_USER_NAME = 'test-user'
+    TEST_USER_PASSWORD = 'secret'
+else:
+    from plone.app.testing import TEST_USER_NAME
+    from plone.app.testing import TEST_USER_PASSWORD
+
+try:
+    pkg_resources.get_distribution('zope.testbrowser')
+except pkg_resources.DistributionNotFound:
+    HAS_PLONE_EXTRAS = False
+else:
+    HAS_PLONE_EXTRAS = True
+    from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
+
 
 
 #: Constant for choosing the mechanize library (interally dispatched requests)
@@ -678,6 +695,11 @@ class Browser(object):
 
     def get_mechbrowser(self):
         self._verify_setup()
+
+        if not HAS_PLONE_EXTRAS:
+            raise ImportError(
+                'Could not import zope.testbrowser.'
+                ' Please install ftw.testbrowser[plone] extras.')
 
         if self.app is None:
             raise BrowserNotSetUpException()
