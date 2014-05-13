@@ -290,8 +290,11 @@ class Browser(object):
         """
         if isinstance(self.response, requests.Response):
             return self.response.headers
-        else:
+        elif getattr(self.response, 'info', None) is not None:
             return CaseInsensitiveDict(self.response.info().items())
+        else:
+            # Page was opened with open_html - we have no response headers.
+            return {}
 
     def append_request_header(self, name, value):
         """Add a new permanent request header which is sent with every request
