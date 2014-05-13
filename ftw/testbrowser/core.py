@@ -369,11 +369,20 @@ class Browser(object):
     def cookies(self):
         """A read-only dict of current cookies.
         """
-        mechbrowser = self.get_mechbrowser()
-        cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
         cookies = {}
-        for cookie in cookiejar:
-            cookies[cookie.name] = vars(cookie)
+
+        if self.previous_request_library is LIB_MECHANIZE:
+            mechbrowser = self.get_mechbrowser()
+            cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
+            for cookie in cookiejar:
+                cookies[cookie.name] = vars(cookie)
+
+        elif self.previous_request_library is LIB_REQUESTS:
+            for domain_cookies in self.response.cookies._cookies.values():
+                for path_cookies in domain_cookies.values():
+                    for cookie_name, cookie in path_cookies.items():
+                        cookies[cookie_name] = vars(cookie)
+
         return cookies
 
     @property

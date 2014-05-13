@@ -5,6 +5,9 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Add browser.cookies support for requests library requests.
+  [jone]
+
 - Implement browser.reload method, reloading the current page.
   [jone]
 

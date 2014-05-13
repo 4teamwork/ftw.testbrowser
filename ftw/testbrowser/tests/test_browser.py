@@ -101,6 +101,15 @@ class TestBrowserCore(TestCase):
                                       browser.cookies.get('__ac', None))
 
     @browsing
+    def test_cookies_REQUESTS(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(view='login_form')
+        browser.fill({'Login Name': TEST_USER_NAME,
+                      'Password': TEST_USER_PASSWORD}).submit()
+        self.assertDictContainsSubset(AC_COOKIE_INFO,
+                                      browser.cookies.get('__ac', None))
+
+    @browsing
     def test_url_MECHANIZE(self, browser):
         browser.open(view='login_form')
         self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
