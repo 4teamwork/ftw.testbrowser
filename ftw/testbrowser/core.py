@@ -155,6 +155,22 @@ class Browser(object):
 
         return self
 
+    def on(self, url_or_object=None, data=None, view=None, library=None):
+        """``on`` does almost the same thing as ``open``. The difference is that
+        ``on`` does not reload the page if the current page is the same as the
+        requested one.
+
+        Be aware that filled form field values may stay when the page is not reloaded.
+
+        .. seealso:: :py:func:`open`
+        """
+        url = self._normalize_url(url_or_object, view=view)
+        if url == self.url:
+            return self
+
+        return self.open(url_or_object=url_or_object, data=data, view=view,
+                         library=library)
+
     def open_html(self, html):
         """Opens a HTML page in the browser without doing a request.
         The passed ``html`` may be a string or a file-like stream.

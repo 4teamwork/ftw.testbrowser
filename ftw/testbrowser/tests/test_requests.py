@@ -85,6 +85,39 @@ class TestMechanizeBrowserRequests(TestCase):
                           browser.url)
 
     @browsing
+    def test_on_opens_a_page(self, browser):
+        browser.on(view='login_form')
+        self.assertEquals('login_form', browser.url.split('/')[-1])
+
+    @browsing
+    def test_on_changes_page_when_necessary(self, browser):
+        browser.open()
+        self.assertEquals('plone', browser.url.split('/')[-1])
+        browser.on(view='login_form')
+        self.assertEquals('login_form', browser.url.split('/')[-1])
+
+    @browsing
+    def test_on_does_not_reload_when_already_on_this_page(self, browser):
+        # Not reloading the page also means not resetting the state of the
+        # document - that means for example that filled form field values
+        # are not reset.
+        # We use this behavior in this test, since it is an easy we to test
+        # whether there was a request invoked or not.
+
+        browser.open(view='login_form')
+        browser.fill({'Login Name': 'userid'})
+        self.assertDictContainsSubset(
+            {'__ac_name': 'userid'},
+            dict(browser.forms['login_form'].values))
+
+        browser.on(view='login_form')
+        self.assertDictContainsSubset(
+            {'__ac_name': 'userid'},
+            dict(browser.forms['login_form'].values),
+            'Seems that the page was reloaded when using browser.on'
+            ' even though we are already on this page.')
+
+    @browsing
     def test_loading_string_html_without_request(self, browser):
         html = '\n'.join(('<html>',
                           '<h1>The heading</h1>',
