@@ -298,10 +298,7 @@ class Form(NodeWrapper):
         return urlparse.urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
-        if not urlparse.urlparse(URL).scheme:
-            # We have a relative URL - make it absolute by using
-            # the last request URL as base.
-            URL = urlparse.urljoin(self.browser.url, URL)
+        URL = self.action_url
 
         if self.browser.request_library == LIB_MECHANIZE:
             return self._make_mechanize_multipart_request(URL, values)

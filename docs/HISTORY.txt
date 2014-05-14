@@ -60,6 +60,8 @@ Changelog
   - Form.find_form_by_labels_or_names (class method) is removed and replaced with
     browser.find_form_by_fields.
   - New Form.action_url property with the full qualified action URL.
+  - Fix form action URL bug when using relative paths in combination with
+    document-style base url.
 
   [jone]
 
