@@ -16,6 +16,7 @@ applications.
     quickstart.rst
     userdoc.rst
     api.rst
+    HISTORY.rst
 
 
 Links
