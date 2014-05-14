@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.0 (unreleased)
+1.11.0 (2014-05-14)
 -------------------
 
 - New browser.base_url property, respecting the <base> tag.
