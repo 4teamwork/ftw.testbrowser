@@ -430,6 +430,17 @@ class Browser(object):
         elif self.previous_request_library is LIB_REQUESTS:
             return self.response.url
 
+    @property
+    def base_url(self):
+        """The base URL of the current page.
+        The base URL can be defined in HTML using a ``<base>``-tag.
+        If no ``<base>``-tag is found, the page URL is used.
+        """
+        base_tags = self.css('base')
+        if base_tags:
+            return base_tags.first.attrib.get('href', self.url)
+        return self.url
+
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
         """

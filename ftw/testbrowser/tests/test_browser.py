@@ -4,6 +4,7 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
@@ -115,6 +116,36 @@ class TestBrowserCore(TestCase):
         self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
                                     'login_form')),
                           browser.url)
+
+    @browsing
+    def test_base_url_is_base_url_tag(self, browser):
+        portal_url = self.layer['portal'].absolute_url() + '/'
+        folder_contents_url = portal_url + 'folder_contents'
+
+        browser.login(SITE_OWNER_NAME).open(folder_contents_url)
+        self.assertEquals(portal_url, browser.base_url)
+        self.assertEquals(folder_contents_url, browser.url)
+
+    @browsing
+    def test_base_url_falls_back_to_page_url(self, browser):
+        portal_url = self.layer['portal'].absolute_url() + '/'
+        # The test-form-result returns json and thus has no base tag
+        view_url = portal_url + 'test-form-result'
+
+        browser.login(SITE_OWNER_NAME).open(view_url)
+        self.assertEquals(view_url, browser.base_url)
+
+    @browsing
+    def test_base_url_with_open_html(self, browser):
+        browser.open_html('<html><head>'
+                          '<base href="http://nohost/foo/bar" />'
+                          '</head></html>')
+        self.assertEquals('http://nohost/foo/bar', browser.base_url)
+
+    @browsing
+    def test_base_url_is_None_when_unkown(self, browser):
+        browser.open_html('<html><head></head></html>')
+        self.assertIsNone(browser.base_url)
 
     @browsing
     def test_url_REQUESTS(self, browser):
