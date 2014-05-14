@@ -150,6 +150,69 @@ class TestBrowserForms(TestCase):
         self.assertEquals('div', widget.tag)
         self.assertEquals(PloneWidget, type(widget))
 
+    @browsing
+    def test_action_url__fqdn(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <form action="http://localhost/foo" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_doc(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo">'
+            ' <form action="bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_folder(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/">'
+            ' <form action="bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_with_dot(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/">'
+            ' <form action="./bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_absolute_to_base(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/bar">'
+            ' <form action="/baz" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/baz', form.action_url)
+
+    @browsing
+    def test_action_url__no_action_uses_browser_url(self, browser):
+        url = self.layer['portal'].absolute_url() + '/folder_contents'
+
+        browser.login(SITE_OWNER_NAME).open(url)
+        browser.open_html(
+            '<html>'
+            ' <form id="form"></form>'
+            '</html>')
+        self.assertEquals(url, browser.url)
+
+        form = browser.css('#form').first
+        self.assertEquals(url, form.action_url)
+
 
 class TestSubmittingForms(TestCase):
 

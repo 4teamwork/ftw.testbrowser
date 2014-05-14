@@ -273,6 +273,30 @@ class Form(NodeWrapper):
 
         return None
 
+    @property
+    def action_url(self):
+        """The full qualified URL to send the form to.
+        This should imitate normal browser behavior:
+
+        If the action is full qualified, use it as it is.
+        If the action is relative, make it absolute by joining
+        it with the page's base URL.
+        If there is no action, the action is the current page URL.
+
+        The page's base URL can be set in the HTML document with
+        a ``<base>``-tag, otherwise the page URL is used.
+        """
+
+        action = self.attrib.get('action', None)
+        if not action:
+            return self.browser.url
+
+        if urlparse.urlparse(action).scheme:
+            # The action is full qualified
+            return action
+
+        return urlparse.urljoin(self.browser.base_url, action)
+
     def _submit_form(self, method, URL, values):
         if not urlparse.urlparse(URL).scheme:
             # We have a relative URL - make it absolute by using
