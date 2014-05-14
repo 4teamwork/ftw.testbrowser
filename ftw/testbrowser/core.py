@@ -43,7 +43,6 @@ else:
     from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
 
 
-
 #: Constant for choosing the mechanize library (interally dispatched requests)
 LIB_MECHANIZE = 'mechanize library'
 
@@ -135,14 +134,14 @@ class Browser(object):
 
         *Request library:*
         When running tests on a Plone testing layer and using the ``@browsing``
-        decorator, the ``mechanize`` library is used by default, dispatching the
-        request internal directly into Zope.
-        When the testbrowser is used differently (no decorator nor zope app setup),
-        the ``requests`` library is used, doing actual requests.
+        decorator, the ``mechanize`` library is used by default, dispatching
+        the request internal directly into Zope.
+        When the testbrowser is used differently (no decorator nor zope app
+        setup), the ``requests`` library is used, doing actual requests.
         If the default does not fit your needs you can change the library per
         request by passing in ``LIB_MECHANIZE`` or ``LIB_REQUESTS`` or you can
-        change the library for the session by setting ``browser.request_library``
-        to either of those constants.
+        change the library for the session by setting
+        ``browser.request_library`` to either of those constants.
 
         :param url_or_object: A full qualified URL or a Plone object (which has
           an ``absolute_url`` method). Defaults to the Plone Site URL.
@@ -176,7 +175,8 @@ class Browser(object):
         ``on`` does not reload the page if the current page is the same as the
         requested one.
 
-        Be aware that filled form field values may stay when the page is not reloaded.
+        Be aware that filled form field values may stay when the page is
+        not reloaded.
 
         .. seealso:: :py:func:`open`
         """
@@ -226,12 +226,14 @@ class Browser(object):
         """
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
-        self._open_with_requests(url, data=data, method=method, headers=headers)
+        self._open_with_requests(url, data=data,
+                                 method=method, headers=headers)
         return self
 
     def _open_with_mechanize(self, url, data=None):
         """Opens an internal request with the mechanize library.
-        Since the request is internally dispatched, no open server port is required.
+        Since the request is internally dispatched, no open server
+        port is required.
 
         :param url: A full qualified URL.
         :type url: string
@@ -250,16 +252,16 @@ class Browser(object):
 
     def _open_with_requests(self, url, data=None, method='GET', headers=None):
         """Opens a request with the requests library.
-        Since this request is actually executed over TCP/IP, an open server port
-        is required.
+        Since this request is actually executed over TCP/IP,
+        an open server port is required.
 
         :param url: A full qualified URL.
         :type url: string
         :param data: A dict with data which is posted using a `POST` request or
           a string with data.
         :type data: dict or string
-        :param method: The request method, defaults to 'GET', unless ``data`` is
-          provided, then its set to 'POST'.
+        :param method: The request method, defaults to 'GET', unless ``data``
+          is provided, then its set to 'POST'.
         :type method: string
         :param headers: A dict with custom headers for this request.
         :type headers: dict
@@ -341,9 +343,9 @@ class Browser(object):
         Therefore this method does not replace existing names.
         Use `replace_request_header` for replacing headers.
 
-        Be aware that the ``requests`` library does not support multiple headers
-        with the same name, therefore it is always a replace for the requests
-        module.
+        Be aware that the ``requests`` library does not support multiple
+        headers with the same name, therefore it is always a replace
+        for the requests module.
 
         :param name: Name of the request header
         :type name: string
@@ -411,7 +413,8 @@ class Browser(object):
                 cookies[cookie.name] = vars(cookie)
 
         elif self.previous_request_library is LIB_REQUESTS:
-            for domain_cookies in self.requests_session.cookies._cookies.values():
+            cookiejar = self.requests_session.cookies
+            for domain_cookies in cookiejar._cookies.values():
                 for path_cookies in domain_cookies.values():
                     for cookie_name, cookie in path_cookies.items():
                         cookies[cookie_name] = vars(cookie)

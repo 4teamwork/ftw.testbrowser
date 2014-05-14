@@ -309,7 +309,8 @@ class Form(NodeWrapper):
                     self.browser.request_library))
 
     def _make_mechanize_multipart_request(self, url, values):
-        request_body, request_headers = self._prepare_multipart_request(url, values)
+        request_body, request_headers = self._prepare_multipart_request(
+            url, values)
 
         request = Request(url, request_body)
         for key, val in request_headers:
@@ -325,7 +326,8 @@ class Form(NodeWrapper):
         return self.browser._open_with_mechanize(request)
 
     def _make_requests_multipart_request(self, url, values):
-        request_body, request_headers = self._prepare_multipart_request(url, values)
+        request_body, request_headers = self._prepare_multipart_request(
+            url, values)
         return self.browser._open_with_requests(url,
                                                 data=request_body,
                                                 headers=dict(request_headers),

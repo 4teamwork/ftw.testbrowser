@@ -10,7 +10,6 @@ class BrowserException(Exception):
         Exception.__init__(self, message)
 
 
-
 class BlankPage(BrowserException):
     """The browser is on a blank page.
     """
