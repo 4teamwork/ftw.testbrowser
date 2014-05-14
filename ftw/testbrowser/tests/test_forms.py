@@ -23,13 +23,13 @@ class TestBrowserForms(TestCase):
     @browsing
     def test_find_form_by_field_label(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(Form, type(Form.find_form_by_labels_or_names('Login Name')))
+        self.assertEquals(Form, type(browser.find_form_by_fields('Login Name')))
 
     @browsing
     def test_exception_when_field_not_found(self, browser):
         browser.open(view='login_form')
         with self.assertRaises(FormFieldNotFound) as cm:
-            Form.find_form_by_labels_or_names('First Name')
+            browser.find_form_by_fields('First Name')
         self.assertTrue(
             str(cm.exception).startswith('Could not find form field: "First Name".'
                                          ' Fields: '),
@@ -39,7 +39,7 @@ class TestBrowserForms(TestCase):
     def test_exception_when_chaning_fields_in_different_forms(self, browser):
         browser.open(view='login_form')
         with self.assertRaises(AmbiguousFormFields):
-            Form.find_form_by_labels_or_names('Login Name', 'Search Site')
+            browser.find_form_by_fields('Login Name', 'Search Site')
 
     @browsing
     def test_fill_field_by_name(self, browser):
@@ -137,18 +137,81 @@ class TestBrowserForms(TestCase):
     @browsing
     def test_find_submit_buttons(self, browser):
         browser.open(view='login_form')
-        form = Form(Form.find_form_element_by_label_or_name('Login Name'))
+        form = browser.find_form_by_field('Login Name')
         button = form.find_submit_buttons().first
         self.assertEquals('Log in', button.value)
 
     @browsing
-    def test_find_widget_in_form(self, browser):
+    def test_find_widget(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
-        form = Form.find_form_by_labels_or_names('Title')
-        widget = Form.find_widget_in_form(form, 'Title')
+        form = browser.find_form_by_fields('Title')
+        widget = form.find_widget('Title')
         self.assertEquals('div', widget.tag)
         self.assertEquals(PloneWidget, type(widget))
+
+    @browsing
+    def test_action_url__fqdn(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <form action="http://localhost/foo" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_doc(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo">'
+            ' <form action="bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_folder(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/">'
+            ' <form action="bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_relative_to_base_with_dot(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/">'
+            ' <form action="./bar" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/foo/bar', form.action_url)
+
+    @browsing
+    def test_action_url__non_fqdn_absolute_to_base(self, browser):
+        browser.open_html(
+            '<html>'
+            ' <base href="http://localhost/foo/bar">'
+            ' <form action="/baz" id="form"></form>'
+            '</html>')
+        form = browser.css('#form').first
+        self.assertEquals('http://localhost/baz', form.action_url)
+
+    @browsing
+    def test_action_url__no_action_uses_browser_url(self, browser):
+        url = self.layer['portal'].absolute_url() + '/folder_contents'
+
+        browser.login(SITE_OWNER_NAME).open(url)
+        browser.open_html(
+            '<html>'
+            ' <form id="form"></form>'
+            '</html>')
+        self.assertEquals(url, browser.url)
+
+        form = browser.css('#form').first
+        self.assertEquals(url, form.action_url)
 
 
 class TestSubmittingForms(TestCase):

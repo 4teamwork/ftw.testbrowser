@@ -1,28 +1,53 @@
 from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
+from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import ZServerRequired
-from ftw.testbrowser.form import Form
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
-from mechanize import BrowserStateError
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import TEST_USER_PASSWORD
-from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
+from operator import attrgetter
 from requests.structures import CaseInsensitiveDict
 from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
+import lxml.html
+import os
+import pkg_resources
 import requests
 import tempfile
 import urllib
 import urlparse
+
+
+try:
+    pkg_resources.get_distribution('plone.app.testing')
+except pkg_resources.DistributionNotFound:
+    TEST_USER_NAME = 'test-user'
+    TEST_USER_PASSWORD = 'secret'
+else:
+    from plone.app.testing import TEST_USER_NAME
+    from plone.app.testing import TEST_USER_PASSWORD
+
+try:
+    pkg_resources.get_distribution('zope.testbrowser')
+except pkg_resources.DistributionNotFound:
+    HAS_PLONE_EXTRAS = False
+else:
+    HAS_PLONE_EXTRAS = True
+    from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
+
+
+#: Constant for choosing the mechanize library (interally dispatched requests)
+LIB_MECHANIZE = 'mechanize library'
+
+#: Constant for choosing the requests library (actual requests)
+LIB_REQUESTS = 'requests library'
 
 
 class Browser(object):
@@ -69,17 +94,24 @@ class Browser(object):
         """Resets the browser: closes active sessions and resets the internal
         state.
         """
+        self.request_library = None
+        self.previous_request_library = None
         self.next_app = None
         self.app = None
         self.mechbrowser = None
         self.response = None
         self.document = None
         self.previous_url = None
-        self._authentication = None
+        self.form_files = {}
+
+        self.previous_request = None
+        self.requests_session = requests.Session()
 
     def __enter__(self):
         if self.next_app is None:
-            raise BrowserNotSetUpException()
+            self.request_library = LIB_REQUESTS
+        else:
+            self.request_library = LIB_MECHANIZE
 
         self.app = self.next_app
         return self
@@ -97,8 +129,19 @@ class Browser(object):
 
         self.reset()
 
-    def open(self, url_or_object=None, data=None, view=None):
+    def open(self, url_or_object=None, data=None, view=None, library=None):
         """Opens a page in the browser.
+
+        *Request library:*
+        When running tests on a Plone testing layer and using the ``@browsing``
+        decorator, the ``mechanize`` library is used by default, dispatching
+        the request internal directly into Zope.
+        When the testbrowser is used differently (no decorator nor zope app
+        setup), the ``requests`` library is used, doing actual requests.
+        If the default does not fit your needs you can change the library per
+        request by passing in ``LIB_MECHANIZE`` or ``LIB_REQUESTS`` or you can
+        change the library for the session by setting
+        ``browser.request_library`` to either of those constants.
 
         :param url_or_object: A full qualified URL or a Plone object (which has
           an ``absolute_url`` method). Defaults to the Plone Site URL.
@@ -107,19 +150,42 @@ class Browser(object):
         :param view: The name of a view which will be added at the end of the
           current URL.
         :type view: string
+        :param library: Lets you explicitly choose the request library to be
+          used for this request.
+        :type library: ``LIB_MECHANIZE`` or ``LIB_REQUESTS``
 
         .. seealso:: :py:func:`visit`
+        .. seealso:: :py:const:`LIB_MECHANIZE`
+        .. seealso:: :py:const:`LIB_REQUESTS`
         """
         self._verify_setup()
-        try:
-            self.previous_url = self.url
-        except BrowserStateError:
-            pass
+        library = library or self.request_library
         url = self._normalize_url(url_or_object, view=view)
-        data = self._prepare_post_data(data)
-        self.response = self.get_mechbrowser().open(url, data=data)
-        self._load_html(self.response)
+
+        if library == LIB_MECHANIZE:
+            self._open_with_mechanize(url, data=data)
+
+        elif library == LIB_REQUESTS:
+            self._open_with_requests(url, data=data)
+
         return self
+
+    def on(self, url_or_object=None, data=None, view=None, library=None):
+        """``on`` does almost the same thing as ``open``. The difference is that
+        ``on`` does not reload the page if the current page is the same as the
+        requested one.
+
+        Be aware that filled form field values may stay when the page is
+        not reloaded.
+
+        .. seealso:: :py:func:`open`
+        """
+        url = self._normalize_url(url_or_object, view=view)
+        if url == self.url:
+            return self
+
+        return self.open(url_or_object=url_or_object, data=data, view=view,
+                         library=library)
 
     def open_html(self, html):
         """Opens a HTML page in the browser without doing a request.
@@ -159,21 +225,80 @@ class Browser(object):
         :type headers: dict
         """
         self._verify_setup()
-        try:
-            self.previous_url = self.url
-        except BrowserStateError:
-            pass
-
         url = self._normalize_url(url_or_object, view=view)
+        self._open_with_requests(url, data=data,
+                                 method=method, headers=headers)
+        return self
+
+    def _open_with_mechanize(self, url, data=None):
+        """Opens an internal request with the mechanize library.
+        Since the request is internally dispatched, no open server
+        port is required.
+
+        :param url: A full qualified URL.
+        :type url: string
+        :param data: A dict with data which is posted using a `POST` request.
+        :type data: dict
+        """
+        args = locals().copy()
+        del args['self']
+        self.previous_request = ('_open_with_mechanize', args)
+
+        self.previous_url = self.url
+        data = self._prepare_post_data(data)
+        self.response = self.get_mechbrowser().open(url, data=data)
+        self._load_html(self.response)
+        self.previous_request_library = LIB_MECHANIZE
+
+    def _open_with_requests(self, url, data=None, method='GET', headers=None):
+        """Opens a request with the requests library.
+        Since this request is actually executed over TCP/IP,
+        an open server port is required.
+
+        :param url: A full qualified URL.
+        :type url: string
+        :param data: A dict with data which is posted using a `POST` request or
+          a string with data.
+        :type data: dict or string
+        :param method: The request method, defaults to 'GET', unless ``data``
+          is provided, then its set to 'POST'.
+        :type method: string
+        :param headers: A dict with custom headers for this request.
+        :type headers: dict
+        """
+        args = locals().copy()
+        del args['self']
+        self.previous_request = ('_open_with_requests', args)
+
+        self.previous_url = self.url
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
+        if data and method == 'GET':
+            method = 'POST'
+
         with verbose_logging():
-            self.response = requests.request(method, url, data=data,
-                                             auth=self._authentication,
-                                             headers=headers)
+            self.response = self.requests_session.request(method,
+                                                          url,
+                                                          data=data,
+                                                          headers=headers)
 
         self._load_html(self.response)
+        self.previous_request_library = LIB_REQUESTS
+
+    def reload(self):
+        """Reloads the current page by redoing the previous requests with
+        the same arguments.
+        This applies for GET as well as POST requests.
+
+        :raises: :py:exc:`ftw.testbrowser.exceptions.BlankPage`
+        """
+        if self.previous_request is None:
+            raise BlankPage('Cannot reload.')
+
+        request_opener_name, arguments = self.previous_request
+        request_opener = getattr(self, request_opener_name)
+        request_opener(**arguments)
         return self
 
     @property
@@ -181,6 +306,9 @@ class Browser(object):
         """The source of the current page (usually HTML).
         """
         self._verify_setup()
+
+        if self.response is None:
+            raise BlankPage()
 
         if isinstance(self.response, requests.Response):
             return self.response.content
@@ -201,45 +329,137 @@ class Browser(object):
         """
         if isinstance(self.response, requests.Response):
             return self.response.headers
-        else:
+        elif getattr(self.response, 'info', None) is not None:
             return CaseInsensitiveDict(self.response.info().items())
+        else:
+            # Page was opened with open_html - we have no response headers.
+            return {}
+
+    def append_request_header(self, name, value):
+        """Add a new permanent request header which is sent with every request
+        until it is cleared.
+
+        HTTP allows multiple request headers with the same name.
+        Therefore this method does not replace existing names.
+        Use `replace_request_header` for replacing headers.
+
+        Be aware that the ``requests`` library does not support multiple
+        headers with the same name, therefore it is always a replace
+        for the requests module.
+
+        :param name: Name of the request header
+        :type name: string
+        :param value: Value of the request header
+        :type value: string
+
+        .. seealso:: :py:func:`replace_request_header`
+        .. seealso:: :py:func:`clear_request_header`
+        """
+
+        self.requests_session.headers.update({name: value})
+
+        try:
+            self.get_mechbrowser().addheaders.append((name, value))
+        except BrowserNotSetUpException:
+            pass
+
+    def replace_request_header(self, name, value):
+        """Adds a permanent request header which is sent with every request.
+        Before adding the request header all existing request headers with the
+        same name are removed.
+
+        :param name: Name of the request header
+        :type name: string
+        :param value: Value of the request header
+        :type value: string
+
+        .. seealso:: :py:func:`replace_request_header`
+        .. seealso:: :py:func:`clear_request_header`
+        """
+
+        self.clear_request_header(name)
+        self.append_request_header(name, value)
+
+    def clear_request_header(self, name):
+        """Removes a permanent header.
+        If there are no such headers, the removal is silently skipped.
+
+        :param name: Name of the request header as positional arguments
+        :type name: string
+        """
+
+        if name in self.requests_session.headers:
+            del self.requests_session.headers[name]
+
+        try:
+            addheaders = self.get_mechbrowser().addheaders
+        except BrowserNotSetUpException:
+            pass
+        else:
+            for header_name, value in addheaders[:]:
+                if header_name == name:
+                    addheaders.remove((header_name, value))
 
     @property
     def cookies(self):
         """A read-only dict of current cookies.
         """
-        mechbrowser = self.get_mechbrowser()
-        cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
         cookies = {}
-        for cookie in cookiejar:
-            cookies[cookie.name] = vars(cookie)
+
+        if self.previous_request_library is LIB_MECHANIZE:
+            mechbrowser = self.get_mechbrowser()
+            cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
+            for cookie in cookiejar:
+                cookies[cookie.name] = vars(cookie)
+
+        elif self.previous_request_library is LIB_REQUESTS:
+            cookiejar = self.requests_session.cookies
+            for domain_cookies in cookiejar._cookies.values():
+                for path_cookies in domain_cookies.values():
+                    for cookie_name, cookie in path_cookies.items():
+                        cookies[cookie_name] = vars(cookie)
+
         return cookies
 
     @property
     def url(self):
         """The URL of the current page.
         """
-        return self.get_mechbrowser().geturl()
+        if not self.response:
+            return None
+
+        if self.previous_request_library is LIB_MECHANIZE:
+            return self.get_mechbrowser().geturl()
+        elif self.previous_request_library is LIB_REQUESTS:
+            return self.response.url
+
+    @property
+    def base_url(self):
+        """The base URL of the current page.
+        The base URL can be defined in HTML using a ``<base>``-tag.
+        If no ``<base>``-tag is found, the page URL is used.
+        """
+        base_tags = self.css('base')
+        if base_tags:
+            return base_tags.first.attrib.get('href', self.url)
+        return self.url
 
     def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
         """Login a user by setting the ``Authorization`` header.
         """
-        self.logout()
-        self.get_mechbrowser().addheaders.append(
-            ('Authorization', 'Basic %s:%s' % (username, password)))
-        self._authentication = (username, password)
+
+        if hasattr(username, 'getUserName'):
+            username = username.getUserName()
+
+        self.replace_request_header(
+            'Authorization', 'Basic {0}'.format(
+                ':'.join((username, password)).encode('base64').strip()))
         return self
 
     def logout(self):
         """Logout the current user by removing the ``Authorization`` header.
         """
-        self._authentication = None
-
-        mechbrowser = self.get_mechbrowser()
-        auth_tuples = [item for item in mechbrowser.addheaders
-                       if item[0] == 'Authorization']
-        for item in auth_tuples:
-            mechbrowser.addheaders.remove(item)
+        self.clear_request_header('Authorization')
         return self
 
     def css(self, css_selector):
@@ -310,7 +530,7 @@ class Browser(object):
         :returns: The form node.
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
-        form = Form.find_form_by_labels_or_names(*values.keys())
+        form = self.find_form_by_fields(*values.keys())
         return form.fill(values)
 
     def find(self, text, within=None):
@@ -378,16 +598,12 @@ class Browser(object):
         if within is None:
             within = self.root
 
-        try:
-            form = Form.find_form_by_labels_or_names(text)
-        except (AmbiguousFormFields, FormFieldNotFound):
-            return None
+        for form in self.forms.values():
+            field = form.find_field(text)
+            if field and field.within(within):
+                return field
 
-        field = form.find_field(text)
-        if field is not None and field.within(within):
-            return field
-        else:
-            return None
+        return None
 
     def find_button_by_label(self, label, within=None):
         """Finds a form button by its text label.
@@ -407,6 +623,64 @@ class Browser(object):
             button = form.find_button_by_label(label)
             if button is not None and button.within(within):
                 return button
+
+    def find_form_by_field(self, field_label_or_name):
+        """Searches for a field and returns the form containing the field.
+        The field is searched by label text or field name.
+        If no field was found, `None` is returned.
+
+        :param label_or_name: The label or the name of the field.
+        :type label_or_name: string
+        :returns: The form instance which has the searched fields or `None`
+        :rtype: :py:class:`ftw.testbrowser.form.Form`.
+        """
+
+        for form in self.forms.values():
+            if form.find_field(field_label_or_name):
+                return form
+        return None
+
+    def find_form_by_fields(self, *labels_or_names):
+        """Searches for the form which has fields for the labels passed as
+        arguments and returns the form node.
+
+        :returns: The form instance which has the searched fields.
+        :rtype: :py:class:`ftw.testbrowser.form.Form`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
+        :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
+        """
+
+        previous_form = None
+
+        for label_or_name in labels_or_names:
+            form = self.find_form_by_field(label_or_name)
+
+            if form is None:
+                raise FormFieldNotFound(label_or_name, self.form_field_labels)
+
+            if previous_form is not None and form != previous_form:
+                raise AmbiguousFormFields()
+
+            previous_form = form
+
+        return previous_form
+
+    @property
+    def form_field_labels(self):
+        """A list of label texts and field names of each field in any form on
+        the current page.
+
+        The list contains the whitespace normalized label text of the
+        each field.
+        If there is no label or it has an empty text, the fieldname is
+        used instead.
+
+        :returns: A list of label texts (and field names).
+        :rtype: list of strings
+        """
+        return reduce(list.__add__,
+                      map(attrgetter('field_labels'),
+                          self.forms.values()))
 
     @property
     def context(self):
@@ -440,14 +714,40 @@ class Browser(object):
 
     def get_mechbrowser(self):
         self._verify_setup()
+
+        if not HAS_PLONE_EXTRAS:
+            raise ImportError(
+                'Could not import zope.testbrowser.'
+                ' Please install ftw.testbrowser[plone] extras.')
+
+        if self.app is None:
+            raise BrowserNotSetUpException()
+
         if self.mechbrowser is None:
             self.mechbrowser = Zope2MechanizeBrowser(self.app)
             self.get_mechbrowser().addheaders.append((
                     'X-zope-handle-errors', 'False'))
         return self.mechbrowser
 
+    def debug(self):
+        """Open the current page in your real browser by writing the contents
+        into a temporary file and opening it with os.system ``open [FILE]``.
+
+        This is meant to be used in pdb, not in actual code.
+        """
+        _, path = tempfile.mkstemp(suffix='.html',
+                                   prefix='ftw.testbrowser-')
+        with open(path, 'w+') as file_:
+            source = self.contents
+            if isinstance(source, unicode):
+                source = source.encode('utf-8')
+            file_.write(source)
+        cmd = 'open {0}'.format(path)
+        print '> {0}'.format(cmd)
+        os.system(cmd)
+
     def _verify_setup(self):
-        if self.app is None:
+        if self.request_library is None:
             raise BrowserNotSetUpException()
         return True
 
@@ -468,6 +768,8 @@ class Browser(object):
         return url
 
     def _load_html(self, html):
+        self.form_files = {}
+
         if hasattr(html, 'seek'):
             html.seek(0)
 

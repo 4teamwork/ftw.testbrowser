@@ -2,8 +2,71 @@ Changelog
 =========
 
 
-1.10.1 (unreleased)
+1.11.0 (unreleased)
 -------------------
+
+- New browser.base_url property, respecting the <base> tag.
+  [jone]
+
+- New browser.debug method, opening the current page in your real browser.
+  [jone]
+
+- New browser.on method, a lazy variant of browser.open.
+  [jone]
+
+- New browser.reload method, reloading the current page.
+  [jone]
+
+- Improve requests library support:
+
+  - Support choosing requests library, make Zope app setup optional.
+    When no Zope app is set up, the ``requests`` library is set as default,
+    otherwise ``mechanize``.
+  - Support form submitting with requests library.
+  - Improve login and header support for equests library requests.
+  - Add browser.cookies support for requests library requests.
+  - Use requests library sessions, so that cookies and headers persist.
+  - Automatically use "POST" when data is submitted.
+
+  [jone]
+
+- Login improvements:
+
+  - Support passing member objects to browser.login().
+    The users / members are still expected to hav TEST_USER_PASSWORD as password.
+
+  - Refactor login to use the new request header methods.
+
+  [jone]
+
+- Add request header methods for managing permanent request headers:
+
+  - browser.append_request_header
+  - browser.replace_request_header
+  - browser.clear_request_header
+
+  [jone]
+
+- Refactor Form: eliminate class methods and do not use the global browser.
+  This improves form support when running multiple browser instances concurrently.
+
+  - Form.field_labels (class method) is now a instance property and public API.
+  - Form.find_widget_in_form (class method) is removed and replaced with
+    Form.find_widget (instance method).
+  - Form.find_field_in_form (class method) is removed and replaced
+    Form.get_field (instance method).
+  - Form.find_form_element_by_label_or_name (class method) is removed and replaced
+    with browser.find_form_by_field.
+  - Form.find_form_by_labels_or_names (class method) is removed and replaced with
+    browser.find_form_by_fields.
+  - New Form.action_url property with the full qualified action URL.
+  - Fix form action URL bug when using relative paths in combination with
+    document-style base url.
+
+  [jone]
+
+- Fix wrapping input.label - this did only work for a part of field types.
+  [jone]
 
 - Fix UnicodeDecodeError in node string representation.
   [mathias.leimgruber]

@@ -2,14 +2,17 @@ import os
 from setuptools import setup, find_packages
 
 
-version = '1.10.1.dev0'
+version = '1.11.0.dev0'
 
 
 tests_require = [
+    'Products.CMFCore',
     'Products.statusmessages',
     'ftw.builder',
     'plone.app.contenttypes',
+    'plone.app.testing',
     'plone.formwidget.autocomplete',
+    'plone.formwidget.contenttree',
     'plone.z3cform',
     'unittest2',
     'z3c.form',
@@ -18,6 +21,11 @@ tests_require = [
     'zope.publisher',
     'zope.schema',
     ]
+
+
+extras_require = {
+    'tests': tests_require,
+    'plone': ['plone.app.testing']}
 
 
 setup(name='ftw.testbrowser',
@@ -48,15 +56,16 @@ setup(name='ftw.testbrowser',
       install_requires=[
         'lxml',
         'mechanize',
-        'plone.app.testing',
         'plone.testing',
         'requests',
+        'setuptools',
         'zope.component',
+        'zope.deprecation',
         'zope.interface',
         ],
 
       tests_require=tests_require,
-      extras_require=dict(tests=tests_require),
+      extras_require=extras_require,
 
       entry_points="""
       # -*- Entry points: -*-

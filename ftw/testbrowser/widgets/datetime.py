@@ -12,11 +12,11 @@ class DateTimeWidget(PloneWidget):
         if not PloneWidget.match(node):
             return False
 
-        name = PloneWidget(node).fieldname
+        name = PloneWidget(node, node.browser).fieldname
         if not name:
             return False
 
-        return bool(DateTimeWidget(node)._field('day'))
+        return bool(DateTimeWidget(node, node.browser)._field('day'))
 
     def fill(self, value):
         """Fill the widget fields with a datetime object.

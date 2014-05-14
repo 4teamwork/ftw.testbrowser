@@ -1,8 +1,8 @@
 from StringIO import StringIO
-from ftw.testbrowser.exceptions import AmbiguousFormFields
+from ftw.testbrowser.core import LIB_MECHANIZE
+from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
-from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
@@ -10,6 +10,8 @@ from mechanize import Request
 from mechanize._form import MimeWriter
 import lxml.html.formfill
 import mimetypes
+import shutil
+import urlparse
 
 
 class Form(NodeWrapper):
@@ -42,7 +44,20 @@ class Form(NodeWrapper):
         :returns: The field node
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
         """
-        return self.__class__.find_field_in_form(self.node, label_or_name)
+        label = normalize_spaces(label_or_name)
+
+        for input in self.inputs:
+            if input.name == label_or_name:
+                return input
+
+            if input.label is None:
+                continue
+
+            if label in (input.label.text,
+                         normalize_spaces(input.label.raw_text)):
+                return input
+
+        return self.find_widget(label_or_name)
 
     @wrapped_nodes
     def find_submit_buttons(self):
@@ -58,7 +73,7 @@ class Form(NodeWrapper):
                 continue
             if getattr(field, 'type', None) != 'submit':
                 continue
-            button = SubmitButton(field)
+            button = SubmitButton(field, self.browser)
             if button.form != self:
                 continue
             yield button
@@ -103,7 +118,7 @@ class Form(NodeWrapper):
         widgets = []
 
         for fieldname, value in values.items():
-            field = self.__class__.find_field_in_form(self.node, fieldname)
+            field = self.find_field(fieldname)
             if isinstance(field, PloneWidget):
                 widgets.append((field, value))
                 continue
@@ -203,103 +218,44 @@ class Form(NodeWrapper):
         :returns: The field name of the field.
         :rtype: string
         """
-        field = self.__class__.find_field_in_form(self.node, label)
+        field = self.find_field(label)
         if field is None:
-            labels = self.__class__.field_labels(self.node)
-            raise FormFieldNotFound(label, labels)
+            raise FormFieldNotFound(label, self.field_labels)
         return getattr(field, 'name', None)
 
-    @classmethod
-    def get_browser(klass):
-        from ftw.testbrowser import browser
-        return browser
+    @property
+    def field_labels(self):
+        """A list of label texts and field names of each field in this form.
 
-    @classmethod
-    def find_form_by_labels_or_names(klass, *labels_or_names):
-        """Searches for the form which has fields for the labels passed as
-        arguments and returns the form node.
+        The list contains the whitespace normalized label text of
+        each field.
+        If there is no label or it has an empty text, the fieldname
+        is used instead.
 
-        :returns: The form instance which has the searched fields.
-        :rtype: :py:class:`ftw.testbrowser.form.Form`
-        :raises: :py:exc:`ftw.testbrowser.exceptions.FormFieldNotFound`
-        :raises: :py:exc:`ftw.testbrowser.exceptions.AmbiguousFormFields`
+        :returns: A list of label texts (and field names).
+        :rtype: list of strings
         """
+        labels = []
+        for input in self.inputs:
+            label = (input.label is not None
+                     and normalize_spaces(input.label.text))
+            if label:
+                labels.append(label)
+            elif input.name:
+                labels.append(input.name)
 
-        form_element = None
-        for label_or_name in labels_or_names:
-            form = klass.find_form_element_by_label_or_name(label_or_name)
-            if form is None:
-                labels = klass.field_labels(form_element)
-                raise FormFieldNotFound(label_or_name, labels)
-            if form_element is not None and form != form_element:
-                raise AmbiguousFormFields()
-            form_element = form
+        return labels
 
-        return Form(form_element)
-
-    @classmethod
-    def find_form_element_by_label_or_name(klass, label_or_name):
-        """Searches the form which has a field with the label or name passed as
-        argument and returns the form node.
-        Returns `None` when no such field was found.
-
-        :param label_or_name: The label or the name of the field.
-        :type label_or_name: string
-        :returns: The form instance which has the searched fields or `None`
-        :rtype: :py:class:`ftw.testbrowser.form.Form`.
-        """
-
-        for form in klass.get_browser().root.forms:
-            if klass.find_field_in_form(form, label_or_name) is not None:
-                return form
-        return None
-
-    @classmethod
-    @wrapped_nodes
-    def find_field_in_form(klass, form, label_or_name):
-        """Finds and returns a field with the passed label or name in the
-        passed form.
-
-        :param form: The form node.
-        :type form: :py:class:`ftw.testbrowser.form.Form`
-        :param label_or_name: The label or the name of the field.
-        :type label_or_name: string
-        :returns: Returns the field node or `None`.
-        :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
-        """
-
-        label = normalize_spaces(label_or_name)
-
-        for input in form.inputs:
-            input = wrap_node(input)
-            if input.name == label_or_name:
-                return input
-
-            if input.label is None:
-                continue
-
-            if normalize_spaces(input.label.text) == label:
-                return input
-
-            if normalize_spaces(input.label.text_content()) == label:
-                return input
-
-        return klass.find_widget_in_form(form, label_or_name)
-
-    @classmethod
-    @wrapped_nodes
-    def find_widget_in_form(klass, form, label):
+    def find_widget(self, label):
         """Finds a Plone widget (div.field) in a form.
 
-        :param form: The form node.
-        :type form: :py:class:`ftw.testbrowser.form.Form`
         :param label: The label of the widget.
         :type label: string
         :returns: Returns the field node or `None`.
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
         """
+
         label = normalize_spaces(label)
-        form = wrap_node(form)
 
         label_node_xpath = '//label[normalize-space(text())="%s"]' % label
         div_node_xpath = '//div[contains(concat(" ",' + \
@@ -307,8 +263,8 @@ class Form(NodeWrapper):
             '[normalize-space(text())="%s"]' % label
         label_xpath = ' | '.join((label_node_xpath, div_node_xpath))
 
-        for label_node in form.xpath(label_xpath):
-            if not label_node.within(wrap_node(form)):
+        for label_node in self.xpath(label_xpath):
+            if not label_node.within(self):
                 continue
 
             field = label_node.parent(css='div.field')
@@ -317,35 +273,74 @@ class Form(NodeWrapper):
 
         return None
 
-    @classmethod
-    def field_labels(klass, form=None):
-        forms = form and [form] or klass.get_browser().root.forms
+    @property
+    def action_url(self):
+        """The full qualified URL to send the form to.
+        This should imitate normal browser behavior:
 
-        labels = []
+        If the action is full qualified, use it as it is.
+        If the action is relative, make it absolute by joining
+        it with the page's base URL.
+        If there is no action, the action is the current page URL.
 
-        for form in forms:
-            for input in form.inputs:
-                label = (input.label is not None
-                         and normalize_spaces(input.label.text))
-                if label:
-                    labels.append(label)
-                elif input.name:
-                    labels.append(input.name)
+        The page's base URL can be set in the HTML document with
+        a ``<base>``-tag, otherwise the page URL is used.
+        """
 
-        return labels
+        action = self.attrib.get('action', None)
+        if not action:
+            return self.browser.url
+
+        if urlparse.urlparse(action).scheme:
+            # The action is full qualified
+            return action
+
+        return urlparse.urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
-        request = self._make_mechanize_multipart_request(URL, values)
-        self.__class__.get_browser().open(request)
+        URL = self.action_url
 
-    def _make_mechanize_multipart_request(self, URL, values):
+        if self.browser.request_library == LIB_MECHANIZE:
+            return self._make_mechanize_multipart_request(URL, values)
+        elif self.browser.request_library == LIB_REQUESTS:
+            return self._make_requests_multipart_request(URL, values)
+        else:
+            raise ValueError('Unkown request library: {0}'.format(
+                    self.browser.request_library))
+
+    def _make_mechanize_multipart_request(self, url, values):
+        request_body, request_headers = self._prepare_multipart_request(
+            url, values)
+
+        request = Request(url, request_body)
+        for key, val in request_headers:
+            add_hdr = request.add_header
+            if key.lower() == "content-type":
+                try:
+                    add_hdr = request.add_unredirected_header
+                except AttributeError:
+                    # pre-2.4 and not using ClientCookie
+                    pass
+            add_hdr(key, val)
+
+        return self.browser._open_with_mechanize(request)
+
+    def _make_requests_multipart_request(self, url, values):
+        request_body, request_headers = self._prepare_multipart_request(
+            url, values)
+        return self.browser._open_with_requests(url,
+                                                data=request_body,
+                                                headers=dict(request_headers),
+                                                method='POST')
+
+    def _prepare_multipart_request(self, URL, values):
         data = StringIO()
         http_headers = []
         mw = MimeWriter(data, http_headers)
         mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
 
         for fieldname, value in values:
-            field = self.__class__.find_field_in_form(self.node, fieldname)
+            field = self.find_field(fieldname)
             if isinstance(field, FileField):
                 field.write_mime_data(mw)
             else:
@@ -356,19 +351,7 @@ class Form(NodeWrapper):
                 f.write(value)
 
         mw.lastpart()
-
-        request = Request(URL, data.getvalue().encode('utf-8'))
-        for key, val in http_headers:
-            add_hdr = request.add_header
-            if key.lower() == "content-type":
-                try:
-                    add_hdr = request.add_unredirected_header
-                except AttributeError:
-                    # pre-2.4 and not using ClientCookie
-                    pass
-            add_hdr(key, val)
-
-        return request
+        return data.getvalue().encode('utf-8'), http_headers
 
 
 class TextAreaField(NodeWrapper):
@@ -377,8 +360,8 @@ class TextAreaField(NodeWrapper):
     widget is not standard.
     """
 
-    def __init__(self, node):
-        super(TextAreaField, self).__init__(node)
+    def __init__(self, node, browser):
+        super(TextAreaField, self).__init__(node, browser)
         self._setup_label()
 
     def _setup_label(self):
@@ -428,28 +411,30 @@ class FileField(NodeWrapper):
         if attrname != 'value':
             return self.node.set(attrname, value)
 
-        data, filename, content_type = self._normalize_value(value)
-        control = self._get_mechbrowser_control()
-        control.add_file(data, content_type, filename)
+        # store the value into the browser cache, since the lxml document
+        # can only store strings.
+        self.browser.form_files[self.node] = self._normalize_value(value)
         self.node.set('value', '____marker____')
 
     def write_mime_data(self, mime_writer):
-        control = self._get_mechbrowser_control()
-        control._write_mime_data(mime_writer, None, None)
+        value = self.browser.form_files.get(self.node, None)
+        if value is None:
+            file_object = StringIO()
+            filename = ''
+            content_type = 'application/octet-stream'
+        else:
+            file_object, filename, content_type = value
 
-    def _get_mechbrowser_control(self):
-        mechbrowser = self._get_browser().get_mechbrowser()
+        mime_part = mime_writer.nextpart()
+        mime_part.addheader(
+            'Content-Disposition',
+            'form-data; name="{0}"; filename="{1}"'.format(
+                self.name, filename),
+            prefix=1)
 
-        form = self.parent('form')
-        form_name = form.attrib.get('name')
-        assert form_name, ('The form %s has no name attribute,'
-                           ' which is required for file uploads.') % form
-        mechbrowser.select_form(name=form_name)
-
-        field_name = self.attrib.get('name')
-        assert field_name, ('The field %s has no name,'
-                            ' which is required for file uploads.') % self
-        return mechbrowser.find_control(name=field_name)
+        filehandle = mime_part.startbody(content_type, prefix=0)
+        file_object.seek(0)
+        shutil.copyfileobj(file_object, filehandle)
 
     def _normalize_value(self, value):
         filename = None
@@ -478,7 +463,3 @@ class FileField(NodeWrapper):
             value = StringIO(value)
 
         return value, filename, content_type
-
-    def _get_browser(self):
-        from ftw.testbrowser import browser
-        return browser

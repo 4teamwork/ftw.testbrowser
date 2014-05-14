@@ -1,3 +1,4 @@
+from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.form import Form
@@ -207,6 +208,11 @@ class TestNodesResultSet(TestCase):
 class TestNodeWrappers(TestCase):
 
     layer = BROWSER_FUNCTIONAL_TESTING
+
+    def test_reference_to_browser(self):
+        with Browser()(self.layer['app']) as browser:
+            browser.open_html('<div></div>')
+            self.assertEquals(browser, browser.css('div').first.browser)
 
     @browsing
     def test_string_representation(self, browser):

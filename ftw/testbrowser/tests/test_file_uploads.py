@@ -1,8 +1,8 @@
 from StringIO import StringIO
-from ftw.testbrowser import browser
+from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import SITE_OWNER_NAME
 from unittest2 import TestCase
 import os.path
@@ -10,7 +10,7 @@ import os.path
 
 class TestFileUploads(TestCase):
 
-    layer = PLONE_FUNCTIONAL_TESTING
+    layer = PLONE_ZSERVER
 
     @browsing
     def test_tuple_syntax(self, browser):
@@ -21,7 +21,7 @@ class TestFileUploads(TestCase):
         browser.find('Save').click()
 
         browser.find('foo.txt').click()
-        self.assert_file_download('file data')
+        self.assert_file_download('file data', browser)
 
     @browsing
     def test_stream_syntax(self, browser):
@@ -35,7 +35,7 @@ class TestFileUploads(TestCase):
                       'file_file': file_}).submit()
 
         browser.find('foo.txt').click()
-        self.assert_file_download('file data')
+        self.assert_file_download('file data', browser)
 
     @browsing
     def test_without_content_type(self, browser):
@@ -45,7 +45,7 @@ class TestFileUploads(TestCase):
                       'file_file': ('file data', 'foo.txt')}).submit()
 
         browser.find('foo.txt').click()
-        self.assert_file_download('file data')
+        self.assert_file_download('file data', browser)
 
     @browsing
     def test_filesystem_file_uploading(self, browser):
@@ -60,12 +60,31 @@ class TestFileUploads(TestCase):
         browser.find('helloworld.py').click()
         self.assert_file_download('print "Hello World"\n',
                                   filename='helloworld.py',
-                                  content_type='text/x-python')
+                                  content_type='text/x-python',
+                                  browser=browser)
 
-    def assert_file_download(self, data, filename='foo.txt',
+    def test_requests_library_file_uploads(self):
+        with Browser() as browser:
+            browser.login(SITE_OWNER_NAME).open(
+                view='createObject?type_name=File')
+            file_path = os.path.join(os.path.dirname(__file__), 'assets',
+                                     'helloworld.py')
+            with open(file_path) as helloworld:
+                browser.fill({'Title': 'Hello World',
+                              'File': helloworld}).submit()
+
+            browser.find('helloworld.py').click()
+            self.assert_file_download('print "Hello World"\n',
+                                      filename='helloworld.py',
+                                      content_type='text/x-python',
+                                      browser=browser)
+
+    def assert_file_download(self, data, browser, filename='foo.txt',
                              content_type='text/plain'):
         self.assertEquals(data, browser.contents)
         self.assertEquals('attachment; filename="%s"' % filename,
                           browser.headers.get('Content-Disposition'))
-        self.assertEquals('%s; charset=iso-8859-15' % content_type,
-                          browser.headers.get('Content-Type'))
+        self.assertIn(browser.headers.get('Content-Type'), (
+                '%s; charset=iso-8859-15' % content_type,  # mechanize download
+                content_type,  # requests lib download
+             ))
