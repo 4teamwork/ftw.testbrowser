@@ -11,7 +11,7 @@ from unittest2 import TestCase
 
 
 AC_COOKIE_INFO = {'comment': None,
-                  'domain': 'localhost.local',
+                  # 'domain': ... may be 'localhost.local' or '0.0.0.0'
                   'name': '__ac',
                   'domain_initial_dot': False,
                   'expires': None,
