@@ -70,13 +70,13 @@ def wrapped_nodes(func, browser=_marker):
     return wrapper_method
 
 
-def wrap_nodes(nodes, browser):
+def wrap_nodes(nodes, browser, query_info=None):
     """Wrap one or many nodes.
     """
     if not isinstance(nodes, RESULT_SET_TYPES):
         return wrap_node(nodes, browser)
 
-    result = Nodes()
+    result = Nodes(query_info=query_info)
     for node in nodes:
         result.append(wrap_node(node, browser))
     return result
@@ -143,6 +143,13 @@ class Nodes(list):
     (css / xpath) on the HTML document. It acts as a list.
     """
 
+    def __init__(self, *args, **kwargs):
+        if 'query_info' in kwargs:
+            self.query_info = kwargs.pop('query_info')
+        else:
+            self.query_info = None
+        super(Nodes, self).__init__(*args, **kwargs)
+
     @property
     def first(self):
         """The first element of the list.
@@ -150,7 +157,7 @@ class Nodes(list):
         :raises: :py:exc:`ftw.testbrowser.exceptions.NoElementFound`
         """
         if len(self) == 0:
-            raise NoElementFound()
+            raise NoElementFound(query_info=self.query_info)
 
         return self[0]
 
@@ -225,8 +232,14 @@ class Nodes(list):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
+        if len(args) > 0:
+            query_info = (self, 'css', args[0])
+        else:
+            query_info = (self, 'css', args)
+
         return Nodes(reduce(list.__add__,
-                            map(methodcaller('css', *args, **kwargs), self)))
+                            map(methodcaller('css', *args, **kwargs), self)),
+                     query_info=query_info)
 
     def xpath(self, *args, **kwargs):
         """Find nodes by an *xpath* expression which are within one of the
@@ -238,8 +251,14 @@ class Nodes(list):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
+        if len(args) > 0:
+            query_info = (self, 'xpath', args[0])
+        else:
+            query_info = (self, 'xpath', args)
+
         return Nodes(reduce(list.__add__,
-                            map(methodcaller('xpath', *args, **kwargs), self)))
+                            map(methodcaller('xpath', *args, **kwargs), self)),
+                     query_info=query_info)
 
     def find(self, *args, **kwargs):
         """Find a elements by text. The elements are searched within each node
@@ -372,10 +391,11 @@ class NodeWrapper(object):
                 xpath.append(css_to_xpath(css, prefix='descendant-or-self::'))
 
         xpath_expr = ' | '.join(xpath)
-        return self.xpath(xpath_expr)
 
-    @wrapped_nodes
-    def xpath(self, xpath_selector):
+        query_info = (self, 'css', css_selector)
+        return self.xpath(xpath_expr, query_info=query_info)
+
+    def xpath(self, xpath_selector, query_info=None):
         """Find nodes within this node by a *css* selector.
 
         :param css_selector: The CSS selector.
@@ -383,7 +403,10 @@ class NodeWrapper(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return self.node.xpath(xpath_selector)
+        query_info = query_info or (self, 'xpath', xpath_selector)
+        return wrap_nodes(self.node.xpath(xpath_selector),
+                          self.browser,
+                          query_info=query_info)
 
     def parent(self, css=None, xpath=None):
         """Find the nearest parent which (optionally) does match a *css* or

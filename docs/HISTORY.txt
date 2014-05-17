@@ -5,7 +5,10 @@ Changelog
 1.11.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Make NoElementFound exception message more verbose.
+  When a `.first` on an empty result set raises a NoElementFound
+  exception, the exception message now includes the original query.
+  [jone]
 
 
 1.11.1 (2014-05-17)

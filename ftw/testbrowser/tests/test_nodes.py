@@ -102,10 +102,74 @@ class TestNodesResultSet(TestCase):
                           browser.css('#content > div').first)
 
     @browsing
-    def test_first_raises_NoElementFound_when_nothing_matches(self, browser):
+    def test_first_NoElementFound__with_css_on_browser(self, browser):
         browser.open(view='test-structure')
-        with self.assertRaises(NoElementFound):
+        with self.assertRaises(NoElementFound) as cm:
             browser.css('.not-existing-class').first
+
+        self.assertEquals(
+            'Empty result set: browser.css(".not-existing-class") did not'
+            ' match any nodes.',
+            str(cm.exception))
+
+    @browsing
+    def test_first_NoElementFound__with_xpath_on_browser(self, browser):
+        browser.open(view='test-structure')
+        with self.assertRaises(NoElementFound) as cm:
+            browser.xpath('//some-node').first
+
+        self.assertEquals(
+            'Empty result set: browser.xpath("//some-node") did not'
+            ' match any nodes.',
+            str(cm.exception))
+
+    @browsing
+    def test_first_NoElementFound__with_css_on_node(self, browser):
+        browser.open(view='test-structure')
+        content = browser.css('#content').first
+        with self.assertRaises(NoElementFound) as cm:
+            content.css('div.missing').first
+
+        self.assertEquals(
+            'Empty result set: <NodeWrapper:div, id="content">.css("div.missing")'
+            ' did not match any nodes.',
+            str(cm.exception))
+
+    @browsing
+    def test_first_NoElementFound__with_xpath_on_node(self, browser):
+        browser.open(view='test-structure')
+        content = browser.css('#content').first
+        with self.assertRaises(NoElementFound) as cm:
+            content.xpath('//table').first
+
+        self.assertEquals(
+            'Empty result set: <NodeWrapper:div, id="content">.xpath("//table")'
+            ' did not match any nodes.',
+            str(cm.exception))
+
+    @browsing
+    def test_first_NoElementFound__with_css_on_result_set(self, browser):
+        browser.open(view='test-structure')
+        content = browser.css('#content')
+        with self.assertRaises(NoElementFound) as cm:
+            content.css('div.missing').first
+
+        self.assertEquals(
+            'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
+            '.css("div.missing") did not match any nodes.',
+            str(cm.exception))
+
+    @browsing
+    def test_first_NoElementFound__with_xpath_on_result_set(self, browser):
+        browser.open(view='test-structure')
+        content = browser.css('#content')
+        with self.assertRaises(NoElementFound) as cm:
+            content.xpath('//table').first
+
+        self.assertEquals(
+            'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
+            '.xpath("//table") did not match any nodes.',
+            str(cm.exception))
 
     @browsing
     def test_first_or_none_is_first_node(self, browser):

@@ -6,6 +6,7 @@ from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IBrowser
+from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
@@ -472,10 +473,10 @@ class Browser(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return self.xpath(CSSSelector(css_selector).path)
+        query_info = ('browser', 'css', css_selector)
+        return self.xpath(CSSSelector(css_selector).path, query_info=query_info)
 
-    @wrapped_nodes
-    def xpath(self, xpath_selector):
+    def xpath(self, xpath_selector, query_info=None):
         """Select one or more HTML nodes by using an *xpath* selector.
 
         :param xpath_selector: The xpath selector.
@@ -483,7 +484,10 @@ class Browser(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return self.document.xpath(xpath_selector)
+        query_info = query_info or ('browser', 'xpath', xpath_selector)
+        return wrap_nodes(self.document.xpath(xpath_selector),
+                          self,
+                          query_info=query_info)
 
     @property
     @wrapped_nodes

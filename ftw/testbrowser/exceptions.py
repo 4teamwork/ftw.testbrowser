@@ -48,6 +48,14 @@ class NoElementFound(BrowserException):
     """Empty result set has no elements.
     """
 
+    def __init__(self, query_info=None):
+        if query_info is not None:
+            message = ('Empty result set: {0}.{1}("{2}") '
+                       'did not match any nodes.'.format(*query_info))
+            Exception.__init__(self, message)
+        else:
+            super(NoElementFound, self).__init__()
+
 
 class ZServerRequired(BrowserException):
     """The `webdav` method can only be used with a running ZServer.

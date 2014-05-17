@@ -1,3 +1,4 @@
+from ftw.testbrowser import browser
 from ftw.testbrowser import exceptions
 from unittest2 import TestCase
 
@@ -19,3 +20,26 @@ class TestBrowserExceptions(TestCase):
                           'Fields: "foo", "bar", "baz"',
                           str(exceptions.FormFieldNotFound('field label',
                                                            ['foo', 'bar', 'baz'])))
+
+
+class TestNoElementFoundException(TestCase):
+
+    def test_no_query_info(self):
+        self.assertEqual(
+            'Empty result set has no elements.',
+            str(exceptions.NoElementFound()))
+
+    def test_query_info_on_browser(self):
+        query_info = ('browser', 'css', '.the-link')
+        self.assertEqual(
+            'Empty result set: browser.css(".the-link") did not match any nodes.',
+            str(exceptions.NoElementFound(query_info)))
+
+    def test_query_info_on_node(self):
+        with browser:
+            browser.open_html('<html><body></body></html>')
+            query_info = (browser.css('body').first, 'xpath', '//div')
+            self.assertEqual(
+                'Empty result set: <NodeWrapper:body, >.xpath("//div") did not'
+                ' match any nodes.',
+                str(exceptions.NoElementFound(query_info)))
