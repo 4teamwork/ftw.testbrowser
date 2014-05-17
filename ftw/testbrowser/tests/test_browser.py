@@ -3,8 +3,10 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
+from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
+from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
@@ -159,6 +161,65 @@ class TestBrowserCore(TestCase):
     def test_url_is_None_with_open_html(self, browser):
         browser.open_html('<html><head></head></html>')
         self.assertIsNone(browser.url)
+
+    @browsing
+    def test_cloning_copies_cookies_MECHBROWSER(self, browser):
+        browser.open(view='login_form').fill(
+            {'Login Name': TEST_USER_NAME,
+             'Password': TEST_USER_PASSWORD}).submit()
+        self.assertTrue(browser.css('#user-name'))
+
+        with browser.clone() as subbrowser:
+            subbrowser.open()
+            self.assertTrue(subbrowser.css('#user-name'))
+            subbrowser.find('Log out').click()
+            self.assertFalse(subbrowser.css('#user-name'))
+
+        browser.reload()
+        self.assertTrue(browser.css('#user-name'))
+
+    @browsing
+    def test_cloning_copies_cookies_REQUESTS(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(view='login_form').fill(
+            {'Login Name': TEST_USER_NAME,
+             'Password': TEST_USER_PASSWORD}).submit()
+        self.assertTrue(browser.css('#user-name'))
+
+        with browser.clone() as subbrowser:
+            subbrowser.open()
+            self.assertTrue(subbrowser.css('#user-name'))
+            subbrowser.find('Log out').click()
+            self.assertFalse(subbrowser.css('#user-name'))
+
+        browser.reload()
+        self.assertTrue(browser.css('#user-name'))
+
+    @browsing
+    def test_cloning_a_browser_copies_headers_MECHBROWSER(self, browser):
+        browser.login().open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        with browser.clone() as subbrowser:
+            subbrowser.open()
+            self.assertEquals(TEST_USER_ID, plone.logged_in(subbrowser))
+            subbrowser.login(SITE_OWNER_NAME).reload()
+            self.assertEquals(SITE_OWNER_NAME, plone.logged_in(subbrowser))
+
+    @browsing
+    def test_cloning_a_browser_copies_headers_REQUESTS(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.login().open()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+        with browser.clone() as subbrowser:
+            subbrowser.open()
+            self.assertEquals(TEST_USER_ID, plone.logged_in(subbrowser))
+            subbrowser.login(SITE_OWNER_NAME).reload()
+            self.assertEquals(SITE_OWNER_NAME, plone.logged_in(subbrowser))
+
+        browser.reload()
+        self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     def assert_starts_with(self, start, contents):
         self.assertTrue(

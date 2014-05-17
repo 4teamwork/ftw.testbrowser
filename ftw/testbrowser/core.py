@@ -108,12 +108,14 @@ class Browser(object):
         self.requests_session = requests.Session()
 
     def __enter__(self):
-        if self.next_app is None:
-            self.request_library = LIB_REQUESTS
-        else:
-            self.request_library = LIB_MECHANIZE
+        if self.request_library is None:
+            if self.next_app is None:
+                self.request_library = LIB_REQUESTS
+            else:
+                self.request_library = LIB_MECHANIZE
 
-        self.app = self.next_app
+        if self.app is None:
+            self.app = self.next_app
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -728,6 +730,37 @@ class Browser(object):
             self.get_mechbrowser().addheaders.append((
                     'X-zope-handle-errors', 'False'))
         return self.mechbrowser
+
+    def clone(self):
+        """Creates a new browser instance with a cloned state of the
+        current browser. Headers and cookies are copied but not shared.
+        The new browser needs to be used as a context manager, eg.:
+
+        with browser.clone() as sub_browser:
+            sub_browser.open()
+
+
+        :returns: A new browser instance.
+        :rtype: :py:class:`ftw.testbrowser.core.Browser`
+        """
+        subbrowser = Browser()(self.app)
+        subbrowser.request_library = self.request_library
+
+        if self.mechbrowser:
+            subbrowser.mechbrowser = Zope2MechanizeBrowser(self.app)
+            mech_parent = self.mechbrowser
+            mech_child = subbrowser.mechbrowser
+            cookiejar = mech_parent._ua_handlers['_cookies'].cookiejar
+            mech_child.set_cookiejar(cookiejar)
+            mech_child.addheaders = mech_parent.addheaders[:]
+
+        req_parent = self.requests_session
+        req_child = subbrowser.requests_session
+        req_child.headers = req_parent.headers.copy()
+        req_child.cookies = requests.cookies.merge_cookies(
+            req_parent.cookies, {})
+
+        return subbrowser
 
     def debug(self):
         """Open the current page in your real browser by writing the contents
