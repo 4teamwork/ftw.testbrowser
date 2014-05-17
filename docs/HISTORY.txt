@@ -5,7 +5,9 @@ Changelog
 1.11.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Update standard page objects to accept browser instace as keyword arguments.
+  This makes it possible to use the page objects with non-standard browsers.
+  [jone]
 
 
 1.11.0 (2014-05-14)

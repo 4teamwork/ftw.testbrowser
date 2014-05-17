@@ -1,8 +1,8 @@
-from ftw.testbrowser import browser
+from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.utils import normalize_spaces
 
 
-def logged_in():
+def logged_in(browser=default_browser):
     """If a user is logged in in the current browser session (last request), it
     resturns the user-ID, otherwise ``False``.
     """
@@ -14,7 +14,7 @@ def logged_in():
         return False
 
 
-def view():
+def view(browser=default_browser):
     """Returns the view, taken from the template class, of the current page.
 
     """
@@ -24,7 +24,7 @@ def view():
     return None
 
 
-def portal_type():
+def portal_type(browser=default_browser):
     """Returns the current content type, extracted from the body css classes.
     """
     for cls in browser.css('body').first.classes:
@@ -33,21 +33,21 @@ def portal_type():
     return None
 
 
-def view_and_portal_type():
+def view_and_portal_type(browser=default_browser):
     """Returns a tuple of the view and the content type, both taken from the
     body css classes.
     """
-    return (view(), portal_type())
+    return (view(browser=browser), portal_type(browser=browser))
 
 
-def first_heading():
+def first_heading(browser=default_browser):
     """Returns the whitespace-normalized first heading of the current page.
     """
     first_heading = browser.css('.documentFirstHeading').first
     return normalize_spaces(first_heading.text_content())
 
 
-def document_description():
+def document_description(browser=default_browser):
     """Returns the whitespace-normalized document description of the
     current page or None.
     """

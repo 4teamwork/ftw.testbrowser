@@ -1,7 +1,7 @@
-from ftw.testbrowser import browser
+from ftw.testbrowser import browser as default_browser
 
 
-def menu():
+def menu(browser=default_browser):
     """Returns the factories menu container node or ``None`` if it is
     not visible.
     """
@@ -12,16 +12,16 @@ def menu():
         return nodes.first
 
 
-def visible():
+def visible(browser=default_browser):
     """Returns ``True`` when the factories menu is visible on the current page.
     """
-    if menu() is not None:
+    if menu(browser=browser) is not None:
         return True
     else:
         return False
 
 
-def add(type_name):
+def add(type_name, browser=default_browser):
     """Clicks on the add-link in the factories menu for the passed type name.
     The type name is the literal link label.
     This opens the add form for this type.
@@ -29,25 +29,25 @@ def add(type_name):
     :param type_name: The name (label) of the type to add.
     :type type_name: string
     """
-    if not visible():
+    if not visible(browser=browser):
         raise ValueError('Cannot add "%s": no factories menu visible.' % (
                 type_name))
 
-    links = menu().css('.actionMenuContent').find(type_name)
+    links = menu(browser=browser).css('.actionMenuContent').find(type_name)
     if len(links) == 0:
         raise ValueError('The type "%s" is not addable. Addable types: %s' % (
                 type_name,
-                ', '.join(addable_types())))
+                ', '.join(addable_types(browser=browser))))
 
     links.first.click()
 
 
-def addable_types():
+def addable_types(browser=default_browser):
     """Returns a list of addable types. Each addable types is the link label
     in the factories menu.
     """
 
-    if not visible():
+    if not visible(browser=browser):
         raise ValueError('Factories menu is not visible.')
 
-    return menu().css('.actionMenuContent a').text
+    return menu(browser=browser).css('.actionMenuContent a').text

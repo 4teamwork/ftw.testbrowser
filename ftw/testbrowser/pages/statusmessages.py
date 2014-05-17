@@ -1,8 +1,8 @@
-from ftw.testbrowser import browser
+from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.utils import normalize_spaces
 
 
-def messages():
+def messages(browser=default_browser):
     """Returns a dict with lists of status messages (normalized text) for
     "info", "warning" and "error".
     """
@@ -28,22 +28,22 @@ def messages():
     return messages
 
 
-def info_messages():
+def info_messages(browser=default_browser):
     """Returns all "info" statusmessages.
     """
-    return messages()['info']
+    return messages(browser=browser)['info']
 
 
-def warning_messages():
+def warning_messages(browser=default_browser):
     """Returns all "warning" statusmessages.
     """
-    return messages()['warning']
+    return messages(browser=browser)['warning']
 
 
-def error_messages():
+def error_messages(browser=default_browser):
     """Returns all "error" statusmessages.
     """
-    return messages()['error']
+    return messages(browser=browser)['error']
 
 
 def as_string(filter_=None):
@@ -67,29 +67,29 @@ def as_string(filter_=None):
     return ', '.join(result)
 
 
-def assert_message(text):
+def assert_message(text, browser=default_browser):
     """Assert that a status message is visible.
     """
-    all_messages = reduce(list.__add__, messages().values())
+    all_messages = reduce(list.__add__, messages(browser=browser).values())
     if text not in all_messages:
         raise AssertionError('No status message "%s". Current messages: %s' % (
                 text, as_string()))
     return True
 
 
-def assert_no_messages():
+def assert_no_messages(browser=default_browser):
     """Assert that there are no status messages at all.
     """
-    all_messages = reduce(list.__add__, messages().values())
+    all_messages = reduce(list.__add__, messages(browser=browser).values())
     if len(all_messages) > 0:
         raise AssertionError('Unexpected status messages: %s' % as_string())
     return True
 
 
-def assert_no_error_messages():
+def assert_no_error_messages(browser=default_browser):
     """Assert that there are no error messages.
     """
-    if len(error_messages()) > 0:
+    if len(error_messages(browser=browser)) > 0:
         raise AssertionError('Unexpected "error" status messages: %s' % (
                 as_string('error')))
     return True
