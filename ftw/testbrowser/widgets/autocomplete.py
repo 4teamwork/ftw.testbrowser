@@ -56,14 +56,11 @@ class AutocompleteWidget(PloneWidget):
 
         """
 
-        from ftw.testbrowser import Browser
-
         url = '/'.join((self.browser.url,
                         '++widget++%s' % self.fieldname,
                         '@@autocomplete-search'))
 
-        with Browser()(self.browser.app) as query_browser:
-            query_browser.requests_session = self.browser.requests_session
+        with self.browser.clone() as query_browser:
             query_browser.open(url, data={'q': query_string})
             return map(lambda line: line.split('|'),
                        query_browser.contents.split('\n'))

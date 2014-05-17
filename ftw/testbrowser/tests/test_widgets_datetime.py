@@ -13,7 +13,7 @@ class TestDatetimeWidget(TestCase):
 
     @browsing
     def test_z3cform_formfill(self, browser):
-        browser.login().visit(view='test-z3cform-shopping')
+        browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Delivery date': datetime(2010, 12, 22, 10, 30, 00)})
         browser.find('Submit').click()
         self.assertEquals({u'delivery_date': u'2010-12-22T10:30:00'},

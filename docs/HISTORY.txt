@@ -5,6 +5,11 @@ Changelog
 1.11.1 (unreleased)
 -------------------
 
+- Fix browser cloning regression in autocomplete widget "query".
+  The cloned browser did no longer have the same headers / cookies,
+  causing authenticated access to be no longer possible.
+  [jone]
+
 - New browser.clone method for creating browser clones.
   [jone]
 

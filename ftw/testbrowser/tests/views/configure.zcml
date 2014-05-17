@@ -48,7 +48,7 @@
         name="test-z3cform-shopping"
         class=".z3cform.ShoppingView"
         for="*"
-        permission="zope.Public"
+        permission="cmf.ModifyPortalContent"
         />
 
     <utility
