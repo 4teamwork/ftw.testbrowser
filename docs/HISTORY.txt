@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.1 (unreleased)
+1.11.1 (2014-05-17)
 -------------------
 
 - Fix browser cloning regression in autocomplete widget "query".
