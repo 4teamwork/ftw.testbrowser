@@ -249,7 +249,11 @@ class Browser(object):
 
         self.previous_url = self.url
         data = self._prepare_post_data(data)
-        self.response = self.get_mechbrowser().open(url, data=data)
+        try:
+            self.response = self.get_mechbrowser().open(url, data=data)
+        except:
+            self.response = None
+            raise
         self._load_html(self.response)
         self.previous_request_library = LIB_MECHANIZE
 
@@ -281,10 +285,11 @@ class Browser(object):
             method = 'POST'
 
         with verbose_logging():
-            self.response = self.requests_session.request(method,
-                                                          url,
-                                                          data=data,
-                                                          headers=headers)
+            try:
+                self.response = self.requests_session.request(
+                    method, url, data=data, headers=headers)
+            except:
+                self.response = None
 
         self._load_html(self.response)
         self.previous_request_library = LIB_REQUESTS
@@ -474,7 +479,8 @@ class Browser(object):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         query_info = ('browser', 'css', css_selector)
-        return self.xpath(CSSSelector(css_selector).path, query_info=query_info)
+        return self.xpath(CSSSelector(css_selector).path,
+                          query_info=query_info)
 
     def xpath(self, xpath_selector, query_info=None):
         """Select one or more HTML nodes by using an *xpath* selector.

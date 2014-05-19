@@ -5,7 +5,8 @@ Changelog
 1.11.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix browser.url regression when the previous request raised an exception.
+  [jone]
 
 
 1.11.2 (2014-05-17)

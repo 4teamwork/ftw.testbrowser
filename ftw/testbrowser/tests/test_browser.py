@@ -10,6 +10,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
+from zExceptions import NotFound
 
 
 AC_COOKIE_INFO = {'comment': None,
@@ -118,6 +119,13 @@ class TestBrowserCore(TestCase):
         self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
                                     'login_form')),
                           browser.url)
+
+    @browsing
+    def test_url_is_None_when_previous_request_had_exception(self, browser):
+        browser.open()
+        with self.assertRaises(NotFound):
+            browser.open(view='this/path/does/not/exist')
+        self.assertIsNone(browser.url)
 
     @browsing
     def test_base_url_is_base_url_tag(self, browser):
