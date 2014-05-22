@@ -5,7 +5,10 @@ Changelog
 1.11.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- browser.open(data): support multiple values for the same data name.
+  The values can either be passed as a dict with lists as values or as
+  a sequence of two-element tuples.
+  [jone]
 
 
 1.11.3 (2014-05-19)

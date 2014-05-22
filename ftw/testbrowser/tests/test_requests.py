@@ -28,6 +28,7 @@ class TestMechanizeBrowserRequests(TestCase):
         portal = self.layer['portal']
         setRoles(portal, TEST_USER_ID, ['Manager'])
         login(portal, TEST_USER_NAME)
+        self.json_view_url = portal.absolute_url() + '/test-form-result'
 
     @browsing
     def test_get_request(self, browser):
@@ -256,10 +257,44 @@ class TestMechanizeBrowserRequests(TestCase):
         self.assertEquals('The browser is on a blank page. Cannot reload.',
                           str(cm.exception))
 
+    @browsing
+    def test_fill_and_submit_multi_select_form(self, browser):
+        browser.open_html(
+            '\n'.join(('<form action="{0}">'.format(self.json_view_url),
+                       '<select name="selectfield" multiple="multiple">',
+                       '<option>Foo</option>',
+                       '<option>Bar</option>',
+                       '<option>Baz</option>',
+                       '</select>')))
+        browser.fill({'selectfield': ['Foo', 'Baz']}).submit()
+        self.assertDictContainsSubset(
+            {u'selectfield': [u'Foo', u'Baz']},
+            browser.json)
+
+    @browsing
+    def test_support_multi_value_data_as_dict_with_list_values(self, browser):
+        browser.open(self.json_view_url, data={'values': ['Foo', 'Bar']})
+        self.assertDictContainsSubset(
+            {u'values': [u'Foo', u'Bar']},
+            browser.json)
+
+    @browsing
+    def test_support_multi_value_data_as_list_with_tuples(self, browser):
+        browser.open(self.json_view_url, data=[('values', 'Foo'),
+                                               ('values', 'Bar')])
+        self.assertDictContainsSubset(
+            {u'values': [u'Foo', u'Bar']},
+            browser.json)
+
+
 
 class TestRequestslibBrowserRequests(TestCase):
 
     layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
+
+    def setUp(self):
+        portal = self.layer['portal']
+        self.json_view_url = portal.absolute_url() + '/test-form-result'
 
     @browsing
     def test_open_supports_choosing_library_when_doing_request(self, browser):
@@ -401,3 +436,35 @@ class TestRequestslibBrowserRequests(TestCase):
         self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
         browser.reload()
         self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
+
+    @browsing
+    def test_fill_and_submit_multi_select_form(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open_html(
+            '\n'.join(('<form action="{0}">'.format(self.json_view_url),
+                       '<select name="selectfield" multiple="multiple">',
+                       '<option>Foo</option>',
+                       '<option>Bar</option>',
+                       '<option>Baz</option>',
+                       '</select>')))
+        browser.fill({'selectfield': ['Foo', 'Baz']}).submit()
+        self.assertDictContainsSubset(
+            {u'selectfield': [u'Foo', u'Baz']},
+            browser.json)
+
+    @browsing
+    def test_support_multi_value_data_as_dict_with_list_values(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(self.json_view_url, data={'values': ['Foo', 'Bar']})
+        self.assertDictContainsSubset(
+            {u'values': [u'Foo', u'Bar']},
+            browser.json)
+
+    @browsing
+    def test_support_multi_value_data_as_list_with_tuples(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open(self.json_view_url, data=[('values', 'Foo'),
+                                               ('values', 'Bar')])
+        self.assertDictContainsSubset(
+            {u'values': [u'Foo', u'Bar']},
+            browser.json)

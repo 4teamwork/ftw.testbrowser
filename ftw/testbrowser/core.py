@@ -837,8 +837,19 @@ class Browser(object):
         if isinstance(data, dict):
             data = data.items()
 
-        to_utf8 = (lambda val: isinstance(val, unicode)
-                   and val.encode('utf-8') or val)
-        data = dict(map(lambda item: map(to_utf8, item), data))
+        normalized_data = []
+        for name, value_or_values in data:
+            if isinstance(name, unicode):
+                name = name.encode('utf-8')
 
-        return urllib.urlencode(data)
+            if isinstance(value_or_values, (list, tuple, set)):
+                values = value_or_values
+            else:
+                values = [value_or_values]
+
+            for value in values:
+                if isinstance(value, unicode):
+                    value = value.encode('utf-8')
+                normalized_data.append((name, value))
+
+        return urllib.urlencode(normalized_data)
