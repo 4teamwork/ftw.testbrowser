@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.4 (unreleased)
+1.11.4 (2014-05-22)
 -------------------
 
 - browser.open(data): support multiple values for the same data name.
