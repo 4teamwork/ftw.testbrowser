@@ -5,6 +5,10 @@ Changelog
 1.11.5 (unreleased)
 -------------------
 
+- Add a z3cform choice collection widget.
+  This is used for z3cform List fields with Choice value_type.
+  [jone]
+
 - Add select field node wrapper with methods for getting available options.
   [jone]
 
