@@ -297,3 +297,45 @@ class TestSelectField(TestCase):
         self.assertEquals(['foo'], list(browser.find('Select Field').value))
         browser.fill({'Select Field': ['bar', 'baz']})
         self.assertEquals(['bar', 'baz'], list(browser.find('Select Field').value))
+
+    @browsing
+    def test_getting_options_items(self, browser):
+        browser.open_html(
+            '<form>'
+            ' <label for="field">Field</label>'
+            ' <select id="field" name="field">'
+            '  <option value="foo">Foo</option>'
+            '  <option value="bar">Bar</option>'
+            ' </select>'
+            '</form>')
+
+        self.assertEquals([('foo', 'Foo'), ('bar', 'Bar')],
+                          browser.find('Field').options)
+
+    @browsing
+    def test_getting_options_labels(self, browser):
+        browser.open_html(
+            '<form>'
+            ' <label for="field">Field</label>'
+            ' <select id="field" name="field">'
+            '  <option value="foo">Foo</option>'
+            '  <option value="bar">Bar</option>'
+            ' </select>'
+            '</form>')
+
+        self.assertEquals(['Foo', 'Bar'],
+                          browser.find('Field').options_labels)
+
+    @browsing
+    def test_getting_options_values(self, browser):
+        browser.open_html(
+            '<form>'
+            ' <label for="field">Field</label>'
+            ' <select id="field" name="field">'
+            '  <option value="foo">Foo</option>'
+            '  <option value="bar">Bar</option>'
+            ' </select>'
+            '</form>')
+
+        self.assertEquals(['foo', 'bar'],
+                          browser.find('Field').options_values)

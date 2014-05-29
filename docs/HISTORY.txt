@@ -5,7 +5,8 @@ Changelog
 1.11.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add select field node wrapper with methods for getting available options.
+  [jone]
 
 
 1.11.4 (2014-05-22)

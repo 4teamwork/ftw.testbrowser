@@ -463,3 +463,37 @@ class FileField(NodeWrapper):
             value = StringIO(value)
 
         return value, filename, content_type
+
+
+class SelectField(NodeWrapper):
+    """The ``SelectField`` wrapper wraps and extends ``<select>`` fields.
+    """
+
+    @property
+    def options(self):
+        """Returns a list of value/label pairs of all available options
+        of this select field.
+
+        :returns: list of tuples, each a value/label per of an option
+        :rtype: list of tuples
+        """
+        return [(option.attrib.get('value', option.text), option.text)
+                for option in self.css('>option')]
+
+    @property
+    def options_labels(self):
+        """Returns a list of labels of available options.
+
+        :returns: list of labels
+        :rtype: list of strings
+        """
+        return [label for (value, label) in self.options]
+
+    @property
+    def options_values(self):
+        """Returns a list of values of available options.
+
+        :returns: list of values
+        :rtype: list of strings
+        """
+        return [value for (value, label) in self.options]

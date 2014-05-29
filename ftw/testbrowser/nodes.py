@@ -107,6 +107,10 @@ def wrap_node(node, browser):
         from ftw.testbrowser.form import FileField
         return FileField(node, browser)
 
+    if node.tag == 'select':
+        from ftw.testbrowser.form import SelectField
+        return SelectField(node, browser)
+
     if node.tag == 'textarea':
         from ftw.testbrowser.form import TextAreaField
         return TextAreaField(node, browser)
