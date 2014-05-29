@@ -34,8 +34,8 @@ WIDGET_HTML = '''
         <tr>
           <td>
             <select id="form-widgets-fruits-from" name="form.widgets.fruits.from" class="required list-field" multiple="multiple" size="5">
-              <option value="apple">Apple</option>
-              <option value="watermelon">Watermelon</option>
+              <option value="/fruits/apple">Apple</option>
+              <option value="/fruits/watermelon">Watermelon</option>
             </select>
           </td>
           <td>
@@ -45,7 +45,7 @@ WIDGET_HTML = '''
           </td>
           <td>
             <select id="form-widgets-fruits-to" name="form.widgets.fruits.to" class="required list-field" multiple="multiple" size="5">
-              <option value="banana" selected="selected">Banana</option>
+              <option value="/fruits/banana" selected="selected">Banana</option>
             </select>
             <span id="form-widgets-fruits-toDataContainer">
             </span>
@@ -68,7 +68,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
     def test_options_selected(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            [('banana', 'Banana')],
+            [('/fruits/banana', 'Banana')],
             browser.find('Fruits').selected)
 
     @browsing
@@ -82,14 +82,15 @@ class TestZ3cChoiceCollectionWidget(TestCase):
     def test_options_selected_values(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            ['banana'],
+            ['/fruits/banana'],
             browser.find('Fruits').selected_values)
 
     @browsing
     def test_options_unselected(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            [('apple', 'Apple'), ('watermelon', 'Watermelon')],
+            [('/fruits/apple', 'Apple'),
+             ('/fruits/watermelon', 'Watermelon')],
             browser.find('Fruits').unselected)
 
     @browsing
@@ -103,16 +104,16 @@ class TestZ3cChoiceCollectionWidget(TestCase):
     def test_options_unselected_values(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            ['apple', 'watermelon'],
+            ['/fruits/apple', '/fruits/watermelon'],
             browser.find('Fruits').unselected_values)
 
     @browsing
     def test_options_returns_selected_and_unselected_options(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            [('apple', 'Apple'),
-             ('watermelon', 'Watermelon'),
-             ('banana', 'Banana')],
+            [('/fruits/apple', 'Apple'),
+             ('/fruits/watermelon', 'Watermelon'),
+             ('/fruits/banana', 'Banana')],
             browser.find('Fruits').options)
 
     @browsing
@@ -126,7 +127,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
     def test_options_values(self, browser):
         browser.open_html(WIDGET_HTML)
         self.assertEqual(
-            ['apple', 'watermelon', 'banana'],
+            ['/fruits/apple', '/fruits/watermelon', '/fruits/banana'],
             browser.find('Fruits').options_values)
 
     @browsing
@@ -135,8 +136,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': ['Apple', 'Banana']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', 'apple'),
-             ('form.widgets.fruits.to', 'banana')],
+            [('form.widgets.fruits.to', '/fruits/apple'),
+             ('form.widgets.fruits.to', '/fruits/banana')],
             browser.css('form').first.form_values())
 
         self.assertEqual(
@@ -152,8 +153,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': ['Banana', 'Apple']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', 'banana'),
-             ('form.widgets.fruits.to', 'apple')],
+            [('form.widgets.fruits.to', '/fruits/banana'),
+             ('form.widgets.fruits.to', '/fruits/apple')],
             browser.css('form').first.form_values())
         self.assertEqual(
             ['Banana', 'Apple'],
@@ -165,7 +166,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': 'Apple'})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', 'apple')],
+            [('form.widgets.fruits.to', '/fruits/apple')],
             browser.css('form').first.form_values())
 
         self.assertEqual(
@@ -178,11 +179,11 @@ class TestZ3cChoiceCollectionWidget(TestCase):
     @browsing
     def test_selecting_multiple_options_by_values(self, browser):
         browser.open_html(WIDGET_HTML)
-        browser.fill({'Fruits': ['apple', 'banana']})
+        browser.fill({'Fruits': ['/fruits/apple', '/fruits/banana']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', 'apple'),
-             ('form.widgets.fruits.to', 'banana')],
+            [('form.widgets.fruits.to', '/fruits/apple'),
+             ('form.widgets.fruits.to', '/fruits/banana')],
             browser.css('form').first.form_values())
 
         self.assertEqual(

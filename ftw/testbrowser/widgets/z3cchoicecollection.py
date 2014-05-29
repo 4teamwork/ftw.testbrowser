@@ -34,9 +34,11 @@ class Z3cChoiceCollection(PloneWidget):
             self._from_select.append(option_node.node)
 
         # move selected options from "from" to "to" in order
+        options_by_value = dict([
+                (option.attrib.get('value', option.text), option)
+                for option in self._from_select.css('>option')])
         for value in values:
-            option_node = self._from_select.css(
-                'option[value={0}]'.format(value)).first
+            option_node = options_by_value[value]
             self._to_select.append(option_node.node)
 
         # select the options (adding selected="selected")
