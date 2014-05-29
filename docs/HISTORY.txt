@@ -5,7 +5,9 @@ Changelog
 1.12.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix z3cform choice collection widget submit value.
+  The widget creates hidden input fields on submit.
+  [jone]
 
 
 1.12.1 (2014-05-29)

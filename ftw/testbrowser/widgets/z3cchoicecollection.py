@@ -1,6 +1,7 @@
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+import lxml.etree
 
 
 @widget
@@ -25,6 +26,9 @@ class Z3cChoiceCollection(PloneWidget):
         :param values: value to fill the field with.
         :type values: string or list of strings
         """
+        self._to_select.value = []
+        self._from_select.value = []
+
         values = list(self._normalize_values(values))
 
         # move all options form "to" to "from"
@@ -39,8 +43,15 @@ class Z3cChoiceCollection(PloneWidget):
             option_node = options_by_value[value]
             self._to_select.append(option_node.node)
 
-        # select the options (adding selected="selected")
-        self._to_select.value = values
+        # the widget does some magic on form submit:
+        # it creates hidden fields for each option..
+        input_name = '{0}:list'.format(self.attrib['data-fieldname'])
+        [self.node.remove(input.node)
+         for input in self.css('input[name="{}"]'.format(input_name))]
+
+        for value in values:
+            input = lxml.etree.SubElement(
+                self.node, 'input', type='hidden', name=input_name, value=value)
 
     def _normalize_values(self, values):
         if not isinstance(values, (list, tuple)):

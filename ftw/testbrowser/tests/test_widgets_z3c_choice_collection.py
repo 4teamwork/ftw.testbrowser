@@ -136,8 +136,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': ['Apple', 'Banana']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', '/fruits/apple'),
-             ('form.widgets.fruits.to', '/fruits/banana')],
+            [('form.widgets.fruits:list', '/fruits/apple'),
+             ('form.widgets.fruits:list', '/fruits/banana')],
             browser.css('form').first.form_values())
 
         self.assertEqual(
@@ -153,8 +153,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': ['Banana', 'Apple']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', '/fruits/banana'),
-             ('form.widgets.fruits.to', '/fruits/apple')],
+            [('form.widgets.fruits:list', '/fruits/banana'),
+             ('form.widgets.fruits:list', '/fruits/apple')],
             browser.css('form').first.form_values())
         self.assertEqual(
             ['Banana', 'Apple'],
@@ -166,7 +166,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': 'Apple'})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', '/fruits/apple')],
+            [('form.widgets.fruits:list', '/fruits/apple')],
             browser.css('form').first.form_values())
 
         self.assertEqual(
@@ -182,8 +182,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.fill({'Fruits': ['/fruits/apple', '/fruits/banana']})
 
         self.assertEquals(
-            [('form.widgets.fruits.to', '/fruits/apple'),
-             ('form.widgets.fruits.to', '/fruits/banana')],
+            [('form.widgets.fruits:list', '/fruits/apple'),
+             ('form.widgets.fruits:list', '/fruits/banana')],
             browser.css('form').first.form_values())
 
         self.assertEqual(
