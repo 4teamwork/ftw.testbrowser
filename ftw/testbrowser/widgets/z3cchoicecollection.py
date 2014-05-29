@@ -1,7 +1,6 @@
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
-from lxml import etree
 
 
 @widget
@@ -18,7 +17,6 @@ class Z3cChoiceCollection(PloneWidget):
             return False
 
         return len(node.css('table.ordered-selection-field')) > 0
-
 
     def fill(self, values):
         """Fill the widget with the values in this order.
@@ -150,7 +148,8 @@ class Z3cChoiceCollection(PloneWidget):
     @property
     def _from_select(self):
         return self.xpath(
-            './/select[substring(@id, string-length(@id) - 4) = "-from"]').first
+            './/select[substring(@id, string-length(@id) - 4) = "-from"]'
+            ).first
 
     @property
     def _to_select(self):
