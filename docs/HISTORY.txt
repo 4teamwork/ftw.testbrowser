@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.5 (unreleased)
+1.12.0 (2014-05-29)
 -------------------
 
 - Add a z3cform choice collection widget.
