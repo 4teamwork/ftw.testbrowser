@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.12.4 (unreleased)
+1.12.4 (2014-05-30)
 -------------------
 
 - Fix python 2.6 support.
