@@ -202,3 +202,20 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         self.assertEquals('Could not find options [\'Rhubarb\']'
                           ' for field "Fruits".',
                           str(cm.exception))
+
+    @browsing
+    def test_selecting_with_plone_42(self, browser):
+        # The data-fieldname attribute is available from Plone>=4.3
+        browser.open_html(WIDGET_HTML.replace('data-fieldname', 'removed'))
+        browser.fill({'Fruits': 'Apple'})
+
+        self.assertEquals(
+            [('form.widgets.fruits:list', '/fruits/apple')],
+            browser.css('form').first.form_values())
+
+        self.assertEqual(
+            ['Apple'],
+            browser.find('Fruits').selected_labels)
+        self.assertEqual(
+            ['Watermelon', 'Banana'],
+            browser.find('Fruits').unselected_labels)

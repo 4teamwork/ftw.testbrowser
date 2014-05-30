@@ -45,13 +45,23 @@ class Z3cChoiceCollection(PloneWidget):
 
         # the widget does some magic on form submit:
         # it creates hidden fields for each option..
-        input_name = '{0}:list'.format(self.attrib['data-fieldname'])
+        input_name = '{0}:list'.format(self.fieldname)
         [self.node.remove(input.node)
          for input in self.css('input[name="{}"]'.format(input_name))]
 
         for value in values:
             input = lxml.etree.SubElement(
                 self.node, 'input', type='hidden', name=input_name, value=value)
+
+    @property
+    def fieldname(self):
+        if 'data-fieldname' in self.attrib:
+            return self.attrib['data-fieldname']
+
+        kss_fieldname_classes = filter(
+            lambda cls: cls.startswith('kssattr-fieldname-'), self.classes)
+        if kss_fieldname_classes:
+            return kss_fieldname_classes[0][len('kssattr-fieldname-'):]
 
     def _normalize_values(self, values):
         if not isinstance(values, (list, tuple)):
