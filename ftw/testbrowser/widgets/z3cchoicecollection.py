@@ -26,9 +26,6 @@ class Z3cChoiceCollection(PloneWidget):
         :param values: value to fill the field with.
         :type values: string or list of strings
         """
-        self._to_select.value = []
-        self._from_select.value = []
-
         values = list(self._normalize_values(values))
 
         # move all options form "to" to "from"
