@@ -44,7 +44,7 @@ class Z3cChoiceCollection(PloneWidget):
         # it creates hidden fields for each option..
         input_name = '{0}:list'.format(self.fieldname)
         [self.node.remove(input.node)
-         for input in self.css('input[name="{}"]'.format(input_name))]
+         for input in self.css('input[name="{0}"]'.format(input_name))]
 
         for value in values:
             input = lxml.etree.SubElement(
