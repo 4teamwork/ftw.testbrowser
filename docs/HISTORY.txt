@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.12.3 (unreleased)
+1.12.3 (2014-05-30)
 -------------------
 
 - Fix z3cform choic collection widget to support Plone < 4.3.
