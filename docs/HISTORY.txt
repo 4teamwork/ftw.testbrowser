@@ -5,7 +5,8 @@ Changelog
 1.12.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add a Dexterity namedfile upload widget.
+  [lgraf]
 
 
 1.12.4 (2014-05-30)

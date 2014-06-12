@@ -3,7 +3,7 @@ from ftw.testbrowser.widgets.base import widget
 
 
 @widget
-class FileWidget(PloneWidget):
+class ArchetypesFileWidget(PloneWidget):
     """Represents an Archetypes file widget.
     """
 
@@ -12,6 +12,22 @@ class FileWidget(PloneWidget):
         if not PloneWidget.match(node):
             return False
         return 'ArchetypesFileWidget' in node.classes
+
+    def fill(self, value):
+        field = self.css('input[type="file"]').first
+        field.set('value', value)
+
+
+@widget
+class DexterityFileWidget(PloneWidget):
+    """Represents a Dexterity namedfile widget.
+    """
+
+    @staticmethod
+    def match(node):
+        if not PloneWidget.match(node):
+            return False
+        return len(node.css('.named-file-widget')) > 0
 
     def fill(self, value):
         field = self.css('input[type="file"]').first
