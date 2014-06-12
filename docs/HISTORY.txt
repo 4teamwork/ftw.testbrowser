@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.12.5 (unreleased)
+1.13.0 (2014-06-12)
 -------------------
 
 - Add a Dexterity namedfile upload widget.
