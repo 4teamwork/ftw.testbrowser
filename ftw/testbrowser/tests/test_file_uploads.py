@@ -8,6 +8,10 @@ from unittest2 import TestCase
 import os.path
 
 
+def asset(name, mode='r'):
+    return open(os.path.join(os.path.dirname(__file__), 'assets', name), mode)
+
+
 class TestFileUploads(TestCase):
 
     layer = PLONE_ZSERVER
@@ -52,8 +56,7 @@ class TestFileUploads(TestCase):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('File')
 
-        file_path = os.path.join(os.path.dirname(__file__), 'assets', 'helloworld.py')
-        with open(file_path) as helloworld:
+        with asset('helloworld.py') as helloworld:
             browser.fill({'Title': 'Hello World',
                           'File': helloworld}).submit()
 
@@ -63,13 +66,29 @@ class TestFileUploads(TestCase):
                                   content_type='text/x-python',
                                   browser=browser)
 
+    @browsing
+    def test_binary_file_uploading(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('File')
+
+        with asset('file.pdf') as pdf:
+            browser.fill({'Title': 'The PDF',
+                          'File': pdf}).submit()
+
+        browser.find('file.pdf').click()
+        self.assert_file_metadata(filename='file.pdf',
+                                  content_type='application/pdf',
+                                  browser=browser)
+
+        with asset('file.pdf') as pdf:
+            self.assertTrue(pdf.read().strip() == browser.contents.strip(),
+                            'The PDF was changed when uploaded!')
+
     def test_requests_library_file_uploads(self):
         with Browser() as browser:
             browser.login(SITE_OWNER_NAME).open(
                 view='createObject?type_name=File')
-            file_path = os.path.join(os.path.dirname(__file__), 'assets',
-                                     'helloworld.py')
-            with open(file_path) as helloworld:
+            with asset('helloworld.py') as helloworld:
                 browser.fill({'Title': 'Hello World',
                               'File': helloworld}).submit()
 
@@ -88,3 +107,11 @@ class TestFileUploads(TestCase):
                 '%s; charset=iso-8859-15' % content_type,  # mechanize download
                 content_type,  # requests lib download
              ))
+
+    def assert_file_metadata(self, browser, filename, content_type):
+        self.assertEquals('attachment; filename="%s"' % filename,
+                          browser.headers.get('Content-Disposition'))
+        self.assertIn(browser.headers.get('Content-Type'), (
+                '%s; charset=iso-8859-15' % content_type,  # mechanize download
+                content_type,  # requests lib download
+                ))

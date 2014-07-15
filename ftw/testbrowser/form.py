@@ -351,7 +351,10 @@ class Form(NodeWrapper):
                 f.write(value)
 
         mw.lastpart()
-        return data.getvalue().encode('utf-8'), http_headers
+        value = data.getvalue()
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+        return value, http_headers
 
 
 class TextAreaField(NodeWrapper):
