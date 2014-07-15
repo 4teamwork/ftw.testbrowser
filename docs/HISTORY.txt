@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.13.1 (unreleased)
+1.13.1 (2014-07-15)
 -------------------
 
 - Fix encoding problem on binary file uploads.
