@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from collections import defaultdict
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import FormFieldNotFound
@@ -8,6 +8,7 @@ from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from mechanize import Request
 from mechanize._form import MimeWriter
+from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
 import shutil
@@ -148,12 +149,36 @@ class Form(NodeWrapper):
                     and value is True:
                 values[fieldname] = field.node.attrib.get('value', 'on')
 
+
+        values = self._merge_already_checked_checkboxes(values)
+
         lxml.html.formfill._fill_form(self.node, values)
 
         for widget, value in widgets:
             widget.fill(value)
 
         return self
+
+    def _merge_already_checked_checkboxes(self, values):
+        # Given a form with a already checked checkbox (e.g. checked=checked),
+        # when this form is filled without changing this checkbox,
+        # the lxml formfill unchecks the checkbox.
+        # Therefore we need to re-add all already checked checkboxes to
+        # the values to fill unless the value is meant to be changed.
+        to_merge = defaultdict(list)
+
+        for input in self.node.inputs:
+            if input.name in values:
+                continue
+
+            if input.attrib.get('type', '').lower() != 'checkbox':
+                continue
+
+            if input.attrib.get('checked', None) is not None:
+                to_merge[input.name].append(input.attrib.get('value', 'on'))
+
+        values.update(to_merge)
+        return values
 
     def submit(self, button=None):
         """Submits this form by clicking on the first submit button.

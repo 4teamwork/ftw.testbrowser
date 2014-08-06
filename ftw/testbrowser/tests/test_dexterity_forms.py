@@ -3,6 +3,7 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
+from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
 from plone.app.testing import SITE_OWNER_NAME
 from unittest2 import TestCase
 
@@ -35,3 +36,32 @@ class TestDexterityForms(TestCase):
         browser.fill({'Title': u'F\xf6lder'}).save()
         statusmessages.assert_no_error_messages()
         self.assertEquals(u'F\xf6lder', plone.first_heading())
+
+    @browsing
+    def test_changing_checkbox_values(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': u'Page',
+                      'Exclude from navigation': True}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
+
+        browser.find('Edit').click()
+        browser.fill({'Title': 'New Title',
+                             'Exclude from navigation': False}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertFalse(IExcludeFromNavigation(browser.context).exclude_from_nav)
+
+    @browsing
+    def test_checkbox_values_are_preserved(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': u'Page',
+                      'Exclude from navigation': True}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
+
+        browser.find('Edit').click()
+        browser.fill({'Title': 'New Title'}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
