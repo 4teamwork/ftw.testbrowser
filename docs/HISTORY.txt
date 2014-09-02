@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.13.3 (unreleased)
+1.13.3 (2014-09-02)
 -------------------
 
 - Node.text: remove multiple spaces in a row caused by nesting.
