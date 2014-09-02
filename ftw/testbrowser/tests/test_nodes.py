@@ -570,7 +570,7 @@ class TestNodeWrappers(TestCase):
 
     @browsing
     def test_text_is_recursive(self, browser):
-        browser.open_html(u'<div id="text">This is <b>some</b> text.</div>')
+        browser.open_html(u'<div id="text">This is <b> some </b> text.</div>')
         self.assertEquals(
             u'This is some text.', browser.css('#text').first.text)
 

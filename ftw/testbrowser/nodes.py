@@ -540,6 +540,8 @@ class NodeWrapper(object):
         text = ''.join(recursive_text(self.node)).strip()
         # strip spaces before and after newlines
         text = re.sub(' *\n *', '\n', text)
+        # reduce multiple spaces in a row to one
+        text = re.sub(' +', ' ', text)
         return text
 
     @property

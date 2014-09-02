@@ -5,7 +5,8 @@ Changelog
 1.13.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Node.text: remove multiple spaces in a row caused by nesting.
+  [jone]
 
 
 1.13.2 (2014-08-06)
