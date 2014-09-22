@@ -132,7 +132,7 @@ class Form(NodeWrapper):
 
             # lxml.html.formfill cannot fill select fields properly.
             if field and field.tag == 'select' and not field.get('multiple'):
-                field.node.value = value
+                field.value = value
                 del values[fieldname]
 
             # lxml.html.formfill cannot handle file uploads.
@@ -525,3 +525,20 @@ class SelectField(NodeWrapper):
         :rtype: list of strings
         """
         return [value for (value, label) in self.options]
+
+    def __setattr__(self, name, value):
+        if name == 'value':
+            return self.set_value(value)
+        return super(SelectField, self).__setattr__(name, value)
+
+    def set_value(self, value):
+        try:
+            self.node.value = value
+        except ValueError:
+            options = ', '.join(['"{1}" ({0})'.format(*option)
+                                 for option in self.options])
+
+            raise ValueError(
+                'No option {0} for select "{1}".'
+                ' Available options: {2}.'.format(
+                    repr(value), self.name, options))
