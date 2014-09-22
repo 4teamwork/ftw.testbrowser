@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.13.4 (unreleased)
+1.13.4 (2014-09-22)
 -------------------
 
 - Filling selects: verbose error message when option not found.
