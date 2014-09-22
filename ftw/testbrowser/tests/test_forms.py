@@ -281,6 +281,27 @@ class TestSelectField(TestCase):
         self.assertEquals('bar', browser.find('Select Field').value)
 
     @browsing
+    def test_verbose_message_when_no_option_matches(self, browser):
+        browser.open_html('\n'.join((
+                    '<html><body>',
+                    ' <form id="form">',
+                    '  <label for="field">Select Field</label>',
+                    '  <select id="field" name="field">',
+                    '    <option value="foo">Foo</option>',
+                    '    <option value="bar">Bar</option>',
+                    '  </select>',
+                    ' </form>'
+                    '</body></html>')))
+
+        with self.assertRaises(ValueError) as cm:
+            browser.fill({'Select Field': 'baz'})
+
+        self.assertEquals(
+            "No option u'baz' for select \"field\". "
+            'Available options: "Foo" (foo), "Bar" (bar).',
+                          str(cm.exception))
+
+    @browsing
     def test_fill_multi_select(self, browser):
         browser.open_html('\n'.join((
                     '<html><body>',

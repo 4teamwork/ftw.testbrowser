@@ -5,7 +5,9 @@ Changelog
 1.13.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Filling selects: verbose error message when option not found.
+  The available options are now included in the message.
+  [jone]
 
 
 1.13.3 (2014-09-02)
