@@ -109,6 +109,30 @@ class TestTables(TestCase):
             browser.css('#advanced-table').first.dicts())
 
     @browsing
+    def test_table_header_offset(self, browser):
+        browser.open_html(
+            '<table>'
+            ' <thead>'
+            '  <tr><th colspan="2">Not interesting</th></tr>'
+            '  <tr><th>Foo</th><th>Bar</th></tr>'
+            ' </thead>'
+            ' <body>'
+            '  <tr><td>1</td><td>2</td></tr>'
+            ' </body>'
+            '</table>'
+            )
+
+        self.assertEquals(
+            [['Foo', 'Bar'],
+             ['1', '2']],
+            browser.css('table').first.lists(head_offset=1))
+
+        self.assertEquals(
+            [{'Foo': '1',
+              'Bar': '2'}],
+            browser.css('table').first.dicts(head_offset=1))
+
+    @browsing
     def test_titles(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#simple-table').first

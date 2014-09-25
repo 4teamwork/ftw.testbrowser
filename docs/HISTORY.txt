@@ -5,7 +5,9 @@ Changelog
 1.13.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add head_offset parameter to table methods.
+  The offset is used for stripping head rows at the top.
+  [jone]
 
 
 1.13.4 (2014-09-22)
