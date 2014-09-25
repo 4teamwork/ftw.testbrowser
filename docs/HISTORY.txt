@@ -5,8 +5,12 @@ Changelog
 1.13.5 (unreleased)
 -------------------
 
-- Add head_offset parameter to table methods.
-  The offset is used for stripping head rows at the top.
+
+- Update table methods with keyword arguments:
+
+  - head_offset: used for stripping rows from the header
+  - as_text: set to False for getting cell nodes
+
   [jone]
 
 
