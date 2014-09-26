@@ -6,6 +6,9 @@ Changelog
 -------------------
 
 
+- Add folder_contents page object.
+  [jone]
+
 - Update table methods with keyword arguments:
 
   - head_offset: used for stripping rows from the header
