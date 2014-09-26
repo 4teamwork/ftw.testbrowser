@@ -1,6 +1,7 @@
-from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import Nodes
+from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.utils import normalize_spaces
+from operator import attrgetter
 
 
 def colspan_padded_text(row):
@@ -41,7 +42,8 @@ class Table(NodeWrapper):
 
         return super(Table, self).find(text)
 
-    def lists(self, head=True, body=True, foot=True):
+    def lists(self, head=True, body=True, foot=True,
+              head_offset=0, as_text=True):
         """Returns a list of lists, where each list represents a row and
         contains the texts of the cells.
         Cells with colspan are repeated (padding) so that row lengths
@@ -53,13 +55,22 @@ class Table(NodeWrapper):
         :type body: boolean (Default: ``True``)
         :param foot: Include foot rows.
         :type foot: boolean (Default: ``True``)
+        :param head_offset: Offset for the header for removing header rows.
+        :type head_offset: int (Default: ``0``)
+        :param as_text: Converts cell values to text.
+        :type as_text: Boolean (Default: ``True``)
         :returns: A list of lists of texts.
         :rtype: list
         """
-        rows = self.get_rows(head=head, body=body, foot=foot)
-        return map(colspan_padded_text, rows)
+        rows = self.get_rows(head=head, body=body, foot=foot,
+                             head_offset=head_offset)
+        if as_text:
+            return map(colspan_padded_text, rows)
+        else:
+            return map(attrgetter('cells'), rows)
 
-    def dicts(self, body=True, foot=True):
+    def dicts(self, body=True, foot=True,
+              head_offset=0, as_text=True):
         """Returns a list of dicts, where each dict is a row (of either
         table body or table foot). The keys of the row dicts are the table
         headings and the values are the cell texts.
@@ -69,12 +80,17 @@ class Table(NodeWrapper):
         :type body: boolean (Default: ``True``)
         :param foot: Include foot rows.
         :type foot: boolean (Default: ``True``)
+        :param head_offset: Offset for the header for removing header rows.
+        :type head_offset: int (Default: ``0``)
+        :param as_text: Converts cell values to text.
+        :type as_text: Boolean (Default: ``True``)
         :returns: A list of lists of texts.
         :rtype: list
         """
 
-        return [dict(zip(self.titles, values))
-                for values in self.lists(head=False, body=body, foot=foot)]
+        titles = self.get_titles(head_offset=head_offset)
+        rows = self.lists(head=False, body=body, foot=foot, as_text=as_text)
+        return [dict(zip(titles, values)) for values in rows]
 
     @property
     def titles(self):
@@ -85,8 +101,20 @@ class Table(NodeWrapper):
         :returns: A list of table head texts per column.
         :rtype: list
         """
+        return self.get_titles()
 
-        texts_per_rows = map(colspan_padded_text, self.head_rows)
+    def get_titles(self, head_offset=0):
+        """Returns the titles (thead) of the table.
+        If there are multiple table head rows, the cells of the rows are merged
+        per column (with newline as separator).
+
+        :param head_offset: Offset for the header for removing header rows.
+        :type head_offset: int (Default: ``0``)
+        :returns: A list of table head texts per column.
+        :rtype: list
+        """
+        texts_per_rows = map(colspan_padded_text,
+                             self.head_rows[head_offset:])
         texts_per_columns = zip(*texts_per_rows)
         return map('\n'.join, texts_per_columns)
 
@@ -134,7 +162,7 @@ class Table(NodeWrapper):
         """
         return self.filter_unfamiliars(self.css('tr'))
 
-    def get_rows(self, head=False, body=False, foot=False):
+    def get_rows(self, head=False, body=False, foot=False, head_offset=0):
         """Returns merged head, body or foot rows.
         Set the keyword arguments to ``True`` for selecting the type of rows.
 
@@ -144,12 +172,14 @@ class Table(NodeWrapper):
         :type body: boolean (Default: ``False``)
         :param foot: Selects foot rows.
         :type foot: boolean (Default: ``False``)
+        :param head_offset: Offset for the header for removing header rows.
+        :type head_offset: int (Default: ``0``)
         :returns: A list of rows which are part of this table.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         rows = Nodes()
         if head:
-            rows.extend(self.head_rows)
+            rows.extend(self.head_rows[head_offset:])
         if body:
             rows.extend(self.body_rows)
         if foot:

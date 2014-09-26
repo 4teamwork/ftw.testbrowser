@@ -5,7 +5,16 @@ Changelog
 1.13.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+
+- Add folder_contents page object.
+  [jone]
+
+- Update table methods with keyword arguments:
+
+  - head_offset: used for stripping rows from the header
+  - as_text: set to False for getting cell nodes
+
+  [jone]
 
 
 1.13.4 (2014-09-22)

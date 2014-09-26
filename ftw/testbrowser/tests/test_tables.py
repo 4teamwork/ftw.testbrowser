@@ -1,6 +1,8 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.table import colspan_padded_text
+from ftw.testbrowser.table import TableCell
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from operator import attrgetter
 from unittest2 import TestCase
 
 
@@ -63,6 +65,17 @@ class TestTables(TestCase):
             browser.css('#advanced-table').first.lists())
 
     @browsing
+    def test_table_as_lists_returning_cell_objects(self, browser):
+        browser.open(view='test-tables')
+        rows = browser.css('#simple-table').first.lists(as_text=False)
+
+        self.assertEquals([TableCell, TableCell],
+                          map(type, rows[1]))
+
+        self.assertEquals(['Socks', '12.90'],
+                          map(attrgetter('text'), rows[1]))
+
+    @browsing
     def test_table_as_dicts(self, browser):
         browser.open(view='test-tables')
         self.assertEquals(
@@ -107,6 +120,43 @@ class TestTables(TestCase):
               'Price\nCHF': '114.70'}],
 
             browser.css('#advanced-table').first.dicts())
+
+    @browsing
+    def test_table_as_dicts_returning_cell_objects(self, browser):
+        browser.open(view='test-tables')
+        first = browser.css('#simple-table').first.dicts(as_text=False)[0]
+
+        self.assertEquals(
+            [TableCell, TableCell],
+            map(type, first.values()))
+
+        self.assertEquals(
+            ['Socks', '12.90'],
+            map(attrgetter('text'), first.values()))
+
+    @browsing
+    def test_table_header_offset(self, browser):
+        browser.open_html(
+            '<table>'
+            ' <thead>'
+            '  <tr><th colspan="2">Not interesting</th></tr>'
+            '  <tr><th>Foo</th><th>Bar</th></tr>'
+            ' </thead>'
+            ' <body>'
+            '  <tr><td>1</td><td>2</td></tr>'
+            ' </body>'
+            '</table>'
+            )
+
+        self.assertEquals(
+            [['Foo', 'Bar'],
+             ['1', '2']],
+            browser.css('table').first.lists(head_offset=1))
+
+        self.assertEquals(
+            [{'Foo': '1',
+              'Bar': '2'}],
+            browser.css('table').first.dicts(head_offset=1))
 
     @browsing
     def test_titles(self, browser):
