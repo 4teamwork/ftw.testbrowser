@@ -348,7 +348,7 @@ class Form(NodeWrapper):
                     pass
             add_hdr(key, val)
 
-        return self.browser._open_with_mechanize(request)
+        return self.browser._open_with_mechanize(request, referer=True)
 
     def _make_requests_multipart_request(self, url, values):
         request_body, request_headers = self._prepare_multipart_request(
@@ -356,7 +356,8 @@ class Form(NodeWrapper):
         return self.browser._open_with_requests(url,
                                                 data=request_body,
                                                 headers=dict(request_headers),
-                                                method='POST')
+                                                method='POST',
+                                                referer=True)
 
     def _prepare_multipart_request(self, URL, values):
         data = StringIO()

@@ -1,4 +1,3 @@
-from StringIO import StringIO
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -11,8 +10,10 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
+from mechanize import Request
 from operator import attrgetter
 from requests.structures import CaseInsensitiveDict
+from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
 import json
@@ -132,7 +133,8 @@ class Browser(object):
 
         self.reset()
 
-    def open(self, url_or_object=None, data=None, view=None, library=None):
+    def open(self, url_or_object=None, data=None, view=None, library=None,
+             referer=False):
         """Opens a page in the browser.
 
         *Request library:*
@@ -156,6 +158,8 @@ class Browser(object):
         :param library: Lets you explicitly choose the request library to be
           used for this request.
         :type library: ``LIB_MECHANIZE`` or ``LIB_REQUESTS``
+        :param referer: Sets the referer when set to ``True``.
+        :type referer: Boolean (Default ``False``)
 
         .. seealso:: :py:func:`visit`
         .. seealso:: :py:const:`LIB_MECHANIZE`
@@ -166,10 +170,10 @@ class Browser(object):
         url = self._normalize_url(url_or_object, view=view)
 
         if library == LIB_MECHANIZE:
-            self._open_with_mechanize(url, data=data)
+            self._open_with_mechanize(url, data=data, referer=referer)
 
         elif library == LIB_REQUESTS:
-            self._open_with_requests(url, data=data)
+            self._open_with_requests(url, data=data, referer=referer)
 
         return self
 
@@ -233,7 +237,7 @@ class Browser(object):
                                  method=method, headers=headers)
         return self
 
-    def _open_with_mechanize(self, url, data=None):
+    def _open_with_mechanize(self, url, data=None, referer=False):
         """Opens an internal request with the mechanize library.
         Since the request is internally dispatched, no open server
         port is required.
@@ -242,22 +246,39 @@ class Browser(object):
         :type url: string
         :param data: A dict with data which is posted using a `POST` request.
         :type data: dict
+        :param referer: Sets the referer when set to ``True``.
+        :type referer: Boolean (Default ``False``)
         """
         args = locals().copy()
         del args['self']
         self.previous_request = ('_open_with_mechanize', args)
-
         self.previous_url = self.url
-        data = self._prepare_post_data(data)
+
+        if isinstance(url, Request):
+            request = url
+        else:
+            data = self._prepare_post_data(data)
+            request = Request(url, data)
+
+        referer_url = ' '
+        if referer:
+            if referer == True and self.url:
+                referer_url = self.url
+            elif isinstance(referer, (str, unicode)):
+                referer_url = referer
+        request.add_header('REFERER', referer_url)
+        request.add_header('HTTP_REFERER', referer_url)
+
         try:
-            self.response = self.get_mechbrowser().open(url, data=data)
+            self.response = self.get_mechbrowser().open(request)
         except:
             self.response = None
             raise
         self._load_html(self.response)
         self.previous_request_library = LIB_MECHANIZE
 
-    def _open_with_requests(self, url, data=None, method='GET', headers=None):
+    def _open_with_requests(self, url, data=None, method='GET', headers=None,
+                            referer=False):
         """Opens a request with the requests library.
         Since this request is actually executed over TCP/IP,
         an open server port is required.
@@ -272,6 +293,8 @@ class Browser(object):
         :type method: string
         :param headers: A dict with custom headers for this request.
         :type headers: dict
+        :param referer: Sets the referer when set to ``True``.
+        :type referer: Boolean (Default ``False``)
         """
         args = locals().copy()
         del args['self']
@@ -283,6 +306,15 @@ class Browser(object):
 
         if data and method == 'GET':
             method = 'POST'
+
+        if headers is None:
+            headers = {}
+
+        if referer:
+            if referer == True and self.url:
+                headers['REFERER'] = self.url
+            elif isinstance(referer, (str, unicode)):
+                headers['REFERER'] = referer
 
         with verbose_logging():
             try:
@@ -306,6 +338,9 @@ class Browser(object):
 
         request_opener_name, arguments = self.previous_request
         request_opener = getattr(self, request_opener_name)
+        if arguments.get('referer', False):
+            arguments = arguments.copy()
+            arguments['referer'] = self.previous_url
         request_opener(**arguments)
         return self
 

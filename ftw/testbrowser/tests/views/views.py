@@ -6,6 +6,7 @@ import json
 class TestFormResult(BrowserView):
 
     def __call__(self):
+        self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(self.request.form)
 
 
@@ -26,3 +27,20 @@ class TestStatusMessages(BrowserView):
             messages.add('An error message.', 'error')
 
         return self.request.response.redirect(self.context.portal_url())
+
+
+class TestDumpRequest(BrowserView):
+
+    def __call__(self):
+        request_headers = [(name[len('HTTP_'):], value)
+                           for (name, value) in self.request.environ.items()
+                           if name.startswith('HTTP_')]
+
+        result = {'HEADERS': dict(request_headers),
+                  'METHOD': self.request.get('REQUEST_METHOD'),
+                  'PATH_INFO': self.request.get('PATH_INFO'),
+                  'QUERY_STRING': self.request.get('QUERY_STRING'),
+                  'FORM': self.request.form}
+
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(result)

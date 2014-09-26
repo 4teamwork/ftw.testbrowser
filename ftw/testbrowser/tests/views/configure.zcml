@@ -31,6 +31,13 @@
         />
 
     <browser:page
+        name="test-dump-request"
+        for="*"
+        class=".views.TestDumpRequest"
+        permission="zope.Public"
+        />
+
+    <browser:page
         name="test-statusmessages"
         class=".views.TestStatusMessages"
         for="*"
@@ -40,6 +47,13 @@
     <browser:page
         name="test-tables"
         template="test-tables.pt"
+        for="*"
+        permission="zope.Public"
+        />
+
+    <browser:page
+        name="test-referer"
+        template="test-referer.pt"
         for="*"
         permission="zope.Public"
         />

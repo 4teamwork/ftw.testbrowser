@@ -654,7 +654,7 @@ class LinkNode(NodeWrapper):
     def click(self):
         """Clicks on the link, which opens the target in the current browser.
         """
-        self.browser.open(self.attrib['href'])
+        self.browser.open(self.attrib['href'], referer=True)
 
 
 class DefinitionListNode(NodeWrapper):
