@@ -39,6 +39,11 @@ class TestRefererMechanizeLib(TestCase):
         browser.reload()
         self.assert_referer(self.referer_view_url())
 
+    @browsing
+    def test_relative_link(self, browser):
+        browser.open(view='test-referer')
+        browser.css('#relative-link').first.click()
+
     def referer_view_url(self):
         return '/'.join((self.layer['portal'].absolute_url(),
                          'test-referer'))

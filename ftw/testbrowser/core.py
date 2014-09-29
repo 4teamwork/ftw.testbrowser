@@ -262,7 +262,7 @@ class Browser(object):
 
         referer_url = ' '
         if referer:
-            if referer == True and self.url:
+            if referer is True and self.url:
                 referer_url = self.url
             elif isinstance(referer, (str, unicode)):
                 referer_url = referer
@@ -842,6 +842,9 @@ class Browser(object):
             parts = list(urlparse.urlparse(url))
             parts[2] = '/'.join((parts[2].rstrip('/'), view))
             url = urlparse.urlunparse(parts)
+
+        if self.url:
+            url = urlparse.urljoin(self.url, url)
 
         return url
 
