@@ -397,6 +397,9 @@ class TextAreaField(NodeWrapper):
         if self.node.label is not None:
             return
 
+        if not self.attrib.get('id', None):
+            return
+
         # Tinymce with dexterity has not the same label "for" as ids
         # on the textarea.
         for_attribute = self.attrib['id'].replace('.', '-')

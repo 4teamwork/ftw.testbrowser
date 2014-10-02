@@ -360,3 +360,15 @@ class TestSelectField(TestCase):
 
         self.assertEquals(['foo', 'bar'],
                           browser.find('Field').options_values)
+
+    @browsing
+    def test_simple_textarea_does_not_break(self, browser):
+        """Regression: A <textarea> without id-attribute / label used to break
+        loading the page.
+        """
+        browser.open_html(
+            '<form>'
+            ' <textarea name="text"></textarea>'
+            '</form>')
+        form = browser.fill({'text': 'some text'})
+        self.assertEqual({'text': 'some text'}, dict(form.values))
