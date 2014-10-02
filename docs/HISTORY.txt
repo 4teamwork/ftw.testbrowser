@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.14.3 (unreleased)
+1.14.3 (2014-10-02)
 -------------------
 
 - Fix error with textarea tags without id-attributes.
