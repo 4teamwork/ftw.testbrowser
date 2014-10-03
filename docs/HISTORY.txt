@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.14.4 (unreleased)
+1.14.4 (2014-10-03)
 -------------------
 
 - Widgets: test for sequence widget after testing for autocomplete widgets.
