@@ -5,7 +5,10 @@ Changelog
 1.14.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Widgets: test for sequence widget after testing for autocomplete widgets.
+  Some widgets match both, autocomplete and sequence widgets.
+  In this case we want to have the autocomplete widget.
+  [jone]
 
 
 1.14.3 (2014-10-02)
