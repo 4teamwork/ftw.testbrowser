@@ -5,7 +5,8 @@ Changelog
 1.14.5 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- AutocompleteWidget: Drop query string from base URL when building query URL.
+  [lgraf]
 
 
 1.14.4 (2014-10-03)
