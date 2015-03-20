@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import datetime
 from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.contenttree import MultiContentTreeFieldWidget
@@ -10,8 +11,8 @@ from z3c.form.field import Fields
 from z3c.form.form import Form
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope import schema
-from zope.interface import Interface
 from zope.interface import implements
+from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -63,6 +64,10 @@ class IShoppingFormSchema(Interface):
         title=u'Delivery date',
         required=False)
 
+    day_of_payment = schema.Date(
+        title=u'Day of payment',
+        required=False)
+
     documents = schema.List(
         title=u'Documents',
         value_type=schema.Choice(
@@ -96,7 +101,7 @@ class ShoppingForm(Form):
             if not value:
                 continue
 
-            if isinstance(value, datetime):
+            if isinstance(value, (datetime, date)):
                 value = value.isoformat()
 
             self.result_data[key] = value

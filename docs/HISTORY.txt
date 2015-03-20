@@ -5,7 +5,8 @@ Changelog
 1.14.6 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Added tests for z3c date fields.
+  [phgross]
 
 
 1.14.5 (2015-01-30)
