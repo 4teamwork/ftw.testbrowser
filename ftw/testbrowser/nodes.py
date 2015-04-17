@@ -1,7 +1,6 @@
+from cssselect.xpath import HTMLTranslator
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.utils import normalize_spaces
-from lxml.cssselect import CSSSelector
-from lxml.cssselect import css_to_xpath
 from operator import attrgetter
 from operator import methodcaller
 from zope.deprecation import deprecate
@@ -388,11 +387,16 @@ class NodeWrapper(object):
         # "self::*/div"                 -->   ">div"
         # "descendant-or-self::*/div"   -->   ">div, >* div"
         # "descendant-or-self::div"     -->   "div"
+        translator = HTMLTranslator()
+
         for css in css_selector.split(','):
-            if css.strip().startswith('>'):
-                xpath.append(css_to_xpath(css, prefix='self::'))
+            css = css.strip()
+            if css.startswith('>'):
+                # The translator does not allow leading '>', because it is not
+                # context sensitive.
+                xpath.append(translator.css_to_xpath(css[1:], prefix='self::*/'))
             else:
-                xpath.append(css_to_xpath(css, prefix='descendant-or-self::'))
+                xpath.append(translator.css_to_xpath(css, prefix='descendant-or-self::'))
 
         xpath_expr = ' | '.join(xpath)
 
@@ -441,7 +445,8 @@ class NodeWrapper(object):
             xpath = '*'
 
         if css:
-            xpath = CSSSelector(css).path.replace('descendant-or-self::', '')
+            translator = HTMLTranslator()
+            xpath = translator.css_to_xpath(css, prefix='')
 
         if not xpath.startswith('ancestor::'):
             xpath = 'ancestor::%s' % xpath
