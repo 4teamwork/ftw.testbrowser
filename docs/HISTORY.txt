@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.14.6 (unreleased)
+1.14.6 (2015-04-17)
 -------------------
 
 - Use ``cssselect`` in favor of ``lxml.cssselect``.
