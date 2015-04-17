@@ -5,6 +5,10 @@ Changelog
 1.14.6 (unreleased)
 -------------------
 
+- Use ``cssselect`` in favor of ``lxml.cssselect``.
+  This allows us to use ``lxml >= 3`.
+  [jone]
+
 - Added tests for z3c date fields.
   [phgross]
 

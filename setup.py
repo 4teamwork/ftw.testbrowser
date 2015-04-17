@@ -55,6 +55,7 @@ setup(name='ftw.testbrowser',
 
       install_requires=[
         'lxml',
+        'cssselect',
         'mechanize',
         'plone.testing',
         'requests',
