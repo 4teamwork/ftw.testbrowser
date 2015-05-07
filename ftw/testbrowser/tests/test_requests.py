@@ -286,6 +286,29 @@ class TestMechanizeBrowserRequests(TestCase):
             {u'values': [u'Foo', u'Bar']},
             browser.json)
 
+    @browsing
+    def test_response_contenttype(self, browser):
+        browser.open()
+        self.assertEquals('text/html; charset=utf-8', browser.contenttype)
+
+        browser.open(self.json_view_url, data={'foo': 'bar'})
+        self.assertEquals('application/json', browser.contenttype)
+
+    @browsing
+    def test_response_mimetype(self, browser):
+        browser.open()
+        self.assertEquals('text/html', browser.mimetype)
+
+        browser.open(self.json_view_url, data={'foo': 'bar'})
+        self.assertEquals('application/json', browser.mimetype)
+
+    @browsing
+    def test_response_encoding(self, browser):
+        browser.open()
+        self.assertEquals('utf-8', browser.encoding)
+
+        browser.open(self.json_view_url, data={'foo': 'bar'})
+        self.assertEquals(None, browser.encoding)
 
 
 class TestRequestslibBrowserRequests(TestCase):

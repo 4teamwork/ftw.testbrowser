@@ -21,6 +21,7 @@ import lxml
 import lxml.html
 import os
 import pkg_resources
+import re
 import requests
 import tempfile
 import urllib
@@ -377,6 +378,32 @@ class Browser(object):
         else:
             # Page was opened with open_html - we have no response headers.
             return {}
+
+    @property
+    def contenttype(self):
+        """The contenttype of the response, e.g. ``text/html; charset=utf-8``.
+
+        .. seealso:: :py:func:`mimetype`, :py:func:`encoding`
+        """
+        return self.headers.get('Content-Type', '')
+
+    @property
+    def mimetype(self):
+        """The mimetype of the respone, e.g. ``text/html``.
+
+        .. seealso:: :py:func:`contenttype`
+        """
+        return self.contenttype.split(';', 1)[0]
+
+    @property
+    def encoding(self):
+        """The encoding of the respone, e.g. ``utf-8``.
+
+        .. seealso:: :py:func:`contenttype`
+        """
+        match = re.match(r'[^;]*; ?charset="?([^"]*)"?', self.contenttype)
+        if match:
+            return match.group(1)
 
     def append_request_header(self, name, value):
         """Add a new permanent request header which is sent with every request
