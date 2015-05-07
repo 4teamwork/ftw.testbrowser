@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.14.7 (unreleased)
+1.15.0 (2015-05-07)
 -------------------
 
 - Parse XML responses with XML parser instead of HTML parser.

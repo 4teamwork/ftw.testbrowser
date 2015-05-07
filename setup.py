@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 
-version = '1.14.7.dev0'
+version = '1.15.0'
 
 
 tests_require = [
