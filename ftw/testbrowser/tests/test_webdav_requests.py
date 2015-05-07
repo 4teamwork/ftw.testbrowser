@@ -32,7 +32,7 @@ class TestWebdavRequests(TestCase):
                 ))
         browser.login().webdav('PROPFIND', data=data)
         self.assertEquals('Plone site',
-                          browser.xpath('//displayname').first.normalized_text())
+                          browser.xpath('//d:displayname').first.text)
 
 
 class TestNoZserverWebdavRequests(TestCase):

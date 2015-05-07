@@ -402,6 +402,33 @@ See the API documentation for the page objects included in `ftw.testbrowser`:
 .. seealso:: :py:mod:`ftw.testbrowser.pages`
 
 
+XML Support
+===========
+
+When the response mimetype is ``text/xml`` or ``application/xml``, the response body is
+parsed as XML instead of HTML.
+
+This can lead to problems when having XML-Documents with a default namespace,
+because lxml only supports XPath 1, which does not support default namespaces.
+
+You can either solve the problem yourself by parsing the ``browser.contents`` or you
+may switch back to HTML parsing.
+HTML parsing will modify your document though, it will insert a ``html`` node for example.
+
+Re-parsing with another parser:
+
+.. code:: py
+
+    browser.webdav(view='something.xml')  # XML document
+    browser.parse_as_html()               # HTML document
+    browser.parse_as_xml()                # XML document
+
+
+.. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_html`
+.. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_xml`
+.. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse`
+
+
 WebDAV requests
 ===============
 

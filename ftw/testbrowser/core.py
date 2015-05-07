@@ -275,7 +275,7 @@ class Browser(object):
         except:
             self.response = None
             raise
-        self._load_html(self.response)
+        self.parse(self.response)
         self.previous_request_library = LIB_MECHANIZE
 
     def _open_with_requests(self, url, data=None, method='GET', headers=None,
@@ -324,7 +324,7 @@ class Browser(object):
             except:
                 self.response = None
 
-        self._load_html(self.response)
+        self.parse(self.response)
         self.previous_request_library = LIB_REQUESTS
 
     def reload(self):
@@ -553,7 +553,8 @@ class Browser(object):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         query_info = query_info or ('browser', 'xpath', xpath_selector)
-        return wrap_nodes(self.document.xpath(xpath_selector),
+        nsmap = self.document.getroot().nsmap
+        return wrap_nodes(self.document.xpath(xpath_selector, namespaces=nsmap),
                           self,
                           query_info=query_info)
 
@@ -803,6 +804,44 @@ class Browser(object):
                     'X-zope-handle-errors', 'False'))
         return self.mechbrowser
 
+    def parse_as_html(self, html=None):
+        """Parse the response document with the HTML parser.
+
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_xml`
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse`
+
+        :param html: The HTML to parse (default: current response).
+        :type html: string
+        """
+        return self._load_html(html or self.response, lxml.html.parse)
+
+    def parse_as_xml(self, xml=None):
+        """Parse the response document with the XML parser.
+
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_html`
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse`
+
+        :param xml: The XML to parse (default: current response).
+        :type xml: string
+        """
+        return self._load_html(xml or self.response, lxml.etree.parse)
+
+    def parse(self, xml_or_html):
+        """Parse XML or HTML with the default parser.
+        For XML mime types the XML parser is used, otherwise the HTML parser.
+
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_html`
+        .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse_as_xml`
+
+        :param xml: The XML or HTML to parse.
+        :type xml: string
+        """
+
+        if self.mimetype in ('text/xml', 'application/xml'):
+            return self._load_html(xml_or_html, lxml.etree.parse)
+        else:
+            return self._load_html(xml_or_html, lxml.html.parse)
+
     def clone(self):
         """Creates a new browser instance with a cloned state of the
         current browser. Headers and cookies are copied but not shared.
@@ -875,7 +914,7 @@ class Browser(object):
 
         return url
 
-    def _load_html(self, html):
+    def _load_html(self, html, parser=lxml.html.parse):
         self.form_files = {}
 
         if hasattr(html, 'seek'):
@@ -892,7 +931,8 @@ class Browser(object):
             return None
         else:
             html.seek(0)
-            self.document = lxml.html.parse(html)
+            self.document = parser(html)
+
             return html
 
     def _prepare_post_data(self, data):
