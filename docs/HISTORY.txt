@@ -5,6 +5,11 @@ Changelog
 1.14.7 (unreleased)
 -------------------
 
+- Parse XML responses with XML parser instead of HTML parser.
+  New methods for parsing the response: ``parse_as_html``,
+  ``parse_as_xml`` and ``parse``.
+  [jone]
+
 - Add browser properties ``contenttype``, ``mimetype`` and ``encoding``.
   [jone]
 

@@ -322,6 +322,8 @@ class NodeWrapper(object):
     """
 
     def __init__(self, node, browser):
+        if isinstance(node, NodeWrapper):
+            node = node.node
         self.node = node
         self._browser = browser
 
@@ -336,7 +338,7 @@ class NodeWrapper(object):
             return result
 
     def __setattr__(self, name, value):
-        if name != 'node':
+        if name not in ('node', '_browser'):
             setattr(self.node, name, value)
         else:
             super(NodeWrapper, self).__setattr__(name, value)
@@ -412,7 +414,8 @@ class NodeWrapper(object):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         query_info = query_info or (self, 'xpath', xpath_selector)
-        return wrap_nodes(self.node.xpath(xpath_selector),
+        nsmap = self.node.getroottree().getroot().nsmap
+        return wrap_nodes(self.node.xpath(xpath_selector, namespaces=nsmap),
                           self.browser,
                           query_info=query_info)
 
