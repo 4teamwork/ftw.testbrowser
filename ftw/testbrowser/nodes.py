@@ -322,6 +322,8 @@ class NodeWrapper(object):
     """
 
     def __init__(self, node, browser):
+        if isinstance(node, NodeWrapper):
+            node = node.node
         self.node = node
         self._browser = browser
 
