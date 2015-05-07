@@ -338,7 +338,7 @@ class NodeWrapper(object):
             return result
 
     def __setattr__(self, name, value):
-        if name != 'node':
+        if name not in ('node', '_browser'):
             setattr(self.node, name, value)
         else:
             super(NodeWrapper, self).__setattr__(name, value)
