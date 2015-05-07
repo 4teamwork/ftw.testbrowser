@@ -1,6 +1,9 @@
-from zope.publisher.browser import BrowserView
+from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
+from zExceptions import BadRequest
+from zope.publisher.browser import BrowserView
 import json
+import os.path
 
 
 class TestFormResult(BrowserView):
@@ -44,3 +47,37 @@ class TestDumpRequest(BrowserView):
 
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(result)
+
+
+class TestAsset(BrowserView):
+
+    asset_encodings = {'cities-utf8.xml': 'utf-8',
+                       'cities-iso-8859-1.xml': 'ISO-8859-1'}
+
+    def __call__(self):
+        filename = self.request.get('filename')
+        if not filename:
+            raise BadRequest('"filename" missing')
+
+        assets = os.path.abspath(os.path.join(
+                os.path.dirname(__file__), '..', 'assets'))
+
+        path = os.path.join(assets, filename.replace('/', '_'))
+        if not os.path.exists(path):
+            raise ValueError('No such file: "{0}"'.format(path))
+
+
+        mimetypes_registry = getToolByName(self.context, 'mimetypes_registry')
+        with open(path, 'rb') as file_:
+            mimetype = str(mimetypes_registry.classify(file_.read(), filename=filename))
+
+        encoding = self.asset_encodings.get(filename)
+
+        if encoding:
+            self.request.response.setHeader('Content-Type', '{0}; charset={1}'.format(
+                    mimetype, encoding))
+        else:
+            self.request.response.setHeader('Content-Type', mimetype)
+
+        with open(path, 'rb') as file_:
+            return file_.read()

@@ -65,6 +65,13 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <browser:page
+        name="test-asset"
+        class=".views.TestAsset"
+        for="*"
+        permission="zope.Public"
+        />
+
     <utility
         factory=".z3cform.PaymentVocabulary"
         provides="zope.schema.interfaces.IVocabularyFactory"
