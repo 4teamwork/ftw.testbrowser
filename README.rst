@@ -14,9 +14,9 @@ Links
 -----
 
 - Documentation: http://pythonhosted.org/ftw.testbrowser/
-- Main github project repository: https://github.com/4teamwork/ftw.testbrowser
-- Issue tracker: https://github.com/4teamwork/ftw.testbrowser/issues
-- Package on pypi: http://pypi.python.org/pypi/ftw.testbrowser
+- Github: https://github.com/4teamwork/ftw.testbrowser
+- Issues: https://github.com/4teamwork/ftw.testbrowser/issues
+- Pypi: http://pypi.python.org/pypi/ftw.testbrowser
 - Continuous integration: https://jenkins.4teamwork.ch/search?q=ftw.testbrowser
 
 
