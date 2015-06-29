@@ -5,7 +5,8 @@ Changelog
 1.15.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Support for plone.app.widgets RichText widget.
+  [mathias.leimgruber]
 
 
 1.15.0 (2015-05-07)
