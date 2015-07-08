@@ -11,7 +11,8 @@ class ArchetypesFileWidget(PloneWidget):
     def match(node):
         if not PloneWidget.match(node):
             return False
-        return 'ArchetypesFileWidget' in node.classes
+        return ('ArchetypesFileWidget' in node.classes
+                or 'ArchetypesImageWidget' in node.classes)
 
     def fill(self, value):
         field = self.css('input[type="file"]').first
@@ -27,7 +28,8 @@ class DexterityFileWidget(PloneWidget):
     def match(node):
         if not PloneWidget.match(node):
             return False
-        return len(node.css('.named-file-widget')) > 0
+        return (len(node.css('.named-file-widget')) > 0 or
+                len(node.css('.named-image-widget')) > 0)
 
     def fill(self, value):
         field = self.css('input[type="file"]').first

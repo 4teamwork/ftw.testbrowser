@@ -1,6 +1,11 @@
 from zope.component import getGlobalSiteManager
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
+import os.path
+
+
+def asset(name, mode='r'):
+    return open(os.path.join(os.path.dirname(__file__), 'assets', name), mode)
 
 
 class register_view(object):

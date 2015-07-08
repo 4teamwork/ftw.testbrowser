@@ -5,7 +5,8 @@ Changelog
 1.15.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add image upload widget support (archetypes and dexterity).
+  [jone]
 
 
 1.15.0 (2015-05-07)

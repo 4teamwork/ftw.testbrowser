@@ -1,15 +1,11 @@
-from StringIO import StringIO
 from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
+from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import SITE_OWNER_NAME
+from StringIO import StringIO
 from unittest2 import TestCase
-import os.path
-
-
-def asset(name, mode='r'):
-    return open(os.path.join(os.path.dirname(__file__), 'assets', name), mode)
 
 
 class TestFileUploads(TestCase):
