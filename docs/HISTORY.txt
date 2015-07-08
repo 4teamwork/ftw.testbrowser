@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.15.1 (unreleased)
+1.16.0 (2015-07-08)
 -------------------
 
 - Add image upload widget support (archetypes and dexterity).
