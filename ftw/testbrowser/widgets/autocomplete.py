@@ -1,8 +1,7 @@
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
 from lxml import etree
-from urlparse import urlsplit
-from urlparse import urlunsplit
+import re
 
 
 @widget
@@ -66,12 +65,8 @@ class AutocompleteWidget(PloneWidget):
                        query_browser.contents.split('\n'))
 
     def _get_query_url(self):
-        scheme, netloc, path, query, fragment = urlsplit(self.browser.url)
-        # Drop query and fragment from the base URL
-        base_url = urlunsplit((scheme, netloc, path, '', ''))
-        url = '/'.join((base_url,
-                        '++widget++%s' % self.fieldname,
-                        '@@autocomplete-search'))
+        javascript = self.css('script').first.text
+        url = re.search(r"\)\.autocomplete\([^']*'([^']*)'", javascript).group(1)
         return url
 
     def _resolve_objects_to_path(self, values):
