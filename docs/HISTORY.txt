@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.16.1 (unreleased)
+1.16.1 (2015-07-13)
 -------------------
 
 - Autocomplete widget: extract URL from javascript.
