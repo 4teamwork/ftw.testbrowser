@@ -426,7 +426,7 @@ class Browser(object):
         .. seealso:: :py:func:`clear_request_header`
         """
 
-        self.requests_session.headers.update({name: value})
+        self.requests_session.headers.update({name: value.strip()})
 
         try:
             self.get_mechbrowser().addheaders.append((name, value))
