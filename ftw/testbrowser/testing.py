@@ -14,19 +14,17 @@ class BrowserLayer(PloneSandboxLayer):
     defaultBases = (PLONE_FIXTURE, BUILDER_LAYER)
 
     def setUpZope(self, app, configurationContext):
+        xmlconfig.string(
+            '<configure xmlns="http://namespaces.zope.org/zope">'
+            '  <include package="z3c.autoinclude" file="meta.zcml" />'
+            '  <includePlugins package="plone" />'
+            '  <includePluginsOverrides package="plone" />'
+            '</configure>',
+            context=configurationContext)
+
         import ftw.testbrowser.tests.views
         xmlconfig.file('configure.zcml',
                        ftw.testbrowser.tests.views,
-                       context=configurationContext)
-
-        import plone.formwidget.autocomplete
-        xmlconfig.file('configure.zcml',
-                       plone.formwidget.autocomplete,
-                       context=configurationContext)
-
-        import plone.formwidget.contenttree
-        xmlconfig.file('configure.zcml',
-                       plone.formwidget.contenttree,
                        context=configurationContext)
 
     def setUpPloneSite(self, portal):

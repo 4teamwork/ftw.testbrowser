@@ -8,7 +8,9 @@ version = '1.16.2.dev0'
 tests_require = [
     'Products.CMFCore',
     'Products.statusmessages',
+    'collective.z3cform.datagridfield',
     'ftw.builder',
+    'ftw.testing',
     'plone.app.contenttypes',
     'plone.app.testing',
     'plone.formwidget.autocomplete',
