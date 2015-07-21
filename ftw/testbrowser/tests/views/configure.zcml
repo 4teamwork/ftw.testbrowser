@@ -2,6 +2,8 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser">
 
+    <include package="Products.CMFCore"/>
+
     <browser:page
         name="test-elements"
         template="test-elements.pt"
@@ -19,7 +21,7 @@
     <browser:page
         name="test-form"
         template="test-form.pt"
-        for="*"
+        for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
         permission="zope.Public"
         />
 

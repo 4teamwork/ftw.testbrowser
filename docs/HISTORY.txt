@@ -5,7 +5,8 @@ Changelog
 1.16.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add support for filling ``collective.z3cform.datagridfield``.
+  [jone, mbaechtold]
 
 
 1.16.1 (2015-07-13)
