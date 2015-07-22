@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.17.1 (unreleased)
+1.18.0 (2015-07-22)
 -------------------
 
 - Table: add new ".column" method for getting all cells of a column.
