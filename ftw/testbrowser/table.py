@@ -2,6 +2,7 @@ from ftw.testbrowser.nodes import Nodes
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.utils import normalize_spaces
 from operator import attrgetter
+from operator import itemgetter
 
 
 def colspan_padded_text(row):
@@ -91,6 +92,43 @@ class Table(NodeWrapper):
         titles = self.get_titles(head_offset=head_offset)
         rows = self.lists(head=False, body=body, foot=foot, as_text=as_text)
         return [dict(zip(titles, values)) for values in rows]
+
+    def column(self, index_or_titles, head=True, body=True, foot=True,
+               head_offset=0, as_text=True):
+        """Returns a list of values of a specific column.
+        The column may be identified by its index (integer)
+        or by the title (string).
+
+        :param index_or_titles: Index or title of column
+        :type index_or_titles: int or string or list of strings
+        :param head: Include head rows.
+        :type head: boolean (Default: ``True``)
+        :param body: Include body rows.
+        :type body: boolean (Default: ``True``)
+        :param foot: Include foot rows.
+        :type foot: boolean (Default: ``True``)
+        :param head_offset: Offset for the header for removing header rows.
+        :type head_offset: int (Default: ``0``)
+        :param as_text: Converts cell values to text.
+        :type as_text: Boolean (Default: ``True``)
+        :returns: A list of lists of texts.
+        :rtype: list
+        """
+        if isinstance(index_or_titles, int):
+            index = index_or_titles
+        else:
+            titles = self.get_titles(head_offset=head_offset)
+            try:
+                index = titles.index(index_or_titles)
+            except ValueError:
+                raise ValueError('Title "{0}" not in titles {1}'.format(
+                    index_or_titles, titles))
+
+        return map(itemgetter(index), self.lists(head=head,
+                                                 body=body,
+                                                 foot=foot,
+                                                 head_offset=head_offset,
+                                                 as_text=as_text))
 
     @property
     def titles(self):

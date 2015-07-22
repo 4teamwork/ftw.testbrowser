@@ -330,6 +330,66 @@ class TestTableRow(TestCase):
                            'Price\nCHF': '114.70'},
                           row.dict())
 
+    @browsing
+    def test_column_by_index(self, browser):
+        browser.open_html(
+            '<table>'
+            ' <thead>'
+            '  <tr><th>Name</th><th>Fat(g)</th><th>Calories</th></tr>'
+            ' </thead>'
+            ' <tbody>'
+            '  <tr><td>Angelfood Cake</td><td>0.22</td><td>72</td><td>'
+            '  <tr><td>Butter Pound Cake</td><td>5.97</td><td>116</td><td>'
+            '  <tr><td>Cheesecake</td><td>18.00</td><td>257</td><td>'
+            ' </tbody>'
+            ' <tfoot>'
+            '  <tr><td>3</td><td>24.19</td><td>445</td><td>'
+            ' </tfoot>'
+            '</table>')
+        table = browser.css('table').first
+
+        self.assertEquals(
+            ['Name', 'Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
+            table.column(0))
+
+        self.assertEquals(
+            ['Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
+            table.column(0, head=False))
+
+        self.assertEquals(
+            ['Name', '3'],
+            table.column(0, body=False))
+
+        self.assertEquals(
+            ['Name'],
+            table.column(0, body=False, foot=False))
+
+    @browsing
+    def test_column_by_name(self, browser):
+        browser.open_html(
+            '<table>'
+            ' <thead>'
+            '  <tr><th>Name</th><th>Fat(g)</th><th>Calories</th></tr>'
+            ' </thead>'
+            ' <tbody>'
+            '  <tr><td>Angelfood Cake</td><td>0.22</td><td>72</td><td>'
+            '  <tr><td>Butter Pound Cake</td><td>5.97</td><td>116</td><td>'
+            '  <tr><td>Cheesecake</td><td>18.00</td><td>257</td><td>'
+            ' </tbody>'
+            ' <tfoot>'
+            '  <tr><td>3</td><td>24.19</td><td>445</td><td>'
+            ' </tfoot>'
+            '</table>')
+        table = browser.css('table').first
+
+        self.assertEquals(
+            ['Name', 'Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
+            table.column('Name'))
+
+        self.assertEquals(
+            ['Calories', '72', '116', '257', '445'],
+            table.column('Calories'))
+
 
 class TestTableCell(TestCase):
 

@@ -5,7 +5,8 @@ Changelog
 1.17.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Table: add new ".column" method for getting all cells of a column.
+  [jone]
 
 
 1.17.0 (2015-07-22)
