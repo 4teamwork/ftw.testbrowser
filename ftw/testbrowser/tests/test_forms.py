@@ -239,6 +239,18 @@ class TestSubmittingForms(TestCase):
         self.assertEquals({'textfield': '',
                            'cancel-button': 'Cancel'}, browser.json)
 
+    @browsing
+    def test_submitting_GET_form(self, browser):
+        browser.visit(view='test-form')
+        browser.fill({'atext': 'foo'}).submit()
+        self.assertEquals({'atext': 'foo',
+                           'formmethod': 'GET',
+                           'submit-button': 'Submit'}, browser.json)
+        self.assertEquals(
+            'http://nohost/plone/test-form-result?formmethod=GET'
+            '&atext=foo&submit-button=Submit',
+            browser.url)
+
 
 class TestSelectField(TestCase):
 

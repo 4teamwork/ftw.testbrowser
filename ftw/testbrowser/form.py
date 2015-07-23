@@ -12,6 +12,7 @@ from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
 import shutil
+import urllib
 import urlparse
 
 
@@ -324,6 +325,13 @@ class Form(NodeWrapper):
 
     def _submit_form(self, method, URL, values):
         URL = self.action_url
+
+        if method.lower() == 'get':
+            if '?' in URL:
+                URL += '&' + urllib.urlencode(values)
+            else:
+                URL += '?' + urllib.urlencode(values)
+            return self.browser.open(URL, referer=True)
 
         if self.browser.request_library == LIB_MECHANIZE:
             return self._make_mechanize_multipart_request(URL, values)

@@ -16,6 +16,13 @@
                 <input type="submit" value="Cancel" name="cancel-button" />
             </form>
 
+            <form id="test-get-form" action="test-form-result?formmethod=GET"
+                  method="GET">
+                <label for="atext">Text field</label>
+                <input name="atext" id="atext" value="" />
+                <input type="submit" value="Submit" name="submit-button" />
+            </form>
+
         </div>
 
     </body>
