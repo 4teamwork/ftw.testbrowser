@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.18.1 (unreleased)
+1.18.1 (2015-07-23)
 -------------------
 
 - Fix GET form submission to actually submit it with GET.
