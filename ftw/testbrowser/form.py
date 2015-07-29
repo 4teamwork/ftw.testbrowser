@@ -550,10 +550,10 @@ class SelectField(NodeWrapper):
             try:
                 self.node.value = dict(map(reversed, self.options))[value]
             except (KeyError, ValueError):
-                options = ', '.join(['"{1}" ({0})'.format(*option)
-                                     for option in self.options])
+                options = u', '.join([u'"{1}" ({0})'.format(*option)
+                                      for option in self.options])
 
                 raise ValueError(
-                    'No option {0} for select "{1}".'
-                    ' Available options: {2}.'.format(
+                    u'No option {0} for select "{1}". '
+                    u'Available options: {2}.'.format(
                         repr(value), self.name, options))
