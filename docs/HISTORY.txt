@@ -5,6 +5,9 @@ Changelog
 1.18.2 (unreleased)
 -------------------
 
+- Implement browser.click_on(tex) short cut for clicking links.
+  [jone]
+
 - Fix encoding error in assertion message when selecting a missing select
   option.
   [mbaechtold]
