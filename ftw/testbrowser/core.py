@@ -3,6 +3,7 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrap_nodes
@@ -756,6 +757,24 @@ class Browser(object):
         return reduce(list.__add__,
                       map(attrgetter('field_labels'),
                           self.forms.values()))
+
+    def click_on(self, text, within=None):
+        """Find a link by its text and click on it.
+
+        :param text: The text to be looked for.
+        :type text: string
+        :param within: A node object for limiting the scope of the search.
+        :type within: :py:class:`ftw.testbrowser.nodes.NodeWrapper`.
+        :returns: The browser object.
+        :raises: :py:exc:`ftw.testbrowser.exceptions.NoElementFound`
+        .. seealso:: :py:func:`find`
+        """
+        node = self.find(text)
+        if not node:
+            raise NoElementFound(query_info=(self, 'click_on', text))
+
+        node.click()
+        return self
 
     @property
     def context(self):

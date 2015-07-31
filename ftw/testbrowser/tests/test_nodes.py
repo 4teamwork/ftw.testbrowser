@@ -714,6 +714,22 @@ class TestLinkNode(TestCase):
         browser.open().find('Site Map').click()
         self.assertEquals('sitemap', plone.view())
 
+    @browsing
+    def test_click_on_shortcut(self, browser):
+        browser.open().click_on('Site Map')
+        self.assertEquals('sitemap', plone.view())
+
+    @browsing
+    def test_click_on_raises_helpful_error_when_link_missing(self, browser):
+        browser.open()
+        with self.assertRaises(NoElementFound) as cm:
+            browser.click_on('Missing')
+
+        self.assertEquals(
+            'Empty result set: <ftw.browser.core.Browser instance>'
+            '.click_on("Missing") did not match any nodes.',
+            str(cm.exception))
+
 
 class TestDefinitionListNode(TestCase):
 
