@@ -1,0 +1,16 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="ftw.testbrowser.tests">
+
+    <include package="Products.GenericSetup" file="meta.zcml" />
+
+    <genericsetup:registerProfile
+        name="dxtype"
+        title="ftw.testbrowser.tests:dxtype"
+        directory="dxtype"
+        description=""
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+</configure>

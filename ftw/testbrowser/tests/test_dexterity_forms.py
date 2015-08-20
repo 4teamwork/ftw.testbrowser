@@ -2,7 +2,7 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
-from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
+from ftw.testbrowser.testing import DX_TYPES_FUNCTIONAL_TESTING
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
 from plone.app.testing import SITE_OWNER_NAME
 from unittest2 import TestCase
@@ -10,7 +10,7 @@ from unittest2 import TestCase
 
 class TestDexterityForms(TestCase):
 
-    layer = PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
+    layer = DX_TYPES_FUNCTIONAL_TESTING
 
     @browsing
     def test_tinymce_formfill(self, browser):
@@ -56,6 +56,7 @@ class TestDexterityForms(TestCase):
     def test_checkbox_values_are_preserved(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Page')
+
         browser.fill({'Title': u'Page',
                       'Exclude from navigation': True}).save()
         statusmessages.assert_no_error_messages()
@@ -65,3 +66,26 @@ class TestDexterityForms(TestCase):
         browser.fill({'Title': 'New Title'}).save()
         statusmessages.assert_no_error_messages()
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
+
+    @browsing
+    def test_radio_button_values_are_preserved(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+        browser.fill({'Title': u'Page used as relation'}).save()
+        statusmessages.assert_no_error_messages()
+        relation = browser.context
+
+        browser.open()
+        factoriesmenu.add('DXType')
+        browser.fill({'Title': u'Content-Type with relations',
+                      'Relation-List': [relation],
+                      'Relation-Choice': relation}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertEqual(relation, browser.context.relation_choice.to_object)
+        self.assertEqual(relation, browser.context.relation_list[0].to_object)
+
+        browser.find('Edit').click()
+        browser.fill({'Title': u'New Title'}).save()
+        statusmessages.assert_no_error_messages()
+        self.assertEqual(relation, browser.context.relation_choice.to_object)
+        self.assertEqual(relation, browser.context.relation_list[0].to_object)
