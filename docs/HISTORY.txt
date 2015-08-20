@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.19.1 (unreleased)
+1.19.1 (2015-08-20)
 -------------------
 
 - Preserve radio-button input when filling forms with radio buttons.
