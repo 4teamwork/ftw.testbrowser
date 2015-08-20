@@ -5,7 +5,8 @@ Changelog
 1.19.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Preserve radio-button input when filling forms with radio buttons.
+  [deiferni]
 
 
 1.19.0 (2015-07-31)

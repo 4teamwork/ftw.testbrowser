@@ -150,8 +150,7 @@ class Form(NodeWrapper):
                     and value is True:
                 values[fieldname] = field.node.attrib.get('value', 'on')
 
-
-        values = self._merge_already_checked_checkboxes(values)
+        values = self._merge_already_checked_inputs(values)
 
         lxml.html.formfill._fill_form(self.node, values)
 
@@ -160,11 +159,11 @@ class Form(NodeWrapper):
 
         return self
 
-    def _merge_already_checked_checkboxes(self, values):
-        # Given a form with a already checked checkbox (e.g. checked=checked),
-        # when this form is filled without changing this checkbox,
-        # the lxml formfill unchecks the checkbox.
-        # Therefore we need to re-add all already checked checkboxes to
+    def _merge_already_checked_inputs(self, values):
+        # Given a form with an already checked input element (e.g.
+        # checked=checked), when this form is filled without changing the input
+        # element the lxml formfill unchecks the element.
+        # Therefore we need to re-add all already checked inputs to
         # the values to fill unless the value is meant to be changed.
         to_merge = defaultdict(list)
 
@@ -172,7 +171,8 @@ class Form(NodeWrapper):
             if input.name in values:
                 continue
 
-            if input.attrib.get('type', '').lower() != 'checkbox':
+            input_type = input.attrib.get('type', '').lower()
+            if input_type not in ['checkbox', 'radio']:
                 continue
 
             if input.attrib.get('checked', None) is not None:
