@@ -5,7 +5,8 @@ Changelog
 1.19.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Also provide advice for available options in exception message.
+  [lgraf]
 
 
 1.19.1 (2015-08-20)

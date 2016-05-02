@@ -67,9 +67,14 @@ class OptionsNotFound(BrowserException):
     """Could not find the options for a widget.
     """
 
-    def __init__(self, field_label, options):
-        msg = 'Could not find options %s for field "%s".' % (
-            str(options), field_label)
+    def __init__(self, field_label, options, labels=None):
+        if labels:
+            label_advice = ' Options: "%s"' % '", "'.join(labels)
+        else:
+            label_advice = ''
+
+        msg = 'Could not find options %s for field "%s".%s' % (
+            str(options), field_label, label_advice)
         Exception.__init__(self, msg)
 
 

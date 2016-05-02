@@ -77,7 +77,9 @@ class Z3cChoiceCollection(PloneWidget):
                 not_found.append(value)
 
         if not_found:
-            raise OptionsNotFound(self.label.text, not_found)
+            available_options = self.options_labels
+            raise OptionsNotFound(
+                self.label.text, not_found, available_options)
 
     @property
     def options(self):

@@ -52,8 +52,9 @@ class ATMultiSelectionWidget(PloneWidget):
                 values.remove(input.attrib['value'])
 
         if values:
+            available_options = self.options
             raise OptionsNotFound(normalize_spaces(self.label.raw_text),
-                                  values)
+                                  values, available_options)
 
     @property
     def label(self):

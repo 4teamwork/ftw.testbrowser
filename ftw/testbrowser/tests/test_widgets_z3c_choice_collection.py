@@ -200,7 +200,8 @@ class TestZ3cChoiceCollectionWidget(TestCase):
             browser.fill({'Fruits': ['Banana', 'Rhubarb', 'Watermelon']})
 
         self.assertEquals('Could not find options [\'Rhubarb\']'
-                          ' for field "Fruits".',
+                          ' for field "Fruits".'
+                          ' Options: "Apple", "Watermelon", "Banana"',
                           str(cm.exception))
 
     @browsing

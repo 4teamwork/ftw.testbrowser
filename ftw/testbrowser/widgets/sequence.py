@@ -68,7 +68,9 @@ class SequenceWidget(PloneWidget):
                 values.remove(input.attrib['value'])
 
         if values:
-            raise OptionsNotFound(self.label.normalized_text(), values)
+            available_options = self.options
+            raise OptionsNotFound(
+                self.label.normalized_text(), values, available_options)
 
     @property
     def options(self):
