@@ -73,7 +73,8 @@ class TestATMultiSelectionWidget(TestCase):
             browser.fill({'Fruits': ['Banana', 'Rhubarb', 'Watermelon']})
 
         self.assertEquals('Could not find options [\'Rhubarb\']'
-                          ' for field "Fruits".',
+                          ' for field "Fruits".'
+                          ' Options: "Apple", "Banana", "Watermelon"',
                           str(cm.exception))
 
     @browsing

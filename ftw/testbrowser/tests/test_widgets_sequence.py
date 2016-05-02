@@ -74,5 +74,6 @@ class TestSequenceWidget(TestCase):
         with self.assertRaises(OptionsNotFound) as cm:
             browser.fill({'Fruits': ['Coconut']})
         self.assertEquals(
-            'Could not find options [\'Coconut\'] for field "Fruits".',
+            'Could not find options [\'Coconut\'] for field "Fruits".'
+            ' Options: "Apple", "Banana", "Orange"',
             str(cm.exception))

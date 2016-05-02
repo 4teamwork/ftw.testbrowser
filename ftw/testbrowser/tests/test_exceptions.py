@@ -21,6 +21,18 @@ class TestBrowserExceptions(TestCase):
                           str(exceptions.FormFieldNotFound('field label',
                                                            ['foo', 'bar', 'baz'])))
 
+    def test_options_not_found(self):
+        self.assertEquals(
+            'Could not find options [\'missing\'] for field "field label".',
+            str(exceptions.OptionsNotFound('field label', ['missing'])))
+
+    def test_options_not_found_with_found_options(self):
+        self.assertEquals(
+            'Could not find options [\'missing\'] for field "field label". '
+            'Options: "foo", "bar", "baz"',
+            str(exceptions.OptionsNotFound(
+                'field label', ['missing'], ['foo', 'bar', 'baz'])))
+
 
 class TestNoElementFoundException(TestCase):
 
