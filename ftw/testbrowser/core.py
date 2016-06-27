@@ -16,6 +16,8 @@ from operator import attrgetter
 from requests.structures import CaseInsensitiveDict
 from StringIO import StringIO
 from zope.component.hooks import getSite
+from zope.globalrequest import getRequest
+from zope.globalrequest import setRequest
 from zope.interface import implements
 import json
 import lxml
@@ -253,6 +255,7 @@ class Browser(object):
         """
         args = locals().copy()
         del args['self']
+        preserved_request = getRequest()
         self.previous_request = ('_open_with_mechanize', args)
         self.previous_url = self.url
 
@@ -278,6 +281,7 @@ class Browser(object):
             raise
         self.parse(self.response)
         self.previous_request_library = LIB_MECHANIZE
+        setRequest(preserved_request)
 
     def _open_with_requests(self, url, data=None, method='GET', headers=None,
                             referer=False):

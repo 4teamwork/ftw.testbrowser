@@ -5,6 +5,10 @@ Changelog
 1.19.2 (unreleased)
 -------------------
 
+- Preserve the request of zope.globalrequest when opening pages with
+  mechanize.
+  [deiferni]
+
 - Also provide advice for available options in exception message.
   [lgraf]
 
