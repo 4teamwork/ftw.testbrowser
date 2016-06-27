@@ -11,6 +11,7 @@ from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
 from zExceptions import NotFound
+from zope.globalrequest import getRequest
 
 
 AC_COOKIE_INFO = {'comment': None,
@@ -228,6 +229,17 @@ class TestBrowserCore(TestCase):
 
         browser.reload()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_opening_preserves_global_request_MECHANIZE(self, browser):
+        browser.open()
+        self.assertIsNotNone(getRequest())
+
+    @browsing
+    def test_opening_preserves_global_request_REQUESTS(self, browser):
+        browser.request_library = LIB_REQUESTS
+        browser.open()
+        self.assertIsNotNone(getRequest())
 
     def assert_starts_with(self, start, contents):
         self.assertTrue(
