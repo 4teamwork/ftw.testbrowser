@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.19.3 (unreleased)
+1.19.3 (2016-07-25)
 -------------------
 
 - Declare some previously missing test requirements.
