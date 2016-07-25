@@ -64,6 +64,7 @@ setup(name='ftw.testbrowser',
         'setuptools',
         'zope.component',
         'zope.deprecation',
+        'zope.globalrequest',
         'zope.interface',
         ],
 

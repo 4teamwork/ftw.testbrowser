@@ -5,7 +5,8 @@ Changelog
 1.19.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Declare previously missing dependency on zope.globalrequest (introduced in #35).
+  [lgraf]
 
 
 1.19.2 (2016-06-27)
