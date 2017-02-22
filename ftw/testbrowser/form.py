@@ -35,7 +35,11 @@ class Form(NodeWrapper):
         :returns: All input nodes
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return list(self.node.inputs)
+        inputs = list(self.node.inputs)
+
+        for button in self.browser.document.xpath("//button"):
+            inputs.append(button)
+        return inputs
 
     @wrapped_nodes
     def find_field(self, label_or_name):
@@ -69,16 +73,12 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
           of :py:class:`ftw.testbrowser.form.SubmitButton` of
         """
-
-        for field in self.node.inputs:
-            if field.tag != 'input':
+        for field in self.inputs:
+            if not isinstance(field, SubmitButton):
                 continue
-            if getattr(field, 'type', None) != 'submit':
+            if field.form != self:
                 continue
-            button = SubmitButton(field, self.browser)
-            if button.form != self:
-                continue
-            yield button
+            yield field
 
     @wrapped_nodes
     def find_button_by_label(self, label):
@@ -90,7 +90,7 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.nodes.NodeWrapper`
         """
 
-        for input in self.node.inputs:
+        for input in self.inputs:
             try:
                 input_type = input.type
             except AttributeError:
@@ -99,7 +99,7 @@ class Form(NodeWrapper):
             if input_type not in ('submit', 'reset', 'button'):
                 continue
 
-            if input.value == label:
+            if input.value == label or input.text == label:
                 return input
 
     def fill(self, values):
@@ -167,7 +167,7 @@ class Form(NodeWrapper):
         # the values to fill unless the value is meant to be changed.
         to_merge = defaultdict(list)
 
-        for input in self.node.inputs:
+        for input in self.inputs:
             if input.name in values:
                 continue
 
@@ -206,10 +206,8 @@ class Form(NodeWrapper):
                 return buttons.first.click()
 
         extra_values = None
-        if button and button.attrib.get('name', None) and \
-                button.attrib.get('value', None):
-            extra_values = {button.attrib['name']: button.attrib['value']}
-
+        if button and button.attrib.get('name', None):
+            extra_values = {button.attrib['name']: button.attrib.get('value', '')}
         return lxml.html.submit_form(self.node,
                                      extra_values=extra_values,
                                      open_http=self._submit_form)

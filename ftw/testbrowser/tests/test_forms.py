@@ -14,6 +14,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from unittest2 import TestCase
+from zope.publisher.interfaces import NotFound
 import lxml.html
 
 
@@ -241,6 +242,43 @@ class TestSubmittingForms(TestCase):
             '&atext=foo&submit-button=Submit',
             browser.url)
 
+    @browsing
+    def test_find_submit_button_tag(self, browser):
+        browser.open_html(
+            '<form>'
+            '<button type="submit">blubb</button>'
+            '</form>')
+        form = browser.forms['form-0']
+        self.assertEquals(1, len(form.find_submit_buttons()))
+
+    @browsing
+    def test_find_submit_button_tag_by_label(self, browser):
+        browser.open_html(
+            '<form>'
+            '<button type="submit">blubb</button>'
+            '</form>')
+        form = browser.forms['form-0']
+        button = form.find_button_by_label('blubb')
+        self.assertTrue(button)
+        self.assertEquals('submit', button.type)
+
+    @browsing
+    def test_find_submit_button_tag_click(self, browser):
+        browser.open_html(
+            '<form action="http://nohost/plone">'
+            '<button type="submit">blubb</button>'
+            '</form>')
+        form = browser.forms['form-0']
+        button = form.find_button_by_label('blubb')
+        button.click()
+
+    @browsing
+    def test_find_submit_button_tag_in_request(self, browser):
+        browser.visit(view='test-form')
+        browser.find("novalue-button").click()
+        self.assertEquals({'textfield': '',
+                           'novalue-button': ''}, browser.json)
+
 
 class TestSelectField(TestCase):
 
@@ -376,3 +414,5 @@ class TestSelectField(TestCase):
             '</form>')
         form = browser.fill({'text': 'some text'})
         self.assertEqual({'text': 'some text'}, dict(form.values))
+
+
