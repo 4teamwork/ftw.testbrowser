@@ -52,4 +52,6 @@ def addable_types(browser=default_browser):
     if not visible(browser=browser):
         raise ValueError('Factories menu is not visible.')
 
-    return menu(browser=browser).css('.actionMenuContent a').text
+    # Plone 4: .actionMenuContent
+    # Plone 5: >ul
+    return menu(browser=browser).css('.actionMenuContent, >ul').css('a').text
