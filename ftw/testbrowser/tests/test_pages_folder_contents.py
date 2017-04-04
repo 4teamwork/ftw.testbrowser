@@ -3,18 +3,14 @@ from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import folder_contents
 from ftw.testbrowser.table import TableRow
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestFolderContents(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestFolderContents(FunctionalTestCase):
 
     def setUp(self):
-        setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
+        super(TestFolderContents, self).setUp()
+        self.grant('Manager')
 
     @browsing
     def test_titles(self, browser):

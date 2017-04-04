@@ -2,34 +2,23 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
-from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from plone.app.testing import SITE_OWNER_NAME
-from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import login
-from plone.app.testing import setRoles
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestFactoriesMenu(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
-
-    def setUp(self):
-        setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
-        login(self.layer['portal'], TEST_USER_NAME)
+class TestFactoriesMenu(FunctionalTestCase):
 
     @browsing
     def test_factoriesmenu_visible(self, browser):
+        self.grant('Manager')
         browser.open()
         self.assertFalse(factoriesmenu.visible())
-        browser.login(SITE_OWNER_NAME).open()
+        browser.login().open()
         self.assertTrue(factoriesmenu.visible())
 
     @browsing
     def test_addable_types(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         self.assertIn('Folder', factoriesmenu.addable_types())
 
     @browsing
@@ -42,13 +31,15 @@ class TestFactoriesMenu(TestCase):
 
     @browsing
     def test_adding_content(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Folder')
-        self.assertEquals('atct_edit', plone.view())
+        self.assertEquals('http://nohost/plone/++add++Folder', browser.url)
 
     @browsing
     def test_adding_unallowed_or_missing_type(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         with self.assertRaises(ValueError) as cm:
             factoriesmenu.add('Unkown Type')
 
@@ -68,10 +59,11 @@ class TestFactoriesMenu(TestCase):
 
     @browsing
     def test_addable_types_works_with_restrictions_entry(self, browser):
+        self.grant('Manager')
         # Regression:
         # The "Restrictions..." entry in the factories menu, as it exists
         # on folders, contains unicode characters and did break everything.
         # This test verifies that this still works.
         folder = create(Builder('folder'))
-        browser.login(SITE_OWNER_NAME).visit(folder)
+        browser.login().visit(folder)
         self.assertIn(u'Restrictions\u2026', factoriesmenu.addable_types())

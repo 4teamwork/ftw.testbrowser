@@ -2,18 +2,16 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
-from ftw.testbrowser.testing import DX_TYPES_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
 from plone.app.testing import SITE_OWNER_NAME
-from unittest2 import TestCase
 
 
-class TestDexterityForms(TestCase):
-
-    layer = DX_TYPES_FUNCTIONAL_TESTING
+class TestDexterityForms(FunctionalTestCase):
 
     @browsing
     def test_tinymce_formfill(self, browser):
+        self.grant('Manager')
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page',

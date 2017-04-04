@@ -8,7 +8,7 @@ from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
 from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import TEST_USER_ID
@@ -16,13 +16,10 @@ from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.app.testing import login
 from plone.app.testing import setRoles
-from unittest2 import TestCase
 from zope.publisher.browser import BrowserView
 
 
-class TestMechanizeBrowserRequests(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestMechanizeBrowserRequests(FunctionalTestCase):
 
     def setUp(self):
         portal = self.layer['portal']
@@ -311,8 +308,7 @@ class TestMechanizeBrowserRequests(TestCase):
         self.assertEquals(None, browser.encoding)
 
 
-class TestRequestslibBrowserRequests(TestCase):
-
+class TestRequestslibBrowserRequests(FunctionalTestCase):
     layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
 
     def setUp(self):

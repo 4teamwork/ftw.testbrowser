@@ -1,10 +1,10 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import z3cform
-from ftw.testbrowser.tests import DxFunctionalTestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestZ3cformPageObject(DxFunctionalTestCase):
+class TestZ3cformPageObject(FunctionalTestCase):
 
     @browsing
     def test_erroneous_fields(self, browser):

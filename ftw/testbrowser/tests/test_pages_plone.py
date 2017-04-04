@@ -1,15 +1,12 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
-from unittest2 import TestCase
 
 
-class TestPlonePageObject(TestCase):
-
-    layer = PLONE_FUNCTIONAL_TESTING
+class TestPlonePageObject(FunctionalTestCase):
 
     @browsing
     def test_not_logged_in(self, browser):
@@ -24,7 +21,7 @@ class TestPlonePageObject(TestCase):
     @browsing
     def test_view_on_root(self, browser):
         browser.open()
-        self.assertEquals('folder_listing', plone.view())
+        self.assertEquals('listing_view', plone.view())
 
     @browsing
     def test_view_on_login_form(self, browser):
@@ -40,7 +37,7 @@ class TestPlonePageObject(TestCase):
     @browsing
     def test_view_and_portal_type(self, browser):
         browser.open()
-        self.assertEquals(('folder_listing', 'plone-site'),
+        self.assertEquals(('listing_view', 'plone-site'),
                           plone.view_and_portal_type())
 
     @browsing

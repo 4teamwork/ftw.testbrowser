@@ -6,13 +6,10 @@ from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import Nodes
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestNodesResultSet(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestNodesResultSet(FunctionalTestCase):
 
     @browsing
     def test_text_content_for_many_elements(self, browser):
@@ -269,9 +266,7 @@ class TestNodesResultSet(TestCase):
             'Reversing a "Nodes" object should not change it\'s type.')
 
 
-class TestNodeWrappers(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestNodeWrappers(FunctionalTestCase):
 
     def test_reference_to_browser(self):
         with Browser()(self.layer['app']) as browser:
@@ -685,9 +680,7 @@ class TestNodeWrappers(TestCase):
             browser.css('#text').first.normalized_outerHTML)
 
 
-class TestNodeComparison(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestNodeComparison(FunctionalTestCase):
 
     @browsing
     def test_comparing_two_elements_representing_the_same_node(self, browser):
@@ -705,9 +698,7 @@ class TestNodeComparison(TestCase):
                              'Different elements should be different.')
 
 
-class TestLinkNode(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestLinkNode(FunctionalTestCase):
 
     @browsing
     def test_clicking_links(self, browser):
@@ -731,9 +722,7 @@ class TestLinkNode(TestCase):
             str(cm.exception))
 
 
-class TestDefinitionListNode(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestDefinitionListNode(FunctionalTestCase):
 
     @browsing
     def test_keys_returns_dts(self, browser):

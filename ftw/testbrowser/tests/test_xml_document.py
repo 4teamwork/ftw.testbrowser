@@ -1,10 +1,8 @@
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestXMLDocument(TestCase):
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestXMLDocument(FunctionalTestCase):
 
     @browsing
     def test_utf8_document_with_umlaut(self, browser):

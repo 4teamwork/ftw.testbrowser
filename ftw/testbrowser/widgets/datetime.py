@@ -25,8 +25,8 @@ class DateTimeWidget(PloneWidget):
         :type value: :py:class:`datetime.datetime`
         """
 
-        self._field('day').value = value.strftime('%d')
-        self._field('month').value = value.strftime('%m')
+        self._field('day').value = value.strftime('%-d')
+        self._field('month').value = value.strftime('%-m')
         self._field('year').value = value.strftime('%Y')
 
         if not self._field('hour'):

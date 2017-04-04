@@ -1,12 +1,9 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import statusmessages
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestStatusmessages(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestStatusmessages(FunctionalTestCase):
 
     @browsing
     def test_messages(self, browser):

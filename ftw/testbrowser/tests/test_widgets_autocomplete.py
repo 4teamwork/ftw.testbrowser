@@ -1,13 +1,10 @@
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
-from unittest2 import TestCase
 from urlparse import urljoin
 
 
-class TestBrowserZ3CForms(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestBrowserZ3CForms(FunctionalTestCase):
 
     @browsing
     def test_autocomplete_form_fill(self, browser):

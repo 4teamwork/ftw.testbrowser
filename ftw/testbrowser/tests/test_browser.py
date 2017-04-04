@@ -5,11 +5,11 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from unittest2 import TestCase
 from zExceptions import NotFound
 from zope.globalrequest import getRequest
 
@@ -33,8 +33,7 @@ AC_COOKIE_INFO = {'comment': None,
                   'secure': False}
 
 
-class TestBrowserCore(TestCase):
-
+class TestBrowserCore(FunctionalTestCase):
     layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
 
     @browsing

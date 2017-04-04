@@ -6,6 +6,7 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testbrowser.widgets.base import PloneWidget
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
@@ -16,9 +17,7 @@ from unittest2 import TestCase
 import lxml.html
 
 
-class TestBrowserForms(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestBrowserForms(FunctionalTestCase):
 
     @browsing
     def test_find_form_by_field_label(self, browser):
@@ -74,29 +73,29 @@ class TestBrowserForms(TestCase):
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     @browsing
-    def test_fill_archetypes_field(self, browser):
+    def test_fill_field(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
-        browser.fill({'Title': 'The Folder'}).submit()
-        self.assertEquals('folder_listing', plone.view())
+        browser.fill({'Title': 'The Folder'}).save()
+        self.assertEquals('listing_view', plone.view())
         self.assertEquals('The Folder', plone.first_heading())
 
     @browsing
-    def test_fill_archtypes_field_with_unicode_umlauts(self, browser):
+    def test_fill_field_with_unicode_umlauts(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
         browser.fill({'Title': u'F\xf6lder',
-                      'Description': u'The f\xf6lder description'}).submit()
-        self.assertEquals('folder_listing', plone.view())
+                      'Summary': u'The f\xf6lder description'}).save()
+        self.assertEquals('listing_view', plone.view())
         self.assertEquals(u'F\xf6lder', plone.first_heading())
 
     @browsing
-    def test_fill_archtypes_field_with_utf8_umlauts(self, browser):
+    def test_fill_field_with_utf8_umlauts(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Folder')
         browser.fill({'Title': u'F\xf6lder'.encode('utf-8'),
-                      'Description': u'The f\xf6lder description'.encode('utf-8')}).submit()
-        self.assertEquals('folder_listing', plone.view())
+                      'Summary': u'The f\xf6lder description'.encode('utf-8')}).save()
+        self.assertEquals('listing_view', plone.view())
         self.assertEquals(u'F\xf6lder', plone.first_heading())
 
     @browsing
@@ -118,21 +117,12 @@ class TestBrowserForms(TestCase):
             browser.json)
 
     @browsing
-    def test_at_fill_tinymce_field(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
-        factoriesmenu.add('Page')
-        browser.fill({'Title': 'The page',
-                      'Body Text': '<p>The body text.</p>'}).submit()
-        self.assertEquals('The body text.',
-                          browser.css('#content-core').first.normalized_text())
-
-    @browsing
-    def test_at_save_add_form(self, browser):
+    def test_save_add_form(self, browser):
         browser.login(SITE_OWNER_NAME).open()
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
-        self.assertEquals('http://nohost/plone/the-page', browser.url)
+        self.assertEquals('http://nohost/plone/the-page/view', browser.url)
 
     @browsing
     def test_find_submit_buttons(self, browser):

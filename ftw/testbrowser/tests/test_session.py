@@ -1,15 +1,12 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from unittest2 import TestCase
 
 
-class TestBrowserSession(TestCase):
-
-    layer = PLONE_FUNCTIONAL_TESTING
+class TestBrowserSession(FunctionalTestCase):
 
     @browsing
     def test_browser_stays_logged_in(self, browser):

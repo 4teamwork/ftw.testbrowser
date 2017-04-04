@@ -1,12 +1,12 @@
-from ftw.testbrowser.testing import DX_TYPES_FUNCTIONAL_TESTING
+from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from unittest2 import TestCase
 import transaction
 
 
-class DxFunctionalTestCase(TestCase):
-    layer = DX_TYPES_FUNCTIONAL_TESTING
+class FunctionalTestCase(TestCase):
+    layer = BROWSER_FUNCTIONAL_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
