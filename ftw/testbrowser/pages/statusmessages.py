@@ -1,5 +1,6 @@
 from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.utils import normalize_spaces
+import re
 
 
 def messages(browser=default_browser):
@@ -18,7 +19,22 @@ def messages(browser=default_browser):
             continue
 
         key = tuple(type_classes)[0]
-        text = normalize_spaces(' '.join(message.css('dd').text_content()))
+
+        if message.css('dd'):
+            # Plone 4: <dl class="portalMessage info">
+            #              <dt>Info</dt>
+            #              <dd>Message</dd>
+            #          </dl>
+            text = normalize_spaces(' '.join(message.css('dd').text_content()))
+
+        elif message.css('strong'):
+            # Plone 5: <div class="portalMessage info">
+            #              <strong>Info</strong>
+            #              Message
+            #          </div>
+            type_text = message.css('strong').first.text
+            text = re.sub(r'^{} *'.format(re.escape(type_text)), '', message.text)
+
         if not text:
             # message is empty - skip it
             continue
