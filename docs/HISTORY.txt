@@ -5,7 +5,7 @@ Changelog
 1.19.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Support latest Plone 4.3.x release. [mathias.leimgruber]
 
 
 1.19.3 (2016-07-25)

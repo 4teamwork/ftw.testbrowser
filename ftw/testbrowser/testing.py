@@ -1,12 +1,12 @@
 from ftw.builder.testing import BUILDER_LAYER
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
-from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import PloneSandboxLayer
+from plone.testing import z2
 from zope.configuration import xmlconfig
 
 
@@ -46,17 +46,29 @@ BROWSER_ZSERVER_FUNCTIONAL_TESTING = FunctionalTesting(
 
 class DxTypesLayer(PloneSandboxLayer):
 
-    defaultBases = (PLONE_APP_CONTENTTYPES_FIXTURE,)
+    defaultBases = (PLONE_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
+        xmlconfig.string(
+            '<configure xmlns="http://namespaces.zope.org/zope">'
+            '  <include package="z3c.autoinclude" file="meta.zcml" />'
+            '  <includePlugins package="plone" />'
+            '  <includePluginsOverrides package="plone" />'
+            '</configure>',
+            context=configurationContext)
+
         import ftw.testbrowser.tests
         xmlconfig.file('profiles/dxtype.zcml',
                        ftw.testbrowser.tests,
                        context=configurationContext)
 
+        z2.installProduct(app, 'Products.DateRecurringIndex')
+
     def setUpPloneSite(self, portal):
         applyProfile(
             portal, 'ftw.testbrowser.tests:dxtype')
+
+        applyProfile(portal, 'plone.app.contenttypes:default')
 
 
 DX_TYPES_FIXTURE = DxTypesLayer()
