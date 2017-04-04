@@ -1,14 +1,11 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import OnlyOneValueAllowed
 from ftw.testbrowser.exceptions import OptionsNotFound
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
-from unittest2 import TestCase
 
 
-class TestSequenceWidget(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestSequenceWidget(FunctionalTestCase):
 
     @browsing
     def test_sequence_widget_options(self, browser):

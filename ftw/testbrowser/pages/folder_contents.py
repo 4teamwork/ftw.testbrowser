@@ -1,6 +1,5 @@
 from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.nodes import wrap_nodes
-from operator import attrgetter
 from operator import itemgetter
 
 

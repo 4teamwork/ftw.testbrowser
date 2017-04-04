@@ -1,28 +1,20 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
-from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import login
-from plone.app.testing import setRoles
-from unittest2 import TestCase
 
 
-class TestContentTreeWidget(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestContentTreeWidget(FunctionalTestCase):
 
     def setUp(self):
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ['Manager'])
-        login(portal, TEST_USER_NAME)
+        super(TestContentTreeWidget, self).setUp()
+        self.grant('Manager')
 
     @browsing
     def test_selecting_object(self, browser):
-        foo = create(Builder('document').titled('Foo'))
-        bar = create(Builder('document').titled('Bar'))
+        foo = create(Builder('document').titled(u'Foo'))
+        bar = create(Builder('document').titled(u'Bar'))
 
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Documents': (foo, bar)})
@@ -33,7 +25,7 @@ class TestContentTreeWidget(TestCase):
 
     @browsing
     def test_querying_objects(self, browser):
-        create(Builder('document').titled('The Document'))
+        create(Builder('document').titled(u'The Document'))
 
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
 

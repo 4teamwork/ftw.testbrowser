@@ -1,11 +1,8 @@
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestBrowserRequests(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestBrowserRequests(FunctionalTestCase):
 
     @browsing
     def test_find_link_by_text(self, browser):

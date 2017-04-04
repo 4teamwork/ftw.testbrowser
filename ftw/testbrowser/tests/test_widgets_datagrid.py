@@ -1,17 +1,14 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testing import staticuid
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from unittest2 import TestCase
 import transaction
 
 
-class TestDexterityDataGridWidget(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestDexterityDataGridWidget(FunctionalTestCase):
 
     @browsing
     @staticuid()

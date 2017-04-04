@@ -5,6 +5,7 @@ Changelog
 1.19.4 (unreleased)
 -------------------
 
+- No longer test with Archetypes, test only with dexterity. [jone]
 - Support latest Plone 4.3.x release. [mathias.leimgruber]
 
 

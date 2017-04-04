@@ -1,13 +1,10 @@
 from datetime import date
 from ftw.testbrowser import browsing
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
-from unittest2 import TestCase
 
 
-class TestDateWidget(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestDateWidget(FunctionalTestCase):
 
     @browsing
     def test_z3cform_datefield_formfill(self, browser):

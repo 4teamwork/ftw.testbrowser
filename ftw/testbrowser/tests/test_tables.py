@@ -1,14 +1,11 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.table import colspan_padded_text
 from ftw.testbrowser.table import TableCell
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from operator import attrgetter
-from unittest2 import TestCase
 
 
-class TestTables(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestTables(FunctionalTestCase):
 
     @browsing
     def test_find_cell_by_text_on_table(self, browser):
@@ -292,9 +289,7 @@ class TestTables(TestCase):
              'padded': colspan_padded_text(foot_row)})
 
 
-class TestTableRow(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestTableRow(FunctionalTestCase):
 
     @browsing
     def test_table_attribute_is_table_object(self, browser):
@@ -391,9 +386,7 @@ class TestTableRow(TestCase):
             table.column('Calories'))
 
 
-class TestTableCell(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestTableCell(FunctionalTestCase):
 
     @browsing
     def test_table_attribute_is_table_object(self, browser):

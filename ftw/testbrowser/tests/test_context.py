@@ -2,31 +2,24 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import ContextNotFound
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
-from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
-from plone.app.testing import login
-from plone.app.testing import setRoles
-from unittest2 import TestCase
+from ftw.testbrowser.tests import FunctionalTestCase
 
 
-class TestBrowserContext(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestBrowserContext(FunctionalTestCase):
 
     def setUp(self):
-        setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
-        login(self.layer['portal'], TEST_USER_NAME)
+        super(TestBrowserContext, self).setUp()
+        self.grant('Manager')
 
     @browsing
     def test_context_can_be_retrieved_from_current_folder(self, browser):
-        folder = create(Builder('folder').titled('The Folder'))
+        folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder)
         self.assertEquals(folder, browser.context)
 
     @browsing
     def test_context_when_on_a_view(self, browser):
-        folder = create(Builder('folder').titled('The Folder'))
+        folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals(folder, browser.context)
 

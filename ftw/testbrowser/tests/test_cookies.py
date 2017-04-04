@@ -1,15 +1,12 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_REQUESTS
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from unittest2 import TestCase
 
 
-class TestMechanizeCookies(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+class TestMechanizeCookies(FunctionalTestCase):
 
     @browsing
     def test_cookies(self, browser):
@@ -24,8 +21,7 @@ class TestMechanizeCookies(TestCase):
             browser.cookies['__ac'])
 
 
-class TestZServerHeaders(TestCase):
-
+class TestZServerHeaders(FunctionalTestCase):
     layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
 
     @browsing
