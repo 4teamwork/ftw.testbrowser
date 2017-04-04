@@ -20,13 +20,13 @@ class TestBrowserContext(TestCase):
 
     @browsing
     def test_context_can_be_retrieved_from_current_folder(self, browser):
-        folder = create(Builder('folder').titled('The Folder'))
+        folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder)
         self.assertEquals(folder, browser.context)
 
     @browsing
     def test_context_when_on_a_view(self, browser):
-        folder = create(Builder('folder').titled('The Folder'))
+        folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals(folder, browser.context)
 

@@ -74,13 +74,13 @@ class TestMechanizeBrowserRequests(TestCase):
 
     @browsing
     def test_visit_object(self, browser):
-        folder = create(Builder('folder').titled('Test Folder'))
+        folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder)
         self.assertEquals('http://nohost/plone/test-folder', browser.url)
 
     @browsing
     def test_visit_view_on_object(self, browser):
-        folder = create(Builder('folder').titled('Test Folder'))
+        folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals('http://nohost/plone/test-folder/folder_contents',
                           browser.url)

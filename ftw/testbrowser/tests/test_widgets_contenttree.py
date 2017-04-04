@@ -21,8 +21,8 @@ class TestContentTreeWidget(TestCase):
 
     @browsing
     def test_selecting_object(self, browser):
-        foo = create(Builder('document').titled('Foo'))
-        bar = create(Builder('document').titled('Bar'))
+        foo = create(Builder('document').titled(u'Foo'))
+        bar = create(Builder('document').titled(u'Bar'))
 
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Documents': (foo, bar)})
@@ -33,7 +33,7 @@ class TestContentTreeWidget(TestCase):
 
     @browsing
     def test_querying_objects(self, browser):
-        create(Builder('document').titled('The Document'))
+        create(Builder('document').titled(u'The Document'))
 
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
 

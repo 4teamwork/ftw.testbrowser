@@ -18,14 +18,14 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_titles(self, browser):
-        create(Builder('page').titled('An exotic page'))
+        create(Builder('page').titled(u'An exotic page'))
         browser.login().open(view='folder_contents')
         self.assertEquals(['An exotic page'], folder_contents.titles())
 
     @browsing
     def test_select__selects_from_objects(self, browser):
-        foo = create(Builder('page').titled('Foo'))
-        bar = create(Builder('page').titled('Bar'))
+        foo = create(Builder('page').titled(u'Foo'))
+        bar = create(Builder('page').titled(u'Bar'))
 
         browser.login().open(view='folder_contents')
         folder_contents.select(foo, bar)
@@ -35,8 +35,8 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_select_by_title(self, browser):
-        create(Builder('page').titled('Foo'))
-        create(Builder('page').titled('Bar'))
+        create(Builder('page').titled(u'Foo'))
+        create(Builder('page').titled(u'Bar'))
 
         browser.login().open(view='folder_contents')
         folder_contents.select_by_title('Foo', 'Bar')
@@ -46,9 +46,9 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_select_by_path(self, browser):
-        foo = create(Builder('page').titled('Foo'))
+        foo = create(Builder('page').titled(u'Foo'))
         foo_path = '/'.join(foo.getPhysicalPath())
-        bar = create(Builder('page').titled('Bar'))
+        bar = create(Builder('page').titled(u'Bar'))
         bar_path = '/'.join(bar.getPhysicalPath())
 
         browser.login().open(view='folder_contents')
@@ -59,7 +59,7 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_row_by_title(self, browser):
-        create(Builder('page').titled('Foo'))
+        create(Builder('page').titled(u'Foo'))
         browser.login().open(view='folder_contents')
 
         with self.assertRaises(ValueError) as cm:
@@ -69,7 +69,7 @@ class TestFolderContents(TestCase):
 
         self.assertEquals(TableRow, type(folder_contents.row_by_title('Foo')))
 
-        create(Builder('page').titled('Foo'))
+        create(Builder('page').titled(u'Foo'))
         browser.reload()
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_title('Foo')
@@ -80,8 +80,8 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_row_by_object(self, browser):
-        obj = create(Builder('folder').titled('Foo'))
-        subobj = create(Builder('page').titled('Bar').within(obj))
+        obj = create(Builder('folder').titled(u'Foo'))
+        subobj = create(Builder('page').titled(u'Bar').within(obj))
         browser.login().open(view='folder_contents')
 
         self.assertEquals(TableRow, type(folder_contents.row_by_object(obj)))
@@ -95,8 +95,8 @@ class TestFolderContents(TestCase):
 
     @browsing
     def test_row_by_path(self, browser):
-        obj = create(Builder('folder').titled('Foo'))
-        subobj = create(Builder('page').titled('Bar').within(obj))
+        obj = create(Builder('folder').titled(u'Foo'))
+        subobj = create(Builder('page').titled(u'Bar').within(obj))
         browser.login().open(view='folder_contents')
 
         obj_path = '/'.join(obj.getPhysicalPath())
