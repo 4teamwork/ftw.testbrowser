@@ -1,11 +1,12 @@
 from ftw.testbrowser.core import Browser
+from ftw.testbrowser.core import LIB_PHANTOMJS
 
 
 #: The singleton browser instance acting as default browser.
 browser = Browser()
 
 
-def browsing(func):
+def browsing(func, **options):
     """The ``browsing`` decorator is used in tests for automatically setting up
     the browser and passing it into the test function as additional argument:
 
@@ -27,8 +28,14 @@ def browsing(func):
 
     def test_function(self, *args, **kwargs):
         app = getattr(self, 'layer', {}).get('app', False)
-        with browser(app):
+        with browser(app, **options):
             args = list(args) + [browser]
             return func(self, *args, **kwargs)
     test_function.__name__ = func.__name__
     return test_function
+
+
+def jsbrowsing(func):
+    """Like ``browsing`, but support JavaScript by using PhantomJS.
+    """
+    return browsing(func, request_library=LIB_PHANTOMJS)

@@ -55,6 +55,9 @@ LIB_MECHANIZE = 'mechanize library'
 #: Constant for choosing the requests library (actual requests)
 LIB_REQUESTS = 'requests library'
 
+#: Constant for choosing the PhantomJS for requests and document parsing
+LIB_PHANTOMJS = 'PhantomJS'
+
 
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
@@ -85,12 +88,14 @@ class Browser(object):
     def __init__(self):
         self.reset()
 
-    def __call__(self, app):
+    def __call__(self, app, request_library=None):
         """Calling the browser instance with the Zope app object as argument
         sets configures the Zope app to be used for the next session, which is
         initailized by using the context manager syntax.
         """
         self.next_app = app
+        if request_library:
+            self.request_library = request_library
         return self
 
     def __repr__(self):

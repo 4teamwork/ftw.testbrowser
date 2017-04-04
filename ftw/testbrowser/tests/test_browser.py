@@ -4,12 +4,11 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests import FunctionalTestCase
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from unittest2 import TestCase
 from zExceptions import NotFound
 from zope.globalrequest import getRequest
 
@@ -33,9 +32,7 @@ AC_COOKIE_INFO = {'comment': None,
                   'secure': False}
 
 
-class TestBrowserCore(TestCase):
-
-    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
+class TestBrowserCore(FunctionalTestCase):
 
     @browsing
     def test_contents_MECHANIZE(self, browser):
@@ -240,10 +237,3 @@ class TestBrowserCore(TestCase):
         browser.request_library = LIB_REQUESTS
         browser.open()
         self.assertIsNotNone(getRequest())
-
-    def assert_starts_with(self, start, contents):
-        self.assertTrue(
-            contents.startswith(start),
-            'Expected browser.contents to start with "{0}",'
-            ' but it is starting with "{1}"'.format(
-                start, contents[:len(start)]))
