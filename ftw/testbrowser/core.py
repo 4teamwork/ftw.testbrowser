@@ -815,14 +815,23 @@ class Browser(object):
         if self.document is None:
             raise ContextNotFound('Not viewing any page.')
 
-        base_tags = self.css('base')
-        if len(base_tags) == 0:
-            raise ContextNotFound('No <base> tag found on current page.')
-        elif len(base_tags) > 1:
-            raise ContextNotFound('Unexpectedly found multiple <base> tags.')
-        base, = base_tags
+        url = None
 
-        url = base.attrib['href']
+        # Plone 4: <base url="..." />
+        base_tags = self.css('base')
+        if len(base_tags) == 1:
+            base, = base_tags
+            url = base.attrib['href']
+
+        # Plone 5: <body data-base-url="...">
+        body_tags = self.css('body')
+        if not url and len(body_tags) == 1:
+            url = body_tags.first.attrib.get('data-base-url', None)
+
+        if not url:
+            raise ContextNotFound(
+                'No <base> tag and no <body data-base-url> found.')
+
         path = urlparse.urlparse(url).path.rstrip('/')
         portal = getSite()
         portal_path = '/'.join(portal.getPhysicalPath())

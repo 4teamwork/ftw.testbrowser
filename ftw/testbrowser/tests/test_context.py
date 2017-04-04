@@ -58,7 +58,7 @@ class TestBrowserContext(BrowserTestCase):
         with self.assertRaises(ContextNotFound) as cm:
             browser.context
 
-        self.assertEquals('No <base> tag found on current page.',
+        self.assertEquals('No <base> tag and no <body data-base-url> found.',
                           str(cm.exception))
 
     @browsing
