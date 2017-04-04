@@ -1,8 +1,8 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import statusmessages
+from ftw.testbrowser.tests import DxFunctionalTestCase
 from ftw.testbrowser.tests.helpers import asset
-from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
 from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
 from unittest2 import TestCase
@@ -37,9 +37,7 @@ class TestArchetypesFileUploadWidget(TestCase):
                           browser.headers.get('Content-Type'))
 
 
-class TestDexterityFileUploadWidget(TestCase):
-
-    layer = PLONE_APP_CONTENTTYPES_FUNCTIONAL_TESTING
+class TestDexterityFileUploadWidget(DxFunctionalTestCase):
 
     @browsing
     def test_filling_file_upload_widget_by_label(self, browser):
