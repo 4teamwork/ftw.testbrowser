@@ -326,7 +326,9 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_response_contenttype(self, browser):
         browser.open()
-        self.assertIn(browser.contenttype,
+        # Plone 4: utf-8
+        # Plone 5 UTF-8
+        self.assertIn(browser.contenttype.lower(),
                       ('text/html;charset=utf-8',
                        'text/html; charset=utf-8'))
 
@@ -344,7 +346,9 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_response_encoding(self, browser):
         browser.open()
-        self.assertEquals('utf-8', browser.encoding)
+        # Plone 4: utf-8
+        # Plone 5 UTF-8
+        self.assertEquals('utf-8', browser.encoding.lower())
 
         browser.open(self.json_view_url, data={'foo': 'bar'})
         self.assertEquals(None, browser.encoding)
