@@ -11,7 +11,9 @@ class TestMechanizeHeaders(BrowserTestCase):
     @browsing
     def test_headers(self, browser):
         browser.open()
-        self.assertIn(browser.headers.get('content-type'),
+        # Plone 4: utf-8
+        # Plone 5: UTF-8
+        self.assertIn(browser.headers.get('content-type').lower(),
                       ('text/html; charset=utf-8',
                        'text/html;charset=utf-8'))
 
@@ -21,5 +23,8 @@ class TestMechanizeHeaders(BrowserTestCase):
     @browsing
     def test_webdav_headers(self, browser):
         browser.webdav('get')
-        self.assertEquals('text/html;charset=utf-8',
-                          browser.headers.get('content-type'))
+        # Plone 4: text/html; charset=utf-8
+        # Plone 5: text/html;charset=UTF-8
+        self.assertEquals(
+            'text/html;charset=utf-8',
+            browser.headers.get('content-type').lower().replace(' ', ''))
