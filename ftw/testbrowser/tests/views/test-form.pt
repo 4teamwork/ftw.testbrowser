@@ -12,7 +12,7 @@
                 <input name="textfield" id="textfield" value="" />
                 <input type="checkbox" name="checkbox-without-value" />
 
-                <button type="submit" name="novalue-button">&</button>
+                <button type="submit" name="novalue-button">Button without value</button>
                 <input type="submit" value="Submit" name="submit-button" />
                 <input type="submit" value="Cancel" name="cancel-button" />
             </form>
