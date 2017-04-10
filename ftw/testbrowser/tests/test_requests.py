@@ -136,19 +136,18 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
 
     @browsing
     def test_open_html_sets_response_to_html_stream(self, browser):
-        # When an exception happens within a test, the response content is dumped
-        # to a temporary file for debugging purpose.
-        # For having the HTML, which was set with open_html, in the temporary file
-        # the response needs to contain this HTML and not html set previously or
-        # nothing.
+        """
+        When an exception happens within a test, the response content is dumped
+        to a temporary file for debugging purpose.
+        In order for that to work, browser.contents must be the HTML body.
+        """
 
         html = '\n'.join(('<html>',
                           '<h1>The heading</h1>',
                           '<html>'))
 
         browser.open_html(html)
-        browser.response.seek(0)
-        self.assertEquals(html, browser.response.read())
+        self.assertEquals(html, browser.contents)
 
     @browsing
     def test_logout_works(self, browser):
@@ -256,7 +255,8 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
 
     @browsing
     def test_fill_and_submit_multi_select_form(self, browser):
-        browser.open_html(
+        browser.open()
+        browser.parse(
             '\n'.join(('<form action="{0}">'.format(self.json_view_url),
                        '<select name="selectfield" multiple="multiple">',
                        '<option>Foo</option>',
@@ -318,22 +318,22 @@ class TestRequestslibBrowserRequests(FunctionalTestCase):
     @browsing
     def test_open_supports_choosing_library_when_doing_request(self, browser):
         browser.open(library=LIB_MECHANIZE)
-        self.assertEquals('mechanize',
-                          browser.response.__class__.__module__.split('.')[0])
+        self.assertEquals('MechanizeDriver',
+                          type(browser.get_driver()).__name__)
 
         browser.open(library=LIB_REQUESTS)
-        self.assertEquals('requests',
-                          browser.response.__class__.__module__.split('.')[0])
+        self.assertEquals('RequestsDriver',
+                          type(browser.get_driver()).__name__)
 
     @browsing
     def test_visit_supports_choosing_library_when_doing_request(self, browser):
         browser.visit(library=LIB_MECHANIZE)
-        self.assertEquals('mechanize',
-                          browser.response.__class__.__module__.split('.')[0])
+        self.assertEquals('MechanizeDriver',
+                          type(browser.get_driver()).__name__)
 
         browser.visit(library=LIB_REQUESTS)
-        self.assertEquals('requests',
-                          browser.response.__class__.__module__.split('.')[0])
+        self.assertEquals('RequestsDriver',
+                          type(browser.get_driver()).__name__)
 
     @browsing
     def test_url_with_requests_libr(self, browser):
@@ -344,8 +344,8 @@ class TestRequestslibBrowserRequests(FunctionalTestCase):
     def test_no_browser_setup_uses_requests_library(self):
         with Browser() as browser:
             browser.open(self.layer['portal'].absolute_url())
-            self.assertEquals('requests',
-                              browser.response.__class__.__module__.split('.')[0])
+            self.assertEquals('RequestsDriver',
+                              type(browser.get_driver()).__name__)
 
     def test_form_submitting_with_requests_library(self):
         with Browser() as browser:
@@ -458,8 +458,8 @@ class TestRequestslibBrowserRequests(FunctionalTestCase):
 
     @browsing
     def test_fill_and_submit_multi_select_form(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open_html(
+        browser.open(library=LIB_REQUESTS)
+        browser.parse(
             '\n'.join(('<form action="{0}">'.format(self.json_view_url),
                        '<select name="selectfield" multiple="multiple">',
                        '<option>Foo</option>',

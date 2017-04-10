@@ -16,7 +16,7 @@ class TestWebdavRequests(FunctionalTestCase):
     @browsing
     def test_options_request(self, browser):
         browser.webdav('OPTIONS')
-        self.assertEquals('1,2', browser.response.headers.get('DAV'))
+        self.assertEquals('1,2', browser.headers.get('DAV'))
 
     @browsing
     def test_propfind_request(self, browser):

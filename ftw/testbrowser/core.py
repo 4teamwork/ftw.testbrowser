@@ -1,24 +1,23 @@
+from copy import deepcopy
+from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
+from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
+from ftw.testbrowser.drivers.staticdriver import StaticDriver
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import NoElementFound
-from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import parse_html
-from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
-from mechanize import Request
 from operator import attrgetter
-from requests.structures import CaseInsensitiveDict
+from operator import methodcaller
 from StringIO import StringIO
 from zope.component.hooks import getSite
-from zope.globalrequest import getRequest
-from zope.globalrequest import setRequest
 from zope.interface import implements
 import json
 import lxml
@@ -26,9 +25,7 @@ import lxml.html
 import os
 import pkg_resources
 import re
-import requests
 import tempfile
-import urllib
 import urlparse
 
 
@@ -41,20 +38,24 @@ else:
     from plone.app.testing import TEST_USER_NAME
     from plone.app.testing import TEST_USER_PASSWORD
 
-try:
-    pkg_resources.get_distribution('zope.testbrowser')
-except pkg_resources.DistributionNotFound:
-    HAS_PLONE_EXTRAS = False
-else:
-    HAS_PLONE_EXTRAS = True
-    from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
-
-
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_MECHANIZE = 'mechanize library'
 
 #: Constant for choosing the requests library (actual requests)
-LIB_REQUESTS = 'requests library'
+LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
+
+#: Constant for choosing the mechanize library (interally dispatched requests)
+LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
+
+#: Constant for choosing the static driver.
+LIB_STATIC = StaticDriver.LIBRARY_NAME
+
+
+#: Mapping of driver library constants to its factories.
+#: This design is historical so that the library constants
+#: keep working. This mapping may be monkey patched.
+DRIVER_FACTORIES = {
+    MechanizeDriver.LIBRARY_NAME: MechanizeDriver,
+    RequestsDriver.LIBRARY_NAME: RequestsDriver,
+    StaticDriver.LIBRARY_NAME: StaticDriver}
 
 
 class Browser(object):
@@ -84,6 +85,7 @@ class Browser(object):
     implements(IBrowser)
 
     def __init__(self):
+        self.drivers = {}
         self.reset()
 
     def __call__(self, app):
@@ -102,17 +104,13 @@ class Browser(object):
         state.
         """
         self.request_library = None
-        self.previous_request_library = None
         self.next_app = None
         self.app = None
-        self.mechbrowser = None
-        self.response = None
         self.document = None
         self.previous_url = None
         self.form_files = {}
-
-        self.previous_request = None
-        self.requests_session = requests.Session()
+        self.session_headers = []
+        map(methodcaller('reset'), self.drivers.values())
 
     def __enter__(self):
         if self.request_library is None:
@@ -123,23 +121,46 @@ class Browser(object):
 
         if self.app is None:
             self.app = self.next_app
+
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if (exc_type or exc_value) and self.response is not None:
-            _, path = tempfile.mkstemp(suffix='.html',
-                                       prefix='ftw.testbrowser-')
-            with open(path, 'w+') as file_:
+        if (exc_type or exc_value):
+            try:
                 source = self.contents
-                if isinstance(source, unicode):
-                    source = source.encode('utf-8')
-                file_.write(source)
-            print '\nftw.testbrowser dump:', path,
+            except BlankPage:
+                pass
+            else:
+                _, path = tempfile.mkstemp(suffix='.html',
+                                           prefix='ftw.testbrowser-')
+                with open(path, 'w+') as file_:
+                    if isinstance(source, unicode):
+                        source = source.encode('utf-8')
+
+                    file_.write(source)
+
+                print '\nftw.testbrowser dump:', path,
 
         self.reset()
 
+    def get_driver(self, library=None):
+        """Return the driver instance for a library.
+        """
+        if library is not None:
+            self.request_library = library
+        else:
+            library = self.request_library
+
+        if library not in self.drivers:
+            self.drivers[library] = driver = DRIVER_FACTORIES[library](self)
+            for header_name, header_value in self.session_headers:
+                driver.clear_request_header(header_name)
+                driver.append_request_header(header_name, header_value)
+
+        return self.drivers[library]
+
     def open(self, url_or_object=None, data=None, view=None, library=None,
-             referer=False):
+             referer=False, method=None, headers=None):
         """Opens a page in the browser.
 
         *Request library:*
@@ -155,8 +176,9 @@ class Browser(object):
 
         :param url_or_object: A full qualified URL or a Plone object (which has
           an ``absolute_url`` method). Defaults to the Plone Site URL.
-        :param data: A dict with data which is posted using a `POST` request.
-        :type data: dict
+        :param data: A dict with data which is posted using a `POST` request,
+          or request payload as string.
+        :type data: dict or string
         :param view: The name of a view which will be added at the end of the
           current URL.
         :type view: string
@@ -165,21 +187,35 @@ class Browser(object):
         :type library: ``LIB_MECHANIZE`` or ``LIB_REQUESTS``
         :param referer: Sets the referer when set to ``True``.
         :type referer: Boolean (Default ``False``)
+        :param method: The HTTP request method. Defaults to 'GET' when not set,
+          unless ``data`` is provided, then its set to 'POST'.
+        :type method: string
+        :param headers: A dict with custom headers for this request.
+        :type headers: dict
 
         .. seealso:: :py:func:`visit`
         .. seealso:: :py:const:`LIB_MECHANIZE`
         .. seealso:: :py:const:`LIB_REQUESTS`
         """
         self._verify_setup()
+        self.previous_url = self.url
         library = library or self.request_library
+
+        if method is None and data is None:
+            method = 'GET'
+        elif method is None:
+            method = 'POST'
+
+        if referer is True and self.url:
+            referer_url = self.url
+        else:
+            referer_url = ' '
+
         url = self._normalize_url(url_or_object, view=view)
-
-        if library == LIB_MECHANIZE:
-            self._open_with_mechanize(url, data=data, referer=referer)
-
-        elif library == LIB_REQUESTS:
-            self._open_with_requests(url, data=data, referer=referer)
-
+        driver = self.get_driver(library)
+        self.parse(driver.make_request(method, url, data=data,
+                                       referer_url=referer_url,
+                                       headers=headers))
         return self
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
@@ -207,7 +243,8 @@ class Browser(object):
         :type html: string or file-like object
         :returns: The browser object.
         """
-        self.response = self._load_html(html)
+        self.get_driver(LIB_STATIC).set_body(html)
+        self.parse(html)
         return self
 
     def visit(self, *args, **kwargs):
@@ -227,111 +264,20 @@ class Browser(object):
         :param method: The HTTP request method (``OPTIONS``, ``PROPFIND``, etc)
         :type method: string
         :param url_or_object: A full qualified URL or a Plone object (which has
-          an ``absolute_url`` method). Defaults to the Plone Site URL.
+        an ``absolute_url`` method). Defaults to the Plone Site URL.
         :param data: A dict with data which is posted using a `POST` request.
         :type data: dict
         :param view: The name of a view which will be added at the end of the
-          current URL.
+        current URL.
         :type view: string
         :param headers: Pass in reqest headers.
         :type headers: dict
         """
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
-        self._open_with_requests(url, data=data,
-                                 method=method, headers=headers)
+        self.parse(self.get_driver(LIB_REQUESTS).make_request(
+            method, url, data=data, headers=headers))
         return self
-
-    def _open_with_mechanize(self, url, data=None, referer=False):
-        """Opens an internal request with the mechanize library.
-        Since the request is internally dispatched, no open server
-        port is required.
-
-        :param url: A full qualified URL.
-        :type url: string
-        :param data: A dict with data which is posted using a `POST` request.
-        :type data: dict
-        :param referer: Sets the referer when set to ``True``.
-        :type referer: Boolean (Default ``False``)
-        """
-        args = locals().copy()
-        del args['self']
-        preserved_request = getRequest()
-        self.previous_request = ('_open_with_mechanize', args)
-        self.previous_url = self.url
-
-        if isinstance(url, Request):
-            request = url
-        else:
-            data = self._prepare_post_data(data)
-            request = Request(url, data)
-
-        referer_url = ' '
-        if referer:
-            if referer is True and self.url:
-                referer_url = self.url
-            elif isinstance(referer, (str, unicode)):
-                referer_url = referer
-        request.add_header('REFERER', referer_url)
-        request.add_header('HTTP_REFERER', referer_url)
-
-        try:
-            self.response = self.get_mechbrowser().open(request)
-        except:
-            self.response = None
-            raise
-        self.parse(self.response)
-        self.previous_request_library = LIB_MECHANIZE
-        setRequest(preserved_request)
-
-    def _open_with_requests(self, url, data=None, method='GET', headers=None,
-                            referer=False):
-        """Opens a request with the requests library.
-        Since this request is actually executed over TCP/IP,
-        an open server port is required.
-
-        :param url: A full qualified URL.
-        :type url: string
-        :param data: A dict with data which is posted using a `POST` request or
-          a string with data.
-        :type data: dict or string
-        :param method: The request method, defaults to 'GET', unless ``data``
-          is provided, then its set to 'POST'.
-        :type method: string
-        :param headers: A dict with custom headers for this request.
-        :type headers: dict
-        :param referer: Sets the referer when set to ``True``.
-        :type referer: Boolean (Default ``False``)
-        """
-        args = locals().copy()
-        del args['self']
-        self.previous_request = ('_open_with_requests', args)
-
-        self.previous_url = self.url
-        if urlparse.urlparse(url).hostname == 'nohost':
-            raise ZServerRequired()
-
-        if data and method == 'GET':
-            method = 'POST'
-
-        if headers is None:
-            headers = {}
-
-        if referer:
-            if referer is True and self.url:
-                headers['REFERER'] = self.url
-            elif isinstance(referer, (str, unicode)):
-                headers['REFERER'] = referer
-
-        with verbose_logging():
-            try:
-                self.response = self.requests_session.request(
-                    method, url, data=data, headers=headers)
-            except:
-                self.response = None
-
-        self.parse(self.response)
-        self.previous_request_library = LIB_REQUESTS
 
     def reload(self):
         """Reloads the current page by redoing the previous requests with
@@ -339,32 +285,18 @@ class Browser(object):
         This applies for GET as well as POST requests.
 
         :raises: :py:exc:`ftw.testbrowser.exceptions.BlankPage`
+        :returns: The browser object.
+        :rtype: :py:class:`ftw.testbrowser.core.Browser`
         """
-        if self.previous_request is None:
-            raise BlankPage('Cannot reload.')
-
-        request_opener_name, arguments = self.previous_request
-        request_opener = getattr(self, request_opener_name)
-        if arguments.get('referer', False):
-            arguments = arguments.copy()
-            arguments['referer'] = self.previous_url
-        request_opener(**arguments)
-        return self
+        self._verify_setup()
+        self.parse(self.get_driver().reload())
 
     @property
     def contents(self):
         """The source of the current page (usually HTML).
         """
         self._verify_setup()
-
-        if self.response is None:
-            raise BlankPage()
-
-        if isinstance(self.response, requests.Response):
-            return self.response.content
-        else:
-            self.response.seek(0)
-            return self.response.read()
+        return self.get_driver().get_response_body()
 
     @property
     def json(self):
@@ -377,13 +309,7 @@ class Browser(object):
     def headers(self):
         """A dict of response headers.
         """
-        if isinstance(self.response, requests.Response):
-            return self.response.headers
-        elif getattr(self.response, 'info', None) is not None:
-            return CaseInsensitiveDict(self.response.info().items())
-        else:
-            # Page was opened with open_html - we have no response headers.
-            return {}
+        return self.get_driver().get_response_headers()
 
     @property
     def contenttype(self):
@@ -432,12 +358,9 @@ class Browser(object):
         .. seealso:: :py:func:`clear_request_header`
         """
 
-        self.requests_session.headers.update({name: value.strip()})
-
-        try:
-            self.get_mechbrowser().addheaders.append((name, value))
-        except BrowserNotSetUpException:
-            pass
+        self.session_headers.append((name, value))
+        for driver in self.drivers.values():
+            driver.append_request_header(name, value)
 
     def replace_request_header(self, name, value):
         """Adds a permanent request header which is sent with every request.
@@ -464,50 +387,25 @@ class Browser(object):
         :type name: string
         """
 
-        if name in self.requests_session.headers:
-            del self.requests_session.headers[name]
+        for header_name, value in self.session_headers[:]:
+            if header_name == name:
+                self.session_headers.remove((header_name, value))
 
-        try:
-            addheaders = self.get_mechbrowser().addheaders
-        except BrowserNotSetUpException:
-            pass
-        else:
-            for header_name, value in addheaders[:]:
-                if header_name == name:
-                    addheaders.remove((header_name, value))
+        for driver in self.drivers.values():
+            driver.clear_request_header(name)
 
     @property
     def cookies(self):
         """A read-only dict of current cookies.
         """
-        cookies = {}
 
-        if self.previous_request_library is LIB_MECHANIZE:
-            mechbrowser = self.get_mechbrowser()
-            cookiejar = mechbrowser._ua_handlers["_cookies"].cookiejar
-            for cookie in cookiejar:
-                cookies[cookie.name] = vars(cookie)
-
-        elif self.previous_request_library is LIB_REQUESTS:
-            cookiejar = self.requests_session.cookies
-            for domain_cookies in cookiejar._cookies.values():
-                for path_cookies in domain_cookies.values():
-                    for cookie_name, cookie in path_cookies.items():
-                        cookies[cookie_name] = vars(cookie)
-
-        return cookies
+        return self.get_driver().get_response_cookies()
 
     @property
     def url(self):
         """The URL of the current page.
         """
-        if not self.response:
-            return None
-
-        if self.previous_request_library is LIB_MECHANIZE:
-            return self.get_mechbrowser().geturl()
-        elif self.previous_request_library is LIB_REQUESTS:
-            return self.response.url
+        return self.get_driver().get_url()
 
     @property
     def base_url(self):
@@ -581,7 +479,7 @@ class Browser(object):
 
         for index, node in enumerate(self.css('form')):
             key = node.attrib.get('id', node.attrib.get(
-                    'name', 'form-%s' % index))
+                'name', 'form-%s' % index))
             forms[key] = node
 
         return forms
@@ -806,28 +704,11 @@ class Browser(object):
         portal_path = '/'.join(portal.getPhysicalPath())
         if not path.startswith(portal_path):
             raise ContextNotFound((
-                    'Expected URL path to start with the Plone site'
-                    ' path "%s" but it is "%s"') % (portal_path, path))
+                'Expected URL path to start with the Plone site'
+                ' path "%s" but it is "%s"') % (portal_path, path))
 
         relative_path = path[len(portal_path + '/'):]
         return portal.restrictedTraverse(relative_path)
-
-    def get_mechbrowser(self):
-        self._verify_setup()
-
-        if not HAS_PLONE_EXTRAS:
-            raise ImportError(
-                'Could not import zope.testbrowser.'
-                ' Please install ftw.testbrowser[plone] extras.')
-
-        if self.app is None:
-            raise BrowserNotSetUpException()
-
-        if self.mechbrowser is None:
-            self.mechbrowser = Zope2MechanizeBrowser(self.app)
-            self.get_mechbrowser().addheaders.append((
-                    'X-zope-handle-errors', 'False'))
-        return self.mechbrowser
 
     def parse_as_html(self, html=None):
         """Parse the response document with the HTML parser.
@@ -838,8 +719,7 @@ class Browser(object):
         :param html: The HTML to parse (default: current response).
         :type html: string
         """
-        return self._load_html(html or self.response,
-                               parse_html)
+        return self._load_html(html or self.contents, parse_html)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -850,7 +730,7 @@ class Browser(object):
         :param xml: The XML to parse (default: current response).
         :type xml: string
         """
-        return self._load_html(xml or self.response, lxml.etree.parse)
+        return self._load_html(xml or self.contents, lxml.etree.parse)
 
     def parse(self, xml_or_html):
         """Parse XML or HTML with the default parser.
@@ -883,21 +763,9 @@ class Browser(object):
         """
         subbrowser = Browser()(self.app)
         subbrowser.request_library = self.request_library
-
-        if self.mechbrowser:
-            subbrowser.mechbrowser = Zope2MechanizeBrowser(self.app)
-            mech_parent = self.mechbrowser
-            mech_child = subbrowser.mechbrowser
-            cookiejar = mech_parent._ua_handlers['_cookies'].cookiejar
-            mech_child.set_cookiejar(cookiejar)
-            mech_child.addheaders = mech_parent.addheaders[:]
-
-        req_parent = self.requests_session
-        req_child = subbrowser.requests_session
-        req_child.headers = req_parent.headers.copy()
-        req_child.cookies = requests.cookies.merge_cookies(
-            req_parent.cookies, {})
-
+        subbrowser.session_headers = deepcopy(self.session_headers)
+        subbrowser.app = self.app
+        self.get_driver().cloned(subbrowser)
         return subbrowser
 
     def debug(self):
@@ -912,10 +780,10 @@ class Browser(object):
             source = self.contents
             if isinstance(source, unicode):
                 source = source.encode('utf-8')
-            file_.write(source)
-        cmd = 'open {0}'.format(path)
-        print '> {0}'.format(cmd)
-        os.system(cmd)
+                file_.write(source)
+                cmd = 'open {0}'.format(path)
+                print '> {0}'.format(cmd)
+                os.system(cmd)
 
     def _verify_setup(self):
         if self.request_library is None:
@@ -950,9 +818,6 @@ class Browser(object):
         if isinstance(html, (unicode, str)):
             html = StringIO(html)
 
-        if isinstance(html, requests.Response):
-            html = StringIO(html.content)
-
         if len(html.read()) == 0:
             self.document = None
             return None
@@ -961,27 +826,3 @@ class Browser(object):
             self.document = parser(html)
 
             return html
-
-    def _prepare_post_data(self, data):
-        if not data:
-            return None
-
-        if isinstance(data, dict):
-            data = data.items()
-
-        normalized_data = []
-        for name, value_or_values in data:
-            if isinstance(name, unicode):
-                name = name.encode('utf-8')
-
-            if isinstance(value_or_values, (list, tuple, set)):
-                values = value_or_values
-            else:
-                values = [value_or_values]
-
-            for value in values:
-                if isinstance(value, unicode):
-                    value = value.encode('utf-8')
-                normalized_data.append((name, value))
-
-        return urllib.urlencode(normalized_data)

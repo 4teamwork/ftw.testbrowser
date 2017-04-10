@@ -1,12 +1,9 @@
 from collections import defaultdict
-from ftw.testbrowser.core import LIB_MECHANIZE
-from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
-from mechanize import Request
 from mechanize._form import MimeWriter
 from StringIO import StringIO
 import lxml.html.formfill
@@ -332,39 +329,13 @@ class Form(NodeWrapper):
                 URL += '?' + urllib.urlencode(values)
             return self.browser.open(URL, referer=True)
 
-        if self.browser.request_library == LIB_MECHANIZE:
-            return self._make_mechanize_multipart_request(URL, values)
-        elif self.browser.request_library == LIB_REQUESTS:
-            return self._make_requests_multipart_request(URL, values)
-        else:
-            raise ValueError('Unkown request library: {0}'.format(
-                    self.browser.request_library))
-
-    def _make_mechanize_multipart_request(self, url, values):
         request_body, request_headers = self._prepare_multipart_request(
-            url, values)
-
-        request = Request(url, request_body)
-        for key, val in request_headers:
-            add_hdr = request.add_header
-            if key.lower() == "content-type":
-                try:
-                    add_hdr = request.add_unredirected_header
-                except AttributeError:
-                    # pre-2.4 and not using ClientCookie
-                    pass
-            add_hdr(key, val)
-
-        return self.browser._open_with_mechanize(request, referer=True)
-
-    def _make_requests_multipart_request(self, url, values):
-        request_body, request_headers = self._prepare_multipart_request(
-            url, values)
-        return self.browser._open_with_requests(url,
-                                                data=request_body,
-                                                headers=dict(request_headers),
-                                                method='POST',
-                                                referer=True)
+            URL, values)
+        return self.browser.open(URL,
+                                 data=request_body,
+                                 headers=dict(request_headers),
+                                 method='POST',
+                                 referer=True)
 
     def _prepare_multipart_request(self, URL, values):
         data = StringIO()
