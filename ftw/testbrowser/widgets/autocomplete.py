@@ -66,7 +66,8 @@ class AutocompleteWidget(PloneWidget):
 
     def _get_query_url(self):
         javascript = self.css('script').first.text
-        url = re.search(r"\)\.autocomplete\([^']*'([^']*)'", javascript).group(1)
+        url = re.search(r"\)\.autocomplete\([^']*'([^']*)'",
+                        javascript).group(1)
         return url
 
     def _resolve_objects_to_path(self, values):

@@ -11,8 +11,8 @@ class ArchetypesFileWidget(PloneWidget):
     def match(node):
         if not PloneWidget.match(node):
             return False
-        return ('ArchetypesFileWidget' in node.classes
-                or 'ArchetypesImageWidget' in node.classes)
+        return ('ArchetypesFileWidget' in node.classes or
+                'ArchetypesImageWidget' in node.classes)
 
     def fill(self, value):
         field = self.css('input[type="file"]').first

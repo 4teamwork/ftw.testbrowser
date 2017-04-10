@@ -400,9 +400,11 @@ class NodeWrapper(object):
             if css.startswith('>'):
                 # The translator does not allow leading '>', because it is not
                 # context sensitive.
-                xpath.append(translator.css_to_xpath(css[1:], prefix='self::*/'))
+                xpath.append(translator.css_to_xpath(
+                    css[1:], prefix='self::*/'))
             else:
-                xpath.append(translator.css_to_xpath(css, prefix='descendant-or-self::'))
+                xpath.append(translator.css_to_xpath(
+                    css, prefix='descendant-or-self::'))
 
         xpath_expr = ' | '.join(xpath)
 
