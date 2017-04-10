@@ -5,11 +5,9 @@ Changelog
 1.19.4 (unreleased)
 -------------------
 
+- Add Support for Button tag. [tschanzt]
 - No longer test with Archetypes, test only with dexterity. [jone]
 - Support latest Plone 4.3.x release. [mathias.leimgruber]
-
-- Add Support for Button tag.
-  [tschanzt]
 
 
 1.19.3 (2016-07-25)
