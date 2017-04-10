@@ -1,5 +1,7 @@
 from contextlib import contextmanager
+from ftw.testbrowser.parser import TestbrowserHTMLParser
 import logging
+import lxml
 import re
 import sys
 
@@ -16,3 +18,7 @@ def verbose_logging():
         yield
     finally:
         logging.root.removeHandler(stdouthandler)
+
+
+def parse_html(html):
+    return lxml.html.parse(html, TestbrowserHTMLParser())

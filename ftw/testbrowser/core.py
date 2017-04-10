@@ -9,6 +9,7 @@ from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
+from ftw.testbrowser.utils import parse_html
 from ftw.testbrowser.utils import verbose_logging
 from lxml.cssselect import CSSSelector
 from mechanize import Request
@@ -836,7 +837,8 @@ class Browser(object):
         :param html: The HTML to parse (default: current response).
         :type html: string
         """
-        return self._load_html(html or self.response, lxml.html.parse)
+        return self._load_html(html or self.response,
+                               parse_html)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -863,7 +865,8 @@ class Browser(object):
         if self.mimetype in ('text/xml', 'application/xml'):
             return self._load_html(xml_or_html, lxml.etree.parse)
         else:
-            return self._load_html(xml_or_html, lxml.html.parse)
+            return self._load_html(xml_or_html,
+                                   parse_html)
 
     def clone(self):
         """Creates a new browser instance with a cloned state of the
@@ -937,7 +940,7 @@ class Browser(object):
 
         return url
 
-    def _load_html(self, html, parser=lxml.html.parse):
+    def _load_html(self, html, parser=parse_html):
         self.form_files = {}
 
         if hasattr(html, 'seek'):

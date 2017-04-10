@@ -102,6 +102,10 @@ def wrap_node(node, browser):
         from ftw.testbrowser.form import SubmitButton
         return SubmitButton(node, browser)
 
+    if node.tag == 'button' and node.attrib.get('type', None) == 'submit':
+        from ftw.testbrowser.form import SubmitButton
+        return SubmitButton(node, browser)
+
     if node.tag == 'input' and node.attrib.get('type', None) == 'file':
         from ftw.testbrowser.form import FileField
         return FileField(node, browser)
