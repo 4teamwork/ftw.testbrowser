@@ -318,7 +318,7 @@ class Browser(object):
             headers = {}
 
         if referer:
-            if referer == True and self.url:
+            if referer is True and self.url:
                 headers['REFERER'] = self.url
             elif isinstance(referer, (str, unicode)):
                 headers['REFERER'] = referer
@@ -560,9 +560,10 @@ class Browser(object):
         """
         query_info = query_info or ('browser', 'xpath', xpath_selector)
         nsmap = self.document.getroot().nsmap
-        return wrap_nodes(self.document.xpath(xpath_selector, namespaces=nsmap),
-                          self,
-                          query_info=query_info)
+        return wrap_nodes(
+            self.document.xpath(xpath_selector, namespaces=nsmap),
+            self,
+            query_info=query_info)
 
     @property
     @wrapped_nodes

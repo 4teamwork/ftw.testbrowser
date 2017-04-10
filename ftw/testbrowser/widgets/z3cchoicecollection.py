@@ -48,7 +48,8 @@ class Z3cChoiceCollection(PloneWidget):
 
         for value in values:
             input = lxml.etree.SubElement(
-                self.node, 'input', type='hidden', name=input_name, value=value)
+                self.node, 'input', type='hidden', name=input_name,
+                value=value)
 
     @property
     def fieldname(self):

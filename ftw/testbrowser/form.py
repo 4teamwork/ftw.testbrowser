@@ -113,8 +113,8 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
-        to_unicode = (lambda val: isinstance(val, str)
-                      and val.decode('utf-8') or val)
+        to_unicode = (lambda val: isinstance(val, str) and
+                      val.decode('utf-8') or val)
         values = dict(map(lambda item: map(to_unicode, item), values.items()))
 
         widgets = []
@@ -207,7 +207,8 @@ class Form(NodeWrapper):
 
         extra_values = None
         if button and button.attrib.get('name', None):
-            extra_values = {button.attrib['name']: button.attrib.get('value', '')}
+            extra_values = {
+                button.attrib['name']: button.attrib.get('value', '')}
         return lxml.html.submit_form(self.node,
                                      extra_values=extra_values,
                                      open_http=self._submit_form)
@@ -261,8 +262,8 @@ class Form(NodeWrapper):
         """
         labels = []
         for input in self.inputs:
-            label = (input.label is not None
-                     and normalize_spaces(input.label.text))
+            label = (input.label is not None and
+                     normalize_spaces(input.label.text))
             if label:
                 labels.append(label)
             elif input.name:

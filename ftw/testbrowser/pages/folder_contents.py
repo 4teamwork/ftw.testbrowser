@@ -131,6 +131,7 @@ def row_by_path(path, browser=default_browser):
             ' Visible objects: {1}'.format(
                 path, rows.keys()))
 
+
 def table(browser=default_browser):
     """The folder contents table node.
 
