@@ -29,6 +29,7 @@ tests_require = [
     'z3c.relationfield',
     'zExceptions',
     'zope.configuration',
+    'zope.globalrequest',
     'zope.publisher',
     'zope.schema',
     ]
@@ -73,7 +74,6 @@ setup(name='ftw.testbrowser',
         'setuptools',
         'zope.component',
         'zope.deprecation',
-        'zope.globalrequest',
         'zope.interface',
         ],
 
