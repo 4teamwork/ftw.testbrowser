@@ -86,6 +86,7 @@ class Browser(object):
 
     def __init__(self):
         self.drivers = {}
+        self.default_driver = None
         self.reset()
 
     def __call__(self, app):
@@ -114,7 +115,9 @@ class Browser(object):
 
     def __enter__(self):
         if self.request_library is None:
-            if self.next_app is None:
+            if self.default_driver is not None:
+                self.request_library = self.default_driver
+            elif self.next_app is None:
                 self.request_library = LIB_REQUESTS
             else:
                 self.request_library = LIB_MECHANIZE
