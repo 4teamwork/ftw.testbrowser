@@ -4,8 +4,10 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import folder_contents
 from ftw.testbrowser.table import TableRow
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
+@all_drivers
 class TestFolderContents(FunctionalTestCase):
 
     def setUp(self):
@@ -70,8 +72,8 @@ class TestFolderContents(FunctionalTestCase):
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_title('Foo')
         self.assertEquals(
-            'More than one row with title "Foo" found: '
-            "['http://nohost/plone/foo', 'http://nohost/plone/foo-1']",
+            'More than one row with title "Foo" found: ' +
+            "['{0}/foo', '{0}/foo-1']".format(self.portal.portal_url()),
             str(cm.exception))
 
     @browsing

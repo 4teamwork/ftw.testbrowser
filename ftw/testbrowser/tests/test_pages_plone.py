@@ -2,20 +2,22 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 
 
+@all_drivers
 class TestPlonePageObject(FunctionalTestCase):
 
     @browsing
     def test_not_logged_in(self, browser):
-        browser.open('http://nohost/plone')
+        browser.open(self.portal.portal_url())
         self.assertFalse(plone.logged_in())
 
     @browsing
     def test_logged_in(self, browser):
-        browser.login().open('http://nohost/plone')
+        browser.login().open(self.portal.portal_url())
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     @browsing

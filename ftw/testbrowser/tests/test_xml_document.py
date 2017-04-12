@@ -1,7 +1,9 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
+@all_drivers
 class TestXMLDocument(FunctionalTestCase):
 
     @browsing

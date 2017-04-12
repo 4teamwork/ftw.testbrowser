@@ -1,13 +1,11 @@
 from ftw.testbrowser import browser
 from ftw.testbrowser import browsing
-from ftw.testbrowser.core import LIB_REQUESTS
-from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from unittest2 import TestCase
 
 
-class TestRefererMechanizeLib(TestCase):
-
-    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
+@all_drivers
+class TestReferer(TestCase):
 
     @browsing
     def test_no_referer_on_first_visit(self, browser):
@@ -51,9 +49,3 @@ class TestRefererMechanizeLib(TestCase):
     def assert_referer(self, expected):
         self.assertEquals(expected,
                           browser.json['HEADERS'].get('REFERER', ''))
-
-
-class TestRefererRequestsLib(TestRefererMechanizeLib):
-
-    def setUp(self):
-        browser.request_library = LIB_REQUESTS

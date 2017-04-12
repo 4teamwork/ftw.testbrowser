@@ -2,9 +2,11 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.table import colspan_padded_text
 from ftw.testbrowser.table import TableCell
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from operator import attrgetter
 
 
+@all_drivers
 class TestTables(FunctionalTestCase):
 
     @browsing
@@ -289,6 +291,7 @@ class TestTables(FunctionalTestCase):
              'padded': colspan_padded_text(foot_row)})
 
 
+@all_drivers
 class TestTableRow(FunctionalTestCase):
 
     @browsing
@@ -386,6 +389,7 @@ class TestTableRow(FunctionalTestCase):
             table.column('Calories'))
 
 
+@all_drivers
 class TestTableCell(FunctionalTestCase):
 
     @browsing

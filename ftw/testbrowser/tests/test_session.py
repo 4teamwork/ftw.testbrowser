@@ -1,11 +1,13 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 
 
+@all_drivers
 class TestBrowserSession(FunctionalTestCase):
 
     @browsing
@@ -31,4 +33,4 @@ class TestBrowserSession(FunctionalTestCase):
     def test_previous_url_is_set_on_link_click(self, browser):
         browser.open()
         browser.find('Log in').click()
-        self.assertEquals('http://nohost/plone', browser.previous_url)
+        self.assertEquals(self.portal.portal_url(), browser.previous_url)

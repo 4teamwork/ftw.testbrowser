@@ -5,18 +5,17 @@ from ftw.testbrowser.form import Form
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
-from ftw.testbrowser.testing import BROWSER_FUNCTIONAL_TESTING
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.widgets.base import PloneWidget
-from plone.app.testing import PLONE_FUNCTIONAL_TESTING
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from unittest2 import TestCase
 import lxml.html
 
 
+@all_drivers
 class TestBrowserForms(FunctionalTestCase):
 
     @browsing
@@ -122,7 +121,8 @@ class TestBrowserForms(FunctionalTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
-        self.assertEquals('http://nohost/plone/the-page/view', browser.url)
+        self.assertEquals(browser.url,
+                          self.portal.portal_url() + '/the-page/view')
 
     @browsing
     def test_find_submit_buttons(self, browser):
@@ -204,9 +204,8 @@ class TestBrowserForms(FunctionalTestCase):
         self.assertEquals(url, form.action_url)
 
 
-class TestSubmittingForms(TestCase):
-
-    layer = BROWSER_FUNCTIONAL_TESTING
+@all_drivers
+class TestSubmittingForms(FunctionalTestCase):
 
     @browsing
     def test_should_send_default_submit_button_value(self, browser):
@@ -237,8 +236,8 @@ class TestSubmittingForms(TestCase):
                            'formmethod': 'GET',
                            'submit-button': 'Submit'}, browser.json)
         self.assertEquals(
-            'http://nohost/plone/test-form-result?formmethod=GET'
-            '&atext=foo&submit-button=Submit',
+            '{}/test-form-result?formmethod=GET&atext=foo&submit-button=Submit'
+            .format(self.portal.portal_url()),
             browser.url)
 
     @browsing
@@ -265,7 +264,7 @@ class TestSubmittingForms(TestCase):
     def test_find_submit_button_tag_click(self, browser):
         browser.open()
         browser.parse(
-            '<form action="http://nohost/plone">'
+            '<form action="{}">'.format(self.portal.portal_url()) +
             '<button type="submit">blubb</button>'
             '</form>')
         form = browser.forms['form-0']
@@ -280,9 +279,8 @@ class TestSubmittingForms(TestCase):
                            'novalue-button': ''}, browser.json)
 
 
-class TestSelectField(TestCase):
-
-    layer = PLONE_FUNCTIONAL_TESTING
+@all_drivers
+class TestSelectField(FunctionalTestCase):
 
     @browsing
     def test_select_value(self, browser):

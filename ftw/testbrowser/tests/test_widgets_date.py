@@ -1,9 +1,11 @@
 from datetime import date
 from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 
 
+@all_drivers
 class TestDateWidget(FunctionalTestCase):
 
     @browsing

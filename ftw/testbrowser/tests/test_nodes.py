@@ -3,12 +3,14 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.form import Form
 from ftw.testbrowser.nodes import LinkNode
-from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import Nodes
+from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
+@all_drivers
 class TestNodesResultSet(FunctionalTestCase):
 
     @browsing
@@ -266,6 +268,7 @@ class TestNodesResultSet(FunctionalTestCase):
             'Reversing a "Nodes" object should not change it\'s type.')
 
 
+@all_drivers
 class TestNodeWrappers(FunctionalTestCase):
 
     def test_reference_to_browser(self):
@@ -680,6 +683,7 @@ class TestNodeWrappers(FunctionalTestCase):
             browser.css('#text').first.normalized_outerHTML)
 
 
+@all_drivers
 class TestNodeComparison(FunctionalTestCase):
 
     @browsing
@@ -698,6 +702,7 @@ class TestNodeComparison(FunctionalTestCase):
                              'Different elements should be different.')
 
 
+@all_drivers
 class TestLinkNode(FunctionalTestCase):
 
     @browsing
@@ -722,6 +727,7 @@ class TestLinkNode(FunctionalTestCase):
             str(cm.exception))
 
 
+@all_drivers
 class TestDefinitionListNode(FunctionalTestCase):
 
     @browsing

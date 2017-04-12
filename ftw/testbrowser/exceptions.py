@@ -58,7 +58,7 @@ class NoElementFound(BrowserException):
 
 
 class ZServerRequired(BrowserException):
-    """The `webdav` method can only be used with a running ZServer.
+    """The requests driver can only be used with a running ZServer.
     Use the `plone.app.testing.PLONE_ZSERVER` testing layer.
     """
 

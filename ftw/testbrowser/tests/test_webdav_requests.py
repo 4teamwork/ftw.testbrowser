@@ -1,12 +1,13 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.testing import MECHANIZE_TESTING
+from ftw.testbrowser.testing import REQUESTS_TESTING
 from ftw.testbrowser.tests import FunctionalTestCase
 
 
 class TestWebdavRequests(FunctionalTestCase):
-    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
+    layer = REQUESTS_TESTING
 
     @browsing
     def test_login_works(self, browser):
@@ -34,6 +35,7 @@ class TestWebdavRequests(FunctionalTestCase):
 
 
 class TestNoZserverWebdavRequests(FunctionalTestCase):
+    layer = MECHANIZE_TESTING
 
     @browsing
     def test_webdav_requires_zserver(self, browser):
