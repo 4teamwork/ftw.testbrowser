@@ -69,6 +69,30 @@ automatic driver selection:
     browser.default_driver = LIB_REQUESTS
 
 
+When using the testbrowser in a ``plone.testing`` layer, the driver can be
+chosen by using a standard ``plone.testing`` fixture:
+
+.. code:: py
+
+    from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
+    from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
+    from plone.app.testing import PLONE_FIXTURE
+    from plone.app.testing import FunctionalTesting
+
+
+    MY_FUNCTIONAL_TESTING_WITH_MECHANIZE = FunctionalTesting(
+        bases=(PLONE_FIXTURE,
+               MECHANIZE_BROWSER_FIXTURE),
+        name='functional:mechanize')
+
+    MY_FUNCTIONAL_TESTING_WITH_REQUESTS = FunctionalTesting(
+        bases=(PLONE_FIXTURE,
+               REQUESTS_BROWSER_FIXTURE),
+        name='functional:requests')
+
+
+
+
 Visit pages
 ===========
 
