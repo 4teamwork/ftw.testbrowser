@@ -194,7 +194,7 @@ class TestBrowserForms(FunctionalTestCase):
         url = self.layer['portal'].absolute_url() + '/folder_contents'
 
         browser.login(SITE_OWNER_NAME).open(url)
-        browser.open_html(
+        browser.parse(
             '<html>'
             ' <form id="form"></form>'
             '</html>')
@@ -263,7 +263,8 @@ class TestSubmittingForms(TestCase):
 
     @browsing
     def test_find_submit_button_tag_click(self, browser):
-        browser.open_html(
+        browser.open()
+        browser.parse(
             '<form action="http://nohost/plone">'
             '<button type="submit">blubb</button>'
             '</form>')
@@ -413,5 +414,3 @@ class TestSelectField(TestCase):
             '</form>')
         form = browser.fill({'text': 'some text'})
         self.assertEqual({'text': 'some text'}, dict(form.values))
-
-
