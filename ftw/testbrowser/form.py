@@ -8,6 +8,7 @@ from mechanize._form import MimeWriter
 from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
+import pkg_resources
 import shutil
 import urllib
 import urlparse
@@ -353,6 +354,13 @@ class Form(NodeWrapper):
                               'form-data; name="%s"' % fieldname, 1)
                 f = mw2.startbody(prefix=0)
                 f.write(value)
+
+        if pkg_resources.get_distribution('lxml').version >= '3.6.1':
+            # Since lxml 3.6.1 the lxml.html.form_values no longer include
+            # "file"-inputs, therefore we need to treat them as extra values.
+            for field in self.inputs:
+                if getattr(field, 'type', None) == 'file':
+                    field.write_mime_data(mw)
 
         mw.lastpart()
         value = data.getvalue()
