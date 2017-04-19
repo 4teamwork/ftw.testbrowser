@@ -1,3 +1,4 @@
+from ftw.testbrowser.drivers.utils import isolated
 from ftw.testbrowser.drivers.utils import remembering_for_reload
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -5,8 +6,6 @@ from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from mechanize import Request
 from requests.structures import CaseInsensitiveDict
-from zope.globalrequest import getRequest
-from zope.globalrequest import setRequest
 from zope.interface import implements
 import pkg_resources
 import urllib
@@ -40,9 +39,9 @@ class MechanizeDriver(object):
         self.previous_make_request = None
 
     @remembering_for_reload
+    @isolated
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):
-        preserved_request = getRequest()
 
         data = self._prepare_post_data(data)
         request = Request(url, data)
@@ -58,7 +57,6 @@ class MechanizeDriver(object):
         except:
             self.response = None
             raise
-        setRequest(preserved_request)
         return self.response
 
     def reload(self):
