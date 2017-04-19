@@ -1,4 +1,5 @@
-from collective.z3cform.datagridfield import DictRow, DataGridFieldFactory
+from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield import DictRow
 from datetime import date
 from datetime import datetime
 from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
@@ -6,6 +7,7 @@ from plone.formwidget.contenttree import MultiContentTreeFieldWidget
 from plone.formwidget.contenttree import PathSourceBinder
 from plone.formwidget.contenttree import UUIDSourceBinder
 from plone.i18n.normalizer import idnormalizer
+from plone.uuid.interfaces import IUUID
 from plone.z3cform.layout import FormWrapper
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
@@ -156,6 +158,7 @@ class ShoppingForm(Form):
             if isinstance(value, (datetime, date)):
                 value = value.isoformat()
 
+            value = IUUID(value, value)
             self.result_data[key] = value
 
 
