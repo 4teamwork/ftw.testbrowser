@@ -1,4 +1,7 @@
 from ftw.testbrowser.core import Browser
+from ftw.testbrowser.core import LIB_MECHANIZE
+from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.drivers.layers import DefaultDriverFixture
 
 
 #: The singleton browser instance acting as default browser.
@@ -32,3 +35,10 @@ def browsing(func):
             return func(self, *args, **kwargs)
     test_function.__name__ = func.__name__
     return test_function
+
+
+#: A plone.testing layer which sets the default driver to Mechanize.
+MECHANIZE_BROWSER_FIXTURE = DefaultDriverFixture(LIB_MECHANIZE)
+
+#: A plone.testing layer which sets the default driver to Requests.
+REQUESTS_BROWSER_FIXTURE = DefaultDriverFixture(LIB_REQUESTS)
