@@ -5,7 +5,7 @@ Changelog
 1.26.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add Plone 5.1 support. [jone, maethu]
 
 
 1.26.2 (2017-08-14)
@@ -107,7 +107,6 @@ Changelog
 1.21.0 (2017-04-19)
 -------------------
 
-- Add Plone 5.1 support. [jone]
 - Make ``zope.globalrequest`` support optional. [jone]
 - Add testing layers for setting the default driver. [jone]
 - Add ``default_driver`` option to the driver. [jone]
