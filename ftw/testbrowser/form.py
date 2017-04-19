@@ -375,12 +375,20 @@ class TextAreaField(NodeWrapper):
         if self.node.label is not None:
             return
 
-        if not self.attrib.get('id', None):
+        if self.attrib.get('id', None):
+            # Tinymce with dexterity has not the same label "for" as ids
+            # on the textarea.
+            for_attribute = self.attrib['id'].replace('.', '-')
+
+        elif self.attrib.get('name', None):
+            # TinyCME in Plone 5 has a even wronger structure, the textarea has
+            # no id attr at all.
+            for_attribute = self.attrib['name'].replace('.', '-')
+            self.attrib['id'] = for_attribute
+
+        else:
             return
 
-        # Tinymce with dexterity has not the same label "for" as ids
-        # on the textarea.
-        for_attribute = self.attrib['id'].replace('.', '-')
         label = self.body.xpath('//label[@for="%s"]' % for_attribute)
         if len(label) > 0:
             self.node.label = label.first.node
