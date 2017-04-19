@@ -296,16 +296,16 @@ class TestBrowserCore(BrowserTestCase):
         browser.open(view='login_form').fill(
             {'Login Name': TEST_USER_NAME,
              'Password': TEST_USER_PASSWORD}).submit()
-        self.assertTrue(browser.css('#user-name'))
+        self.assertTrue(plone.logged_in())
 
         with browser.clone() as subbrowser:
             subbrowser.open()
-            self.assertTrue(subbrowser.css('#user-name'))
+            self.assertTrue(plone.logged_in(subbrowser))
             subbrowser.find('Log out').click()
-            self.assertFalse(subbrowser.css('#user-name'))
+            self.assertFalse(plone.logged_in(subbrowser))
 
         browser.reload()
-        self.assertTrue(browser.css('#user-name'))
+        self.assertTrue(plone.logged_in())
 
     @browsing
     def test_cloning_a_browser_copies_headers(self, browser):
