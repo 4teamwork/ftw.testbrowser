@@ -47,6 +47,26 @@ a new browser and to set it up manually:
    browser manually will not set it as global browser and page objects / forms will
    not be able to access it!
 
+Choosing the default driver
+---------------------------
+
+The default driver is chosen automatically, depending on whether the browser is
+set up with a zope app (=> ``LIB_MECHANIZE``) or not (=> ``LIB_REQUESTS``).
+The default driver can be changed on the browser instance, overriding the
+automatic driver selection:
+
+.. code:: py
+
+    from ftw.testbrowser.core import Browser
+    from ftw.testbrowser.core import LIB_MECHANIZE
+    from ftw.testbrowser.core import LIB_REQUESTS
+
+    browser = Browser()
+    # always use mechanize:
+    browser.default_driver = LIB_MECHANIZE
+
+    # or always use requests:
+    browser.default_driver = LIB_REQUESTS
 
 
 Visit pages

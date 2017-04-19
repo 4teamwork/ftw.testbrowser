@@ -5,6 +5,7 @@ Changelog
 1.20.1 (unreleased)
 -------------------
 
+- Add ``default_driver`` option to the driver. [jone]
 - Refactoring: introduce request drivers. [jone]
 
 
