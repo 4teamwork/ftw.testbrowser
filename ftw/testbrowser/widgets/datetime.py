@@ -1,5 +1,6 @@
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+import json
 
 
 @widget
@@ -50,3 +51,27 @@ class DateTimeWidget(PloneWidget):
             return None
         else:
             return self.css(xpr).first
+
+
+@widget
+class PaternslibDateTimeWidget(PloneWidget):
+    """Represents the z3cform paternslib datetime widget.
+    """
+
+    field_selector = '>input[data-pat-pickadate]'
+
+    @staticmethod
+    def match(node):
+        if not PloneWidget.match(node):
+            return False
+
+        return len(node.css(PaternslibDateTimeWidget.field_selector)) == 1
+
+    def fill(self, value):
+        field = self.css(PaternslibDateTimeWidget.field_selector).first
+        config = json.loads(field.attrib['data-pat-pickadate'])
+
+        if config.get('time'):
+            field.set('value', value.strftime('%Y-%m-%d %H:%M'))
+        else:
+            field.set('value', value.strftime('%Y-%m-%d'))
