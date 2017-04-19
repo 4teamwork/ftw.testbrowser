@@ -6,6 +6,11 @@ version = '1.27.1.dev0'
 
 
 tests_require = [
+    'Plone',
+    'Products.CMFCore',
+    'Products.CMFPlone',
+    'Products.GenericSetup',
+    'Products.statusmessages',
     'collective.z3cform.datagridfield',
     'ftw.builder',
     'ftw.testing',
@@ -18,10 +23,6 @@ tests_require = [
     'plone.formwidget.contenttree',
     'plone.i18n',
     'plone.z3cform',
-    'Products.CMFCore',
-    'Products.CMFPlone',
-    'Products.GenericSetup',
-    'Products.statusmessages',
     'transaction',
     'unittest2',
     'z3c.form',
