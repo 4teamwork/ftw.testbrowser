@@ -3,9 +3,10 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
-from plone.app.testing import SITE_OWNER_NAME
+from unittest import skipUnless
 
 
 @all_drivers
@@ -77,6 +78,7 @@ class TestDexterityForms(BrowserTestCase):
         self.sync_transaction()
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
+    @skipUnless(IS_PLONE_4, 'Relation fields in Plone5 does not have radio buttons')
     @browsing
     def test_radio_button_values_are_preserved(self, browser):
         self.grant('Manager')
