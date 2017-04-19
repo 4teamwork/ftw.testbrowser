@@ -4,6 +4,7 @@ from copy import deepcopy
 from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
+from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -45,6 +46,9 @@ else:
     from plone.app.testing import TEST_USER_PASSWORD
 
 
+#: Constant for choosing the mechanize library (interally dispatched requests)
+LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
+
 #: Constant for choosing the requests library (actual requests)
 LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
 
@@ -59,6 +63,7 @@ LIB_STATIC = StaticDriver.LIBRARY_NAME
 #: This design is historical so that the library constants
 #: keep working. This mapping may be monkey patched.
 DRIVER_FACTORIES = {
+    TraversalDriver.LIBRARY_NAME: TraversalDriver,
     MechanizeDriver.LIBRARY_NAME: MechanizeDriver,
     RequestsDriver.LIBRARY_NAME: RequestsDriver,
     StaticDriver.LIBRARY_NAME: StaticDriver}

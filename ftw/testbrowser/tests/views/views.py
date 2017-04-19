@@ -81,3 +81,16 @@ class TestAsset(BrowserView):
 
         with open(path, 'rb') as file_:
             return file_.read()
+
+
+class TestRedirectToPortal(BrowserView):
+
+    def __call__(self):
+        portal_url = getToolByName(self.context, 'portal_url')()
+        return self.request.response.redirect(portal_url)
+
+
+class TestRedirectLoop(BrowserView):
+
+    def __call__(self):
+        return self.request.response.redirect(self.request['ACTUAL_URL'])

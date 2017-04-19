@@ -60,6 +60,7 @@ automatic driver selection:
     from ftw.testbrowser.core import Browser
     from ftw.testbrowser.core import LIB_MECHANIZE
     from ftw.testbrowser.core import LIB_REQUESTS
+    from ftw.testbrowser.core import LIB_TRAVERSAL
 
     browser = Browser()
     # always use mechanize:
@@ -67,6 +68,9 @@ automatic driver selection:
 
     # or always use requests:
     browser.default_driver = LIB_REQUESTS
+
+    # or use traversal in the same transactions with same connection:
+    browser.default_driver = LIB_TRAVERSAL
 
 
 When using the testbrowser in a ``plone.testing`` layer, the driver can be
@@ -76,6 +80,7 @@ chosen by using a standard ``plone.testing`` fixture:
 
     from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
     from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
+    from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
     from plone.app.testing import PLONE_FIXTURE
     from plone.app.testing import FunctionalTesting
 
@@ -89,6 +94,11 @@ chosen by using a standard ``plone.testing`` fixture:
         bases=(PLONE_FIXTURE,
                REQUESTS_BROWSER_FIXTURE),
         name='functional:requests')
+
+    MY_FUNCTIONAL_TESTING_WITH_TRAVERSAL = FunctionalTesting(
+        bases=(PLONE_FIXTURE,
+               TRAVERSAL_BROWSER_FIXTURE),
+        name='functional:traversal')
 
 
 

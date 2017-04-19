@@ -94,6 +94,17 @@ class ContextNotFound(BrowserException):
         Exception.__init__(self, message)
 
 
+class RedirectLoopException(BrowserException):
+    """The server returned a redirect response that would lead to
+    an infinite redirect loop.
+    """
+
+    def __init__(self, url):
+        message = re.sub(r'\s+', ' ', self.__doc__.strip())
+        message += '\nURL: {}'.format(url)
+        Exception.__init__(self, message)
+
+
 class HTTPError(IOError):
     """The request has failed.
 
