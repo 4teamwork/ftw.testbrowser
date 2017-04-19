@@ -3,10 +3,12 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
 from plone.app.testing import SITE_OWNER_NAME
 
 
+@all_drivers
 class TestDexterityForms(FunctionalTestCase):
 
     @browsing
@@ -25,7 +27,9 @@ class TestDexterityForms(FunctionalTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
-        self.assertEquals('http://nohost/plone/the-page/view', browser.url)
+        self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
+                                    'the-page/view')),
+                          browser.url)
 
     @browsing
     def test_fill_umlauts(self, browser):
@@ -42,12 +46,14 @@ class TestDexterityForms(FunctionalTestCase):
         browser.fill({'Title': u'Page',
                       'Exclude from navigation': True}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
         browser.find('Edit').click()
         browser.fill({'Title': 'New Title',
                              'Exclude from navigation': False}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertFalse(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
     @browsing
@@ -58,11 +64,13 @@ class TestDexterityForms(FunctionalTestCase):
         browser.fill({'Title': u'Page',
                       'Exclude from navigation': True}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
         browser.find('Edit').click()
         browser.fill({'Title': 'New Title'}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
     @browsing
@@ -71,6 +79,7 @@ class TestDexterityForms(FunctionalTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': u'Page used as relation'}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         relation = browser.context
 
         browser.open()
@@ -79,11 +88,13 @@ class TestDexterityForms(FunctionalTestCase):
                       'Relation-List': [relation],
                       'Relation-Choice': relation}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertEqual(relation, browser.context.relation_choice.to_object)
         self.assertEqual(relation, browser.context.relation_list[0].to_object)
 
         browser.find('Edit').click()
         browser.fill({'Title': u'New Title'}).save()
         statusmessages.assert_no_error_messages()
+        self.sync_transaction()
         self.assertEqual(relation, browser.context.relation_choice.to_object)
         self.assertEqual(relation, browser.context.relation_list[0].to_object)

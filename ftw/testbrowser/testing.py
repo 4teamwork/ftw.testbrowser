@@ -2,6 +2,8 @@ from ftw.builder.content import register_dx_content_builders
 from ftw.builder.testing import BUILDER_LAYER
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
+from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
+from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import PLONE_FIXTURE
@@ -44,12 +46,18 @@ class BrowserLayer(PloneSandboxLayer):
 
 
 BROWSER_FIXTURE = BrowserLayer()
-BROWSER_FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(BROWSER_FIXTURE,
-           set_builder_session_factory(functional_session_factory)),
-    name="ftw.testbrowser:functional")
-BROWSER_ZSERVER_FUNCTIONAL_TESTING = FunctionalTesting(
+
+MECHANIZE_TESTING = FunctionalTesting(
     bases=(BROWSER_FIXTURE,
            set_builder_session_factory(functional_session_factory),
-           PLONE_ZSERVER),
-    name="ftw.testbrowser:functional:zserver")
+           MECHANIZE_BROWSER_FIXTURE),
+    name='ftw.testbrowser:functional:mechanize')
+
+REQUESTS_TESTING = FunctionalTesting(
+    bases=(BROWSER_FIXTURE,
+           set_builder_session_factory(functional_session_factory),
+           PLONE_ZSERVER,
+           REQUESTS_BROWSER_FIXTURE),
+    name='ftw.testbrowser:functional:requests')
+
+DEFAULT_TESTING = MECHANIZE_TESTING

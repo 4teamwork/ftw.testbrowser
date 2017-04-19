@@ -2,12 +2,14 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testing import staticuid
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 import transaction
 
 
+@all_drivers
 class TestDexterityDataGridWidget(FunctionalTestCase):
 
     @browsing

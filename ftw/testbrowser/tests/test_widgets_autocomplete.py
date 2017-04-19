@@ -1,9 +1,11 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 from urlparse import urljoin
 
 
+@all_drivers
 class TestBrowserZ3CForms(FunctionalTestCase):
 
     @browsing

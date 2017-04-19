@@ -2,11 +2,13 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.interfaces import IDriver
+from ftw.testbrowser.testing import DEFAULT_TESTING
 from ftw.testbrowser.tests import FunctionalTestCase
 from zope.interface.verify import verifyClass
 
 
 class TestRequestsDriverImplementation(FunctionalTestCase):
+    layer = DEFAULT_TESTING
 
     def test_implements_interface(self):
         verifyClass(IDriver, RequestsDriver)

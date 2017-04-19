@@ -1,53 +1,50 @@
-from Products.CMFCore.utils import getToolByName
-from StringIO import StringIO
 from ftw.builder import Builder
 from ftw.builder import create
-from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
-from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
-from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
+from ftw.testbrowser.tests.alldrivers import all_drivers
+from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from plone.app.testing import login
-from plone.app.testing import setRoles
+from Products.CMFCore.utils import getToolByName
+from StringIO import StringIO
 from zope.publisher.browser import BrowserView
 
 
-class TestMechanizeBrowserRequests(FunctionalTestCase):
+@all_drivers
+class TestBrowserRequests(FunctionalTestCase):
 
     def setUp(self):
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ['Manager'])
-        login(portal, TEST_USER_NAME)
-        self.json_view_url = portal.absolute_url() + '/test-form-result'
+        super(TestBrowserRequests, self).setUp()
+        self.grant('Manager')
+        self.json_view_url = self.portal.absolute_url() + '/test-form-result'
 
     @browsing
     def test_get_request(self, browser):
-        browser.open('http://nohost/plone')
-        self.assertEquals('http://nohost/plone', browser.url)
+        browser.open(self.portal.portal_url())
+        self.assertEquals(self.portal.portal_url(), browser.url)
 
     @browsing
     def test_open_with_view_only(self, browser):
         browser.open(view='login_form')
-        self.assertEquals('http://nohost/plone/login_form', browser.url)
+        self.assertEquals(self.portal.portal_url() + '/login_form', browser.url)
 
     @browsing
     def test_open_site_root_by_default(self, browser):
         browser.open()
-        self.assertEquals('http://nohost/plone', browser.url)
+        self.assertEquals(self.portal.portal_url(), browser.url)
 
     @browsing
     def test_post_request(self, browser):
-        browser.open('http://nohost/plone/login_form')
+        browser.open(self.portal.portal_url() + '/login_form')
         self.assertFalse(plone.logged_in())
 
-        browser.open('http://nohost/plone/login_form',
+        browser.open(self.portal.portal_url() + '/login_form',
                      {'__ac_name': TEST_USER_NAME,
                       '__ac_password': TEST_USER_PASSWORD,
                       'form.submitted': 1})
@@ -58,6 +55,9 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
         browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
         self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
 
+    @skip_driver(LIB_REQUESTS, """
+    App-exceptions can not be passed to the tests through ``requests``.
+    """)
     @browsing
     def test_exceptions_are_passed_to_test(self, browser):
         class FailingView(BrowserView):
@@ -73,14 +73,15 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
     def test_visit_object(self, browser):
         folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder)
-        self.assertEquals('http://nohost/plone/test-folder', browser.url)
+        self.assertEquals(self.portal.portal_url() + '/test-folder', browser.url)
 
     @browsing
     def test_visit_view_on_object(self, browser):
         folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder, view='folder_contents')
-        self.assertEquals('http://nohost/plone/test-folder/folder_contents',
-                          browser.url)
+        self.assertEquals(
+            self.portal.portal_url() + '/test-folder/folder_contents',
+            browser.url)
 
     @browsing
     def test_on_opens_a_page(self, browser):
@@ -286,7 +287,9 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
     @browsing
     def test_response_contenttype(self, browser):
         browser.open()
-        self.assertEquals('text/html; charset=utf-8', browser.contenttype)
+        self.assertIn(browser.contenttype,
+                      ('text/html;charset=utf-8',
+                       'text/html; charset=utf-8'))
 
         browser.open(self.json_view_url, data={'foo': 'bar'})
         self.assertEquals('application/json', browser.contenttype)
@@ -307,62 +310,8 @@ class TestMechanizeBrowserRequests(FunctionalTestCase):
         browser.open(self.json_view_url, data={'foo': 'bar'})
         self.assertEquals(None, browser.encoding)
 
-
-class TestRequestslibBrowserRequests(FunctionalTestCase):
-    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
-
-    def setUp(self):
-        portal = self.layer['portal']
-        self.json_view_url = portal.absolute_url() + '/test-form-result'
-
     @browsing
-    def test_open_supports_choosing_library_when_doing_request(self, browser):
-        browser.open(library=LIB_MECHANIZE)
-        self.assertEquals('MechanizeDriver',
-                          type(browser.get_driver()).__name__)
-
-        browser.open(library=LIB_REQUESTS)
-        self.assertEquals('RequestsDriver',
-                          type(browser.get_driver()).__name__)
-
-    @browsing
-    def test_visit_supports_choosing_library_when_doing_request(self, browser):
-        browser.visit(library=LIB_MECHANIZE)
-        self.assertEquals('MechanizeDriver',
-                          type(browser.get_driver()).__name__)
-
-        browser.visit(library=LIB_REQUESTS)
-        self.assertEquals('RequestsDriver',
-                          type(browser.get_driver()).__name__)
-
-    @browsing
-    def test_url_with_requests_libr(self, browser):
-        browser.open(library=LIB_REQUESTS)
-        self.assertEquals(self.layer['portal'].absolute_url(),
-                          browser.url)
-
-    def test_no_browser_setup_uses_requests_library(self):
-        with Browser() as browser:
-            browser.open(self.layer['portal'].absolute_url())
-            self.assertEquals('RequestsDriver',
-                              type(browser.get_driver()).__name__)
-
-    def test_form_submitting_with_requests_library(self):
-        with Browser() as browser:
-            browser.visit(view='test-form')
-            browser.css('#test-form').first.submit()
-            self.assertEquals({'textfield': '',
-                               'submit-button': 'Submit'}, browser.json)
-
-    @browsing
-    def test_post_request_with_umlauts(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
-        self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
-
-    @browsing
-    def test_requests_library_keeps_cookies_in_session(self, browser):
-        browser.request_library = LIB_REQUESTS
+    def test_keeps_cookies_in_session(self, browser):
         browser.open(view='login_form')
         self.assertEquals(0, len(browser.cookies))
 
@@ -380,50 +329,7 @@ class TestRequestslibBrowserRequests(FunctionalTestCase):
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
     @browsing
-    def test_append_request_header(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open()
-        self.assertFalse(plone.logged_in())
-
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
-        browser.open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
-
-        browser.open()  # reload
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
-
-    @browsing
-    def test_replace_request_header(self, browser):
-        browser.request_library = LIB_REQUESTS
-        hugo = create(Builder('user').named('Hugo', 'Boss'))
-        john = create(Builder('user').named('John', 'Doe'))
-
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((hugo.getId(), TEST_USER_PASSWORD)).encode('base64')))
-        browser.open()
-        self.assertEquals('Boss Hugo', plone.logged_in())
-
-        browser.replace_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((john.getId(), TEST_USER_PASSWORD)).encode('base64')))
-        browser.open()
-        self.assertEquals('Doe John', plone.logged_in())
-
-    @browsing
-    def test_clear_request_header_with_header_selection(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
-        browser.open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
-
-        browser.clear_request_header('Authorization')
-        browser.open()
-        self.assertFalse(plone.logged_in())
-
-    @browsing
     def test_login_and_logout(self, browser):
-        browser.request_library = LIB_REQUESTS
         browser.open()
         self.assertFalse(plone.logged_in())
 
@@ -432,58 +338,3 @@ class TestRequestslibBrowserRequests(FunctionalTestCase):
 
         browser.logout().open()
         self.assertFalse(plone.logged_in())
-
-    @browsing
-    def test_reload_GET_request(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(view='login_form')
-        browser.fill({'Login Name': 'the-user-id'})
-        self.assertDictContainsSubset(
-            {'__ac_name': 'the-user-id'},
-            dict(browser.forms['login_form'].values))
-
-        browser.reload()
-        self.assertDictContainsSubset(
-            {'__ac_name': ''},
-            dict(browser.forms['login_form'].values))
-
-    @browsing
-    def test_reload_POST_reqest(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.visit(view='test-form')
-        browser.fill({'Text field': 'Some Value'}).submit()
-        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
-        browser.reload()
-        self.assertDictContainsSubset({'textfield': 'Some Value'}, browser.json)
-
-    @browsing
-    def test_fill_and_submit_multi_select_form(self, browser):
-        browser.open(library=LIB_REQUESTS)
-        browser.parse(
-            '\n'.join(('<form action="{0}">'.format(self.json_view_url),
-                       '<select name="selectfield" multiple="multiple">',
-                       '<option>Foo</option>',
-                       '<option>Bar</option>',
-                       '<option>Baz</option>',
-                       '</select>')))
-        browser.fill({'selectfield': ['Foo', 'Baz']}).submit()
-        self.assertDictContainsSubset(
-            {u'selectfield': [u'Foo', u'Baz']},
-            browser.json)
-
-    @browsing
-    def test_support_multi_value_data_as_dict_with_list_values(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(self.json_view_url, data={'values': ['Foo', 'Bar']})
-        self.assertDictContainsSubset(
-            {u'values': [u'Foo', u'Bar']},
-            browser.json)
-
-    @browsing
-    def test_support_multi_value_data_as_list_with_tuples(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(self.json_view_url, data=[('values', 'Foo'),
-                                               ('values', 'Bar')])
-        self.assertDictContainsSubset(
-            {u'values': [u'Foo', u'Bar']},
-            browser.json)

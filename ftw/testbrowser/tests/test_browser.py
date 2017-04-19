@@ -4,8 +4,9 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import BROWSER_ZSERVER_FUNCTIONAL_TESTING
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
+from ftw.testbrowser.tests.alldrivers import skip_driver
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -33,17 +34,11 @@ AC_COOKIE_INFO = {'comment': None,
                   'secure': False}
 
 
+@all_drivers
 class TestBrowserCore(FunctionalTestCase):
-    layer = BROWSER_ZSERVER_FUNCTIONAL_TESTING
 
     @browsing
-    def test_contents_MECHANIZE(self, browser):
-        browser.open()
-        self.assert_starts_with('<!DOCTYPE html>', browser.contents.strip())
-
-    @browsing
-    def test_contents_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
+    def test_contents(self, browser):
         browser.open()
         self.assert_starts_with('<!DOCTYPE html>', browser.contents.strip())
 
@@ -81,13 +76,7 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertEquals('No JSON object could be decoded', str(cm.exception))
 
     @browsing
-    def test_headers_MECHANIZE(self, browser):
-        browser.open()
-        self.assertDictContainsSubset({'content-language': 'en'}, browser.headers)
-
-    @browsing
-    def test_headers_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
+    def test_headers(self, browser):
         browser.open()
         self.assertDictContainsSubset({'content-language': 'en'}, browser.headers)
 
@@ -97,7 +86,7 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertEquals({}, browser.headers)
 
     @browsing
-    def test_cookies_MECHANIZE(self, browser):
+    def test_cookies(self, browser):
         browser.open(view='login_form')
         browser.fill({'Login Name': TEST_USER_NAME,
                       'Password': TEST_USER_PASSWORD}).submit()
@@ -105,27 +94,24 @@ class TestBrowserCore(FunctionalTestCase):
                                       browser.cookies.get('__ac', None))
 
     @browsing
-    def test_cookies_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(view='login_form')
-        browser.fill({'Login Name': TEST_USER_NAME,
-                      'Password': TEST_USER_PASSWORD}).submit()
-        self.assertDictContainsSubset(AC_COOKIE_INFO,
-                                      browser.cookies.get('__ac', None))
-
-    @browsing
-    def test_url_MECHANIZE(self, browser):
+    def test_url(self, browser):
         browser.open(view='login_form')
         self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
                                     'login_form')),
                           browser.url)
 
+    @skip_driver(LIB_REQUESTS, """
+    The behavior in this situation is not consistent between mechanize
+    and requests drivers.
+    While mechanize raises a NotFound, requests treats 404s as valid responses,
+    therefore it is correct to be at this URL even when it is a 404.
+    """)
     @browsing
     def test_url_is_None_when_previous_request_had_exception(self, browser):
         browser.open()
         with self.assertRaises(NotFound):
             browser.open(view='this/path/does/not/exist')
-        self.assertIsNone(browser.url)
+            self.assertIsNone(browser.url)
 
     @browsing
     def test_base_url_is_base_url_tag(self, browser):
@@ -146,24 +132,9 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertEquals(view_url, browser.base_url)
 
     @browsing
-    def test_base_url_with_open_html(self, browser):
-        browser.open_html('<html><head>'
-                          '<base href="http://nohost/foo/bar" />'
-                          '</head></html>')
-        self.assertEquals('http://nohost/foo/bar', browser.base_url)
-
-    @browsing
     def test_base_url_is_None_when_unkown(self, browser):
         browser.open_html('<html><head></head></html>')
         self.assertIsNone(browser.base_url)
-
-    @browsing
-    def test_url_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(view='login_form')
-        self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
-                                    'login_form')),
-                          browser.url)
 
     @browsing
     def test_url_is_None_with_open_html(self, browser):
@@ -171,7 +142,7 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertIsNone(browser.url)
 
     @browsing
-    def test_cloning_copies_cookies_MECHBROWSER(self, browser):
+    def test_cloning_copies_cookies(self, browser):
         browser.open(view='login_form').fill(
             {'Login Name': TEST_USER_NAME,
              'Password': TEST_USER_PASSWORD}).submit()
@@ -187,24 +158,7 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertTrue(browser.css('#user-name'))
 
     @browsing
-    def test_cloning_copies_cookies_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.open(view='login_form').fill(
-            {'Login Name': TEST_USER_NAME,
-             'Password': TEST_USER_PASSWORD}).submit()
-        self.assertTrue(browser.css('#user-name'))
-
-        with browser.clone() as subbrowser:
-            subbrowser.open()
-            self.assertTrue(subbrowser.css('#user-name'))
-            subbrowser.find('Log out').click()
-            self.assertFalse(subbrowser.css('#user-name'))
-
-        browser.reload()
-        self.assertTrue(browser.css('#user-name'))
-
-    @browsing
-    def test_cloning_a_browser_copies_headers_MECHBROWSER(self, browser):
+    def test_cloning_a_browser_copies_headers(self, browser):
         browser.login().open()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
@@ -215,28 +169,7 @@ class TestBrowserCore(FunctionalTestCase):
             self.assertEquals(SITE_OWNER_NAME, plone.logged_in(subbrowser))
 
     @browsing
-    def test_cloning_a_browser_copies_headers_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
-        browser.login().open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
-
-        with browser.clone() as subbrowser:
-            subbrowser.open()
-            self.assertEquals(TEST_USER_ID, plone.logged_in(subbrowser))
-            subbrowser.login(SITE_OWNER_NAME).reload()
-            self.assertEquals(SITE_OWNER_NAME, plone.logged_in(subbrowser))
-
-        browser.reload()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
-
-    @browsing
-    def test_opening_preserves_global_request_MECHANIZE(self, browser):
-        browser.open()
-        self.assertIsNotNone(getRequest())
-
-    @browsing
-    def test_opening_preserves_global_request_REQUESTS(self, browser):
-        browser.request_library = LIB_REQUESTS
+    def test_opening_preserves_global_request(self, browser):
         browser.open()
         self.assertIsNotNone(getRequest())
 

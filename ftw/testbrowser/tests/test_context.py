@@ -3,8 +3,10 @@ from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
+@all_drivers
 class TestBrowserContext(FunctionalTestCase):
 
     def setUp(self):

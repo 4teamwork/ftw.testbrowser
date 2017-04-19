@@ -3,8 +3,10 @@ from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
+@all_drivers
 class TestFactoriesMenu(FunctionalTestCase):
 
     @browsing
@@ -34,7 +36,7 @@ class TestFactoriesMenu(FunctionalTestCase):
         self.grant('Manager')
         browser.login().open()
         factoriesmenu.add('Folder')
-        self.assertEquals('http://nohost/plone/++add++Folder', browser.url)
+        self.assertEquals(self.portal.portal_url() + '/++add++Folder', browser.url)
 
     @browsing
     def test_adding_unallowed_or_missing_type(self, browser):
