@@ -8,6 +8,7 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
@@ -264,7 +265,11 @@ class TestBrowserCore(BrowserTestCase):
         folder_contents_url = portal_url + 'folder_contents'
 
         browser.login(SITE_OWNER_NAME).open(folder_contents_url)
-        self.assertEquals(portal_url, browser.base_url)
+        if IS_PLONE_4:
+            self.assertEquals(portal_url, browser.base_url)
+        else:
+            self.assertEquals(folder_contents_url, browser.base_url)
+
         self.assertEquals(folder_contents_url, browser.url)
 
     @browsing
