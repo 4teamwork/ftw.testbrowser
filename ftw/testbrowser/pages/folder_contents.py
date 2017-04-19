@@ -1,8 +1,21 @@
 from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.nodes import wrap_nodes
+from ftw.testbrowser.tests import IS_PLONE_4
 from operator import itemgetter
 
 
+def only_plone_4(func):
+    def wrapper(*args, **kwargs):
+        if IS_PLONE_4:
+            return func(*args, **kwargs)
+        else:
+            raise NotImplementedError('The folder_contents page object '
+                                      'is not implemented for plone 5 so'
+                                      'far, since js is not yet supported.')
+    return wrapper
+
+
+@only_plone_4
 def titles(browser=default_browser):
     """Returns all titles of the objects listed on the folder contents view.
 
@@ -14,6 +27,7 @@ def titles(browser=default_browser):
     return title_cells(browser=browser).text
 
 
+@only_plone_4
 def title_cells(browser=default_browser):
     """Returns all the cell of the title column.
 
@@ -27,6 +41,7 @@ def title_cells(browser=default_browser):
     return wrap_nodes(cells, browser=browser)
 
 
+@only_plone_4
 def dicts(browser=default_browser, **kwargs):
     """Returns the folder contents table rows as dicts, as described
     in :py:func:`ftw.testbrowser.table.Table.dicts`.
@@ -40,6 +55,7 @@ def dicts(browser=default_browser, **kwargs):
     return table(browser=browser).dicts(head_offset=1, **kwargs)
 
 
+@only_plone_4
 def select(*objects, **kwargs):
     """Selects the checkboxes on one or more rows by objects.
 
@@ -53,6 +69,7 @@ def select(*objects, **kwargs):
     select_rows([row_by_object(obj, browser=browser) for obj in objects])
 
 
+@only_plone_4
 def select_by_title(*titles, **kwargs):
     """Selects the checkboxes on one or more rows by the title of
     the objects.
@@ -67,6 +84,7 @@ def select_by_title(*titles, **kwargs):
     select_rows([row_by_title(title, browser=browser) for title in titles])
 
 
+@only_plone_4
 def select_by_path(*paths, **kwargs):
     """Selects the checkboxes on one or more rows by the path of
     the objects.
@@ -81,6 +99,7 @@ def select_by_path(*paths, **kwargs):
     select_rows([row_by_path(path, browser=browser) for path in paths])
 
 
+@only_plone_4
 def select_rows(rows):
     """Select the checkboxes of set of rows.
 
@@ -92,6 +111,7 @@ def select_rows(rows):
         checkbox.set('checked', '')
 
 
+@only_plone_4
 def row_by_title(title, browser=default_browser):
     """Returns the row for an object by its title.
 
@@ -118,6 +138,7 @@ def row_by_title(title, browser=default_browser):
                 title, urls))
 
 
+@only_plone_4
 def row_by_object(obj, browser=default_browser):
     """Returns the row for an object.
 
@@ -132,6 +153,7 @@ def row_by_object(obj, browser=default_browser):
     return row_by_path(path, browser=browser)
 
 
+@only_plone_4
 def row_by_path(path, browser=default_browser):
     """Returns the row for an object by its path.
 
@@ -152,6 +174,7 @@ def row_by_path(path, browser=default_browser):
                 path, rows.keys()))
 
 
+@only_plone_4
 def table(browser=default_browser):
     """The folder contents table node.
 
@@ -164,6 +187,7 @@ def table(browser=default_browser):
     return browser.css(selector).first
 
 
+@only_plone_4
 def form(browser=default_browser):
     """The folder contents form node.
 
@@ -175,6 +199,7 @@ def form(browser=default_browser):
     return browser.css('form[name=folderContentsForm]').first
 
 
+@only_plone_4
 def selected_paths(browser=default_browser):
     """Returns the paths of checkboxes currently selected.
 
@@ -186,6 +211,7 @@ def selected_paths(browser=default_browser):
     return tuple(form(browser=browser).values['paths:list'])
 
 
+@only_plone_4
 def rows_by_path(browser=default_browser):
     """Return a mapping of paths to row objects.
 
@@ -201,6 +227,7 @@ def rows_by_path(browser=default_browser):
     return result
 
 
+@only_plone_4
 def column_title_by_name(name, browser=default_browser):
     """Find a column title by the name of the column.
 

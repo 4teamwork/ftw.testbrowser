@@ -3,10 +3,24 @@ from ftw.builder import create
 from ftw.testbrowser.pages import folder_contents
 from ftw.testbrowser.table import TableRow
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import nondefault_browsing
+from unittest import skipIf
+from unittest import skipUnless
 
 
+@skipIf(IS_PLONE_4, 'folder_contents in plone 5 is js only.')
+@all_drivers
+class TestFolderContentsIsNotImplemented(BrowserTestCase):
+
+    def test_import_raises_notimplementederror(self):
+        with self.assertRaises(NotImplementedError):
+            from ftw.testbrowser.pages.folder_contents import titles
+            titles()
+
+
+@skipUnless(IS_PLONE_4, 'folder_contents in plone 5 is js only.')
 @all_drivers
 class TestFolderContents(BrowserTestCase):
 
