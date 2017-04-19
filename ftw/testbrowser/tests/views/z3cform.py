@@ -2,6 +2,7 @@ from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield import DictRow
 from datetime import date
 from datetime import datetime
+from OFS.interfaces import IItem
 from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.contenttree import MultiContentTreeFieldWidget
 from plone.formwidget.contenttree import PathSourceBinder
@@ -154,11 +155,6 @@ class ShoppingForm(Form):
         for key, value in data.items():
             if not value:
                 continue
-
-            if isinstance(value, (datetime, date)):
-                value = value.isoformat()
-
-            value = IUUID(value, value)
             self.result_data[key] = value
 
 
@@ -169,6 +165,23 @@ class ShoppingView(FormWrapper):
     def render(self):
         if self.form_instance.result_data:
             self.request.RESPONSE.setHeader('Content-Type', 'application/json')
-            return json.dumps(self.form_instance.result_data)
+            return json.dumps(self.make_json_serializable(
+                self.form_instance.result_data))
         else:
             return super(ShoppingView, self).render()
+
+    def make_json_serializable(self, value):
+        if isinstance(value, (datetime, date)):
+            return value.isoformat()
+
+        if IItem.providedBy(value):
+            return IUUID(value)
+
+        if isinstance(value, (list, tuple)):
+            return map(self.make_json_serializable, value)
+
+        if isinstance(value, dict):
+            return dict(zip(*map(self.make_json_serializable,
+                                 zip(*value.items()))))
+
+        return value
