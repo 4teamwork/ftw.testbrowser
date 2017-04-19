@@ -4,6 +4,7 @@ from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
 from ftw.testbrowser.widgets.base import WIDGETS
 from lxml.html import formfill
+from plone.uuid.interfaces import IUUID
 
 
 @widget
@@ -73,6 +74,7 @@ class DataGridWidget(PloneWidget):
                 return
 
         handlers = (
+            ('input[data-pat-relateditems]', self._fill_patternslib_relatedItems),
             ('input[type=text]', self._fill_text),
             ('select', self._fill_select),
             ('input[type=checkbox]', self._fill_checkbox),
@@ -98,3 +100,9 @@ class DataGridWidget(PloneWidget):
         else:
             value = ''
         return formfill._fill_multiple(node, value)
+
+    def _fill_patternslib_relatedItems(self, node, values):
+        if not isinstance(values, (list, set, tuple)):
+            values = [values]
+        values = map(IUUID, values)
+        node.value = ':'.join(values)
