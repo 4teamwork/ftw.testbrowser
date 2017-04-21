@@ -50,8 +50,8 @@ class IDriver(Interface):
         :type headers: dict
         :param referer_url: The referer URL or ``None``.
         :type referer: string or ``None``
-        :returns: Response body
-        :rtype: string
+        :returns: Status code, reason and body
+        :rtype: tuple: (int, string, string or stream)
         """
 
     def reload():
@@ -60,8 +60,8 @@ class IDriver(Interface):
         This applies for GET as well as POST requests.
 
         :raises: :py:exc:`ftw.testbrowser.exceptions.BlankPage`
-        :returns: Response body
-        :rtype: string
+        :returns: Status code, reason and body
+        :rtype: tuple: (int, string, string or stream)
         """
 
     def get_response_body():

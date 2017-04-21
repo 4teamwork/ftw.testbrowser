@@ -5,7 +5,8 @@ Changelog
 1.21.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Introduce ``browser.status_reason``. [jone]
+- Introduce ``browser.status_code``. [jone]
 
 
 1.21.0 (2017-04-19)

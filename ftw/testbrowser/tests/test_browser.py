@@ -100,6 +100,12 @@ class TestBrowserCore(FunctionalTestCase):
                                     'login_form')),
                           browser.url)
 
+    @browsing
+    def test_status_is_exposed(self, browser):
+        browser.open()
+        self.assertEquals(200, browser.status_code)
+        self.assertEquals('OK', browser.status_reason.upper())
+
     @skip_driver(LIB_REQUESTS, """
     The behavior in this situation is not consistent between mechanize
     and requests drivers.

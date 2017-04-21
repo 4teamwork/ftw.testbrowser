@@ -111,6 +111,8 @@ class Browser(object):
         self.previous_url = None
         self.form_files = {}
         self.session_headers = []
+        self._status_code = None
+        self._status_reason = None
         map(methodcaller('reset'), self.drivers.values())
 
     def __enter__(self):
@@ -216,9 +218,11 @@ class Browser(object):
 
         url = self._normalize_url(url_or_object, view=view)
         driver = self.get_driver(library)
-        self.parse(driver.make_request(method, url, data=data,
-                                       referer_url=referer_url,
-                                       headers=headers))
+        self._status_code, self._status_reason, body = driver.make_request(
+            method, url, data=data,
+            referer_url=referer_url,
+            headers=headers)
+        self.parse(body)
         return self
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
@@ -248,6 +252,8 @@ class Browser(object):
         """
         self.get_driver(LIB_STATIC).set_body(html)
         self.parse(html)
+        self._status_code = 200
+        self._status_reason = 'OK'
         return self
 
     def visit(self, *args, **kwargs):
@@ -278,8 +284,10 @@ class Browser(object):
         """
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
-        self.parse(self.get_driver(LIB_REQUESTS).make_request(
-            method, url, data=data, headers=headers))
+        driver = self.get_driver(LIB_REQUESTS)
+        self._status_code, self._status_reason, body = driver.make_request(
+            method, url, data=data, headers=headers)
+        self.parse(body)
         return self
 
     def reload(self):
@@ -292,7 +300,9 @@ class Browser(object):
         :rtype: :py:class:`ftw.testbrowser.core.Browser`
         """
         self._verify_setup()
-        self.parse(self.get_driver().reload())
+        self._status_code, self._status_reason, body = self.get_driver().reload()
+        self.parse(body)
+        return self
 
     @property
     def contents(self):
@@ -307,6 +317,25 @@ class Browser(object):
         converted JSON data as python data structure.
         """
         return json.loads(self.contents)
+
+    @property
+    def status_code(self):
+        """The status code of the last response or ``None`` when no request
+        was done yet.
+
+        :type: `int`
+        """
+        return self._status_code
+
+    @property
+    def status_reason(self):
+        """The status reason of the last response or ``None`` when no request
+        was done yet.
+        Examples: ``"OK"``, ``"Not Found"``.
+
+        :type: `string`
+        """
+        return self._status_reason
 
     @property
     def headers(self):

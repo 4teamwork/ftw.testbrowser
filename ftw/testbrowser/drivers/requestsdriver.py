@@ -42,13 +42,12 @@ class RequestsDriver(object):
             headers['HTTP_REFERER'] = referer_url
 
         with verbose_logging():
-            try:
-                self.response = self.requests_session.request(
-                    method, url, data=data, headers=headers)
-            except:
-                self.response = None
+            self.response = self.requests_session.request(
+                method, url, data=data, headers=headers)
 
-        return StringIO(self.response.content)
+            return (self.response.status_code,
+                    self.response.reason,
+                    StringIO(self.response.content))
 
     def reload(self):
         if self.previous_make_request is None:

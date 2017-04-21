@@ -57,7 +57,8 @@ class MechanizeDriver(object):
         except:
             self.response = None
             raise
-        return self.response
+
+        return self.response.code, self.response.msg, self.response
 
     def reload(self):
         if self.previous_make_request is None:
