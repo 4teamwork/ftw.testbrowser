@@ -1,6 +1,7 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
+from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
@@ -55,19 +56,37 @@ class TestBrowserRequests(FunctionalTestCase):
         browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
         self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
 
-    @skip_driver(LIB_REQUESTS, """
-    App-exceptions can not be passed to the tests through ``requests``.
-    """)
+    @skip_driver(LIB_REQUESTS, 'Exception bubbling is not supported.')
     @browsing
-    def test_exceptions_are_passed_to_test(self, browser):
+    def test_support_exception_bubbling(self, browser):
         class FailingView(BrowserView):
             def __call__(self):
                 raise ValueError('The value is wrong.')
 
         with register_view(FailingView, 'failing-view'):
+            # Excpect reguler HTTP error by default since the value error
+            # is rendered by Zope as a 500.
+            with browser.expect_http_error(code=500):
+                browser.open(view='failing-view')
+
+            # When exception bubbling is enabled we should be able to catch
+            # the value error from the rendered view.
+            browser.exception_bubbling = True
             with self.assertRaises(ValueError) as cm:
                 browser.open(view='failing-view')
-            self.assertEquals(str(cm.exception), 'The value is wrong.')
+
+            self.assertEquals('The value is wrong.', str(cm.exception))
+
+    @skip_driver(LIB_MECHANIZE, 'Exception bubbling is supported.')
+    @browsing
+    def test_unsupport_exception_bubbling(self, browser):
+        browser.exception_bubbling = True
+        with self.assertRaises(ValueError) as cm:
+            browser.open()
+
+        self.assertEquals(
+            'The requests driver does not support exception bubbling.',
+            str(cm.exception))
 
     @browsing
     def test_visit_object(self, browser):
@@ -199,6 +218,19 @@ class TestBrowserRequests(FunctionalTestCase):
 
         browser.open()  # reload
         self.assertEquals(TEST_USER_ID, plone.logged_in())
+
+    @browsing
+    def test_x_zope_handle_errors_header_is_forbidden(self, browser):
+        with self.assertRaises(ValueError) as cm:
+            browser.append_request_header('X-zope-handle-errors', 'False')
+
+        self.assertEquals(
+            'The testbrowser does no longer allow to set the request header '
+            '\'X-zope-handle-errros\'; use the exception_bubbling flag instead.',
+            str(cm.exception))
+
+        with self.assertRaises(ValueError) as cm:
+            browser.clear_request_header('X-zope-handle-errors')
 
     @browsing
     def test_replace_request_header(self, browser):

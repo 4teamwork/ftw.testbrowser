@@ -34,6 +34,10 @@ class RequestsDriver(object):
         if urlparse.urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
+        if self.browser.exception_bubbling:
+            raise ValueError('The requests driver does not support'
+                             ' exception bubbling.')
+
         if headers is None:
             headers = {}
 

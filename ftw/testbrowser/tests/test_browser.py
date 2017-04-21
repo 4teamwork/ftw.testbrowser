@@ -1,18 +1,20 @@
 from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
-from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser import HTTPClientError
+from ftw.testbrowser import HTTPServerError
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
-from ftw.testbrowser.tests.alldrivers import skip_driver
+from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from zExceptions import NotFound
+from zExceptions import BadRequest
 from zope.globalrequest import getRequest
+from zope.publisher.browser import BrowserView
 
 
 AC_COOKIE_INFO = {'comment': None,
@@ -106,18 +108,86 @@ class TestBrowserCore(FunctionalTestCase):
         self.assertEquals(200, browser.status_code)
         self.assertEquals('OK', browser.status_reason.upper())
 
-    @skip_driver(LIB_REQUESTS, """
-    The behavior in this situation is not consistent between mechanize
-    and requests drivers.
-    While mechanize raises a NotFound, requests treats 404s as valid responses,
-    therefore it is correct to be at this URL even when it is a 404.
-    """)
     @browsing
-    def test_url_is_None_when_previous_request_had_exception(self, browser):
-        browser.open()
-        with self.assertRaises(NotFound):
-            browser.open(view='this/path/does/not/exist')
-            self.assertIsNone(browser.url)
+    def test_raises_404_as_client_error(self, browser):
+        with self.assertRaises(HTTPClientError) as cm:
+            browser.open(view='missing')
+
+        self.assertEquals(404, cm.exception.status_code)
+        self.assertEquals('Not Found', cm.exception.status_reason)
+
+        with self.assertRaises(HTTPClientError):
+            browser.reload()
+
+        browser.raise_http_errors = False
+        browser.reload()
+
+    @browsing
+    def test_raises_500_as_server_error(self, browser):
+        class ViewWithError(BrowserView):
+            def __call__(self):
+                raise ValueError('The value is wrong.')
+
+        with register_view(ViewWithError, 'view-with-error'):
+            with self.assertRaises(HTTPServerError) as cm:
+                browser.open(view='view-with-error')
+
+            self.assertEquals(500, cm.exception.status_code)
+            self.assertEquals('Internal Server Error', cm.exception.status_reason)
+
+            with self.assertRaises(HTTPServerError):
+                browser.reload()
+
+            browser.raise_http_errors = False
+            browser.reload()
+
+    @browsing
+    def test_expect_http_error(self, browser):
+        class GetRecordById(BrowserView):
+            def __call__(self):
+                raise BadRequest('Missing "id" parameter.')
+
+        with register_view(GetRecordById, 'get-record-by-id'):
+            with browser.expect_http_error():
+                browser.open(view='get-record-by-id')
+
+    @browsing
+    def test_expect_http_error_raises_when_no_error_happens(self, browser):
+        with self.assertRaises(AssertionError) as cm:
+            with browser.expect_http_error():
+                browser.open()
+
+        self.assertEquals('Expected a HTTP error but it didn\'t occur.',
+                          str(cm.exception))
+
+    @browsing
+    def test_expect_http_error_and_assert_correct_status_code(self, browser):
+        with browser.expect_http_error(code=404):
+            browser.open(view='no-such-view')
+
+    @browsing
+    def test_expect_http_error_and_assert_incorrect_status_code(self, browser):
+        with self.assertRaises(AssertionError) as cm:
+            with browser.expect_http_error(code=400):
+                browser.open(view='no-such-view')
+
+        self.assertEquals('Expected HTTP error with status code 400, got 404.',
+                          str(cm.exception))
+
+    @browsing
+    def test_expect_http_error_and_assert_correct_status_reason(self, browser):
+        with browser.expect_http_error(reason='Not Found'):
+            browser.open(view='no-such-view')
+
+    @browsing
+    def test_expect_http_error_and_assert_incorrect_status_reason(self, browser):
+        with self.assertRaises(AssertionError) as cm:
+            with browser.expect_http_error(reason='Bad Request'):
+                browser.open(view='no-such-view')
+
+        self.assertEquals(
+            'Expected HTTP error with status \'Bad Request\', got \'Not Found\'.',
+            str(cm.exception))
 
     @browsing
     def test_base_url_is_base_url_tag(self, browser):
