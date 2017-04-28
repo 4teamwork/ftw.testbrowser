@@ -5,7 +5,6 @@ copyright = u'2013, 4teamwork GmbH'
 
 extensions = ['sphinx.ext.autodoc']
 master_doc = 'index'
-html_theme = 'nature'
 
 from pkg_resources import get_distribution
 version = release = get_distribution(project).version
