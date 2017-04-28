@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.21.1 (unreleased)
+1.22.0 (2017-04-28)
 -------------------
 
 - Forbid setting of "x-zope-handle-errors" header. [jone]
