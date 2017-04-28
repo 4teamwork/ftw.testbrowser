@@ -9,6 +9,7 @@ from requests.structures import CaseInsensitiveDict
 from zope.interface import implements
 import pkg_resources
 import urllib
+import urllib2
 
 
 try:
@@ -42,7 +43,6 @@ class MechanizeDriver(object):
     @isolated
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):
-
         data = self._prepare_post_data(data)
         request = Request(url, data)
         if referer_url:
@@ -50,14 +50,21 @@ class MechanizeDriver(object):
                                          {'REFERER': referer_url,
                                           'HTTP_REFERER': referer_url})
 
+        if self.browser.exception_bubbling:
+            self._add_headers_to_request(
+                request, {'X-zope-handle-errors': 'False'})
+
         self._add_headers_to_request(request, headers)
 
         try:
             self.response = self._get_mechbrowser().open(request)
+        except urllib2.HTTPError as response:
+            self.response = response
         except:
             self.response = None
             raise
-        return self.response
+
+        return self.response.code, self.response.msg, self.response
 
     def reload(self):
         if self.previous_make_request is None:
@@ -121,8 +128,6 @@ class MechanizeDriver(object):
 
         if self.mechbrowser is None:
             self.mechbrowser = Zope2MechanizeBrowser(self.browser.app)
-            self._get_mechbrowser().addheaders.append((
-                'X-zope-handle-errors', 'False'))
         return self.mechbrowser
 
     def _prepare_post_data(self, data):

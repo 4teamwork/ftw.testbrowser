@@ -92,3 +92,37 @@ class ContextNotFound(BrowserException):
         if message is None:
             message = re.sub(r'\s+', ' ', self.__doc__.strip())
         Exception.__init__(self, message)
+
+
+class HTTPError(IOError):
+    """The request has failed.
+
+    :ivar status_code: The status code number
+    :type status_code: ``int``
+    :ivar status_reasoon: The status reason.
+    :type status_reasoon: ``string``
+    """
+
+    def __init__(self, status_code, status_reason):
+        self.status_code = status_code
+        self.status_reason = status_reason
+
+
+class HTTPClientError(HTTPError):
+    """The request caused a client error with status codes 400-499.
+
+    :ivar status_code: The status code number, e.g. ``404``
+    :type status_code: ``int``
+    :ivar status_reasoon: The status reason, e.g. ``"Not Found"``
+    :type status_reasoon: ``string``
+    """
+
+
+class HTTPServerError(HTTPError):
+    """The request caused a server error with status codes 500-599.
+
+    :ivar status_code: The status code number, e.g. ``500``
+    :type status_code: ``int``
+    :ivar status_reasoon: The status reason, e.g. ``"Internal Server Error"``
+    :type status_reasoon: ``string``
+    """

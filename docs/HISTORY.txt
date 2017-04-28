@@ -5,7 +5,14 @@ Changelog
 1.21.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Forbid setting of "x-zope-handle-errors" header. [jone]
+- Add an option ``browser.exception_bubbling``, disabled by default. [jone]
+- Mechanize: no longer disable "x-zope-handle-errors". [jone]
+- Introduce ``browser.expect_http_error()`` context manager. [jone]
+- Add an option ``browser.raise_http_errors``, enabled by default. [jone]
+- Raise ``HTTPClientError`` and ``HTTPServerError`` by default. [jone]
+- Introduce ``browser.status_reason``. [jone]
+- Introduce ``browser.status_code``. [jone]
 
 
 1.21.0 (2017-04-19)

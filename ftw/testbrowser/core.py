@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from copy import deepcopy
 from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
@@ -7,6 +8,9 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.exceptions import FormFieldNotFound
+from ftw.testbrowser.exceptions import HTTPClientError
+from ftw.testbrowser.exceptions import HTTPError
+from ftw.testbrowser.exceptions import HTTPServerError
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrap_nodes
@@ -80,6 +84,15 @@ class Browser(object):
     decorator uses the global (singleton) browser and sets it up / tears it
     down using the context manager syntax. See the
     `ftw.testbrowser.browsing`_ documentation for more information.
+
+    :ivar raise_http_errors: HTTPError exceptions are raised on 4xx
+      and 5xx response codes when enabled (Default: ``True``).
+    :type raise_http_errors: ``bool``
+
+    :ivar exception_bubbling: When enabled, exceptions from within the Zope
+      view are bubbled up into the test method if the driver supports it.
+      (Default: ``False``).
+    :type exception_bubbling: ``bool``
     """
 
     implements(IBrowser)
@@ -105,12 +118,16 @@ class Browser(object):
         state.
         """
         self.request_library = None
+        self.raise_http_errors = True
+        self.exception_bubbling = False
         self.next_app = None
         self.app = None
         self.document = None
         self.previous_url = None
         self.form_files = {}
         self.session_headers = []
+        self._status_code = None
+        self._status_reason = None
         map(methodcaller('reset'), self.drivers.values())
 
     def __enter__(self):
@@ -216,10 +233,22 @@ class Browser(object):
 
         url = self._normalize_url(url_or_object, view=view)
         driver = self.get_driver(library)
-        self.parse(driver.make_request(method, url, data=data,
-                                       referer_url=referer_url,
-                                       headers=headers))
+        self._status_code, self._status_reason, body = driver.make_request(
+            method, url, data=data,
+            referer_url=referer_url,
+            headers=headers)
+        self.parse(body)
+        self.raise_for_status()
         return self
+
+    def raise_for_status(self):
+        if not self.raise_http_errors:
+            return
+
+        if 400 <= self.status_code < 500:
+            raise HTTPClientError(self.status_code, self.status_reason)
+        elif 500 <= self.status_code < 600:
+            raise HTTPServerError(self.status_code, self.status_reason)
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
         """``on`` does almost the same thing as ``open``. The difference is that
@@ -248,6 +277,8 @@ class Browser(object):
         """
         self.get_driver(LIB_STATIC).set_body(html)
         self.parse(html)
+        self._status_code = 200
+        self._status_reason = 'OK'
         return self
 
     def visit(self, *args, **kwargs):
@@ -278,8 +309,10 @@ class Browser(object):
         """
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
-        self.parse(self.get_driver(LIB_REQUESTS).make_request(
-            method, url, data=data, headers=headers))
+        driver = self.get_driver(LIB_REQUESTS)
+        self._status_code, self._status_reason, body = driver.make_request(
+            method, url, data=data, headers=headers)
+        self.parse(body)
         return self
 
     def reload(self):
@@ -292,7 +325,11 @@ class Browser(object):
         :rtype: :py:class:`ftw.testbrowser.core.Browser`
         """
         self._verify_setup()
-        self.parse(self.get_driver().reload())
+        driver = self.get_driver()
+        self._status_code, self._status_reason, body = driver.reload()
+        self.parse(body)
+        self.raise_for_status()
+        return self
 
     @property
     def contents(self):
@@ -307,6 +344,25 @@ class Browser(object):
         converted JSON data as python data structure.
         """
         return json.loads(self.contents)
+
+    @property
+    def status_code(self):
+        """The status code of the last response or ``None`` when no request
+        was done yet.
+
+        :type: `int`
+        """
+        return self._status_code
+
+    @property
+    def status_reason(self):
+        """The status reason of the last response or ``None`` when no request
+        was done yet.
+        Examples: ``"OK"``, ``"Not Found"``.
+
+        :type: `string`
+        """
+        return self._status_reason
 
     @property
     def headers(self):
@@ -361,6 +417,13 @@ class Browser(object):
         .. seealso:: :py:func:`clear_request_header`
         """
 
+        if name.lower() == 'x-zope-handle-errors':
+            raise ValueError(
+                'The testbrowser does no longer allow to set the request'
+                ' header \'X-zope-handle-errros\'; use the'
+                ' exception_bubbling flag instead.'
+            )
+
         self.session_headers.append((name, value))
         for driver in self.drivers.values():
             driver.append_request_header(name, value)
@@ -389,6 +452,13 @@ class Browser(object):
         :param name: Name of the request header as positional arguments
         :type name: string
         """
+
+        if name.lower() == 'x-zope-handle-errors':
+            raise ValueError(
+                'The testbrowser does no longer allow to set the request'
+                ' header \'X-zope-handle-errros\'; use the'
+                ' exception_bubbling flag instead.'
+            )
 
         for header_name, value in self.session_headers[:]:
             if header_name == name:
@@ -751,6 +821,36 @@ class Browser(object):
         else:
             return self._load_html(xml_or_html,
                                    parse_html)
+
+    @contextmanager
+    def expect_http_error(self, code=None, reason=None):
+        """Context manager for expecting certain HTTP errors.
+        The ``code`` and ``reason`` arguments may be provided or omitted.
+        The values are only asserted if the arguments are provided.
+        An assertion error is raised when the HTTP error is not cathed in the
+        code block.
+        The code block may make a request or reload the browser.
+
+        :param code: The status code to assert.
+        :type code: ``int``
+        :param reason: The status reason to assert.
+        :type reason: ``string``
+        :raises: :py:exc:`AssertionError`
+        """
+
+        try:
+            yield
+        except HTTPError, exc:
+            if code is not None and code != exc.status_code:
+                raise AssertionError(
+                    'Expected HTTP error with status code {}, got {}.'.format(
+                        code, exc.status_code))
+            if reason is not None and reason != exc.status_reason:
+                raise AssertionError(
+                    'Expected HTTP error with status {!r}, got {!r}.'.format(
+                        reason, exc.status_reason))
+        else:
+            raise AssertionError('Expected a HTTP error but it didn\'t occur.')
 
     def clone(self):
         """Creates a new browser instance with a cloned state of the

@@ -2,6 +2,11 @@ from ftw.testbrowser.core import Browser
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
+from ftw.testbrowser.exceptions import HTTPClientError
+from ftw.testbrowser.exceptions import HTTPServerError
+
+
+HTTPClientError, HTTPServerError  # noqa
 
 
 #: The singleton browser instance acting as default browser.

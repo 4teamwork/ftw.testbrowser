@@ -518,3 +518,69 @@ Then use the ``webdav`` method for making requests in the test:
             self.assertEquals('1,2', browser.response.headers.get('DAV'))
 
 .. seealso:: :py:func:`ftw.testbrowser.core.Browser.webdav`
+
+
+Error handling
+==============
+
+The testbrowser raises exceptions by default when a request was not successful.
+When the response has a status code of `4xx`, a
+:py:class:`ftw.testbrowser.exceptions.HTTPClientError` is raised,
+when the status code is `5xx`, a
+:py:class:`ftw.testbrowser.exceptions.HTTPServerError` is raised.
+
+
+Disabling HTTP exceptions
+-------------------------
+
+Disable the ``raise_http_errors`` flag when the test browser should not raise
+any HTTP exceptions:
+
+.. code::
+
+   @browsing
+   def test(self, browser):
+       browser.raise_http_errors = False
+       browser.open(view='not-existing')
+
+
+Expecting HTTP exceptions
+-------------------------
+
+Sometimes we want to make sure that the server responds with a certain bad
+status. For making that easy, the testbrowser provides assertion context
+managers:
+
+
+.. code::
+
+   @browsing
+   def test(self, browser):
+       with browser.expect_http_error():
+           browser.open(view='failing')
+
+       with browser.expect_http_error(status_code=404):
+           browser.open(view='not-existing')
+
+       with browser.expect_http_error(status_reason='Bad Request'):
+           browser.open(view='get-record-by-id')
+
+
+Exception bubbling
+------------------
+
+Exceptions happening in views can not be catched in the browser by default.
+When using an internally dispatched driver such as Mechanize,
+the option ``exception_bubbling`` makes the Zope Publisher and Mechanize
+let the exceptions bubble up into the test method, so that it can be catched
+and asserted there.
+
+.. code::
+
+   @browsing
+   def test(self, browser):
+       browser.exception_bubbling = True
+       with self.assertRaises(ValueError) as cm:
+           browser.open(view='failing')
+
+       self.assertEquals('No valid value was submitted', str(cm.exception))

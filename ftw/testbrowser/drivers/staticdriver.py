@@ -31,7 +31,7 @@ class StaticDriver(object):
     def reload(self):
         if self.body is None:
             raise BlankPage('Cannot reload.')
-        return self.body
+        return 200, 'OK', self.body
 
     def get_response_body(self):
         if self.body is None:
