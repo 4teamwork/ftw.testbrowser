@@ -566,7 +566,7 @@ managers:
            browser.open(view='get-record-by-id')
 
 
-Expecting uanuthorized exceptions (Plone)
+Expecting unauthoirzed exceptions (Plone)
 -----------------------------------------
 
 When a user is not logged in and is not authorized to access a resource,
@@ -580,6 +580,7 @@ an easy interface so that the developer does not need to handle it.
     def test(self, browser):
         with browser.expect_unauthorized():
             browser.open(view='plone_control_panel')
+
 
 
 Exception bubbling
