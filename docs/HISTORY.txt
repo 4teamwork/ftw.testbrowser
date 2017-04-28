@@ -5,7 +5,7 @@ Changelog
 1.22.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Docs: Fix wrong expect_http_error argument names. [jone]
 
 
 1.22.1 (2017-04-28)

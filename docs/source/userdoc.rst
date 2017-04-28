@@ -559,10 +559,10 @@ managers:
        with browser.expect_http_error():
            browser.open(view='failing')
 
-       with browser.expect_http_error(status_code=404):
+       with browser.expect_http_error(code=404):
            browser.open(view='not-existing')
 
-       with browser.expect_http_error(status_reason='Bad Request'):
+       with browser.expect_http_error(reason='Bad Request'):
            browser.open(view='get-record-by-id')
 
 
