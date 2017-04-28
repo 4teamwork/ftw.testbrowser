@@ -5,6 +5,7 @@ Changelog
 1.22.2 (unreleased)
 -------------------
 
+- HTTPError: include code and reason in exception. [jone]
 - Docs: Fix wrong expect_http_error argument names. [jone]
 
 

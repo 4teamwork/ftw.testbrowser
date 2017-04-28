@@ -115,6 +115,7 @@ class TestBrowserCore(FunctionalTestCase):
 
         self.assertEquals(404, cm.exception.status_code)
         self.assertEquals('Not Found', cm.exception.status_reason)
+        self.assertEquals('404 Not Found', str(cm.exception))
 
         with self.assertRaises(HTTPClientError):
             browser.reload()
