@@ -106,6 +106,8 @@ class HTTPError(IOError):
     def __init__(self, status_code, status_reason):
         self.status_code = status_code
         self.status_reason = status_reason
+        super(HTTPError, self).__init__('{} {}'.format(
+            status_code, status_reason))
 
 
 class HTTPClientError(HTTPError):
