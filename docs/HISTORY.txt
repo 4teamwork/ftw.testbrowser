@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.22.1 (unreleased)
+1.22.1 (2017-04-28)
 -------------------
 
 - Docs: swith to RTD, update URLs. [jone]
