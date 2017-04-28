@@ -566,6 +566,22 @@ managers:
            browser.open(view='get-record-by-id')
 
 
+Expecting uanuthorized exceptions (Plone)
+-----------------------------------------
+
+When a user is not logged in and is not authorized to access a resource,
+Plone will redirect the user to the login form (``require_login``).
+The ``expect_unauthorized`` context manager knows how Plone behaves and provides
+an easy interface so that the developer does not need to handle it.
+
+.. code::
+
+    @browsing
+    def test(self, browser):
+        with browser.expect_unauthorized():
+            browser.open(view='plone_control_panel')
+
+
 Exception bubbling
 ------------------
 

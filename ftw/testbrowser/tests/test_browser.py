@@ -191,6 +191,46 @@ class TestBrowserCore(FunctionalTestCase):
             str(cm.exception))
 
     @browsing
+    def test_expect_unauthorized_successful_when_anonymous(self, browser):
+        with browser.expect_unauthorized():
+            browser.open(view='plone_control_panel')
+
+    @browsing
+    def test_expect_unauthorized_failing_when_anonymous(self, browser):
+        with self.assertRaises(AssertionError) as cm:
+            with browser.expect_unauthorized():
+                browser.open()
+
+        self.assertIn(str(cm.exception), [
+            # Requests (OK)
+            'Expected request to be unauthorized, but got: 200 OK at {}'.format(
+                self.portal.absolute_url()),
+            # Mechanize (Ok)
+            'Expected request to be unauthorized, but got: 200 Ok at {}'.format(
+                self.portal.absolute_url())])
+
+    @browsing
+    def test_expect_unauthorized_successful_when_logged_in(self, browser):
+        browser.login()
+        with browser.expect_unauthorized():
+            browser.open(view='plone_control_panel')
+
+    @browsing
+    def test_expect_unauthorized_failing_when_logged_in(self, browser):
+        with self.assertRaises(AssertionError) as cm:
+            browser.login()
+            with browser.expect_unauthorized():
+                browser.open()
+
+        self.assertIn(str(cm.exception), [
+            # Requests (OK)
+            'Expected request to be unauthorized, but got: 200 OK at {}'.format(
+                self.portal.absolute_url()),
+            # Mechanize (Ok)
+            'Expected request to be unauthorized, but got: 200 Ok at {}'.format(
+                self.portal.absolute_url())])
+
+    @browsing
     def test_base_url_is_base_url_tag(self, browser):
         portal_url = self.layer['portal'].absolute_url() + '/'
         folder_contents_url = portal_url + 'folder_contents'

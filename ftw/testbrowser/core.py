@@ -852,6 +852,43 @@ class Browser(object):
         else:
             raise AssertionError('Expected a HTTP error but it didn\'t occur.')
 
+    @contextmanager
+    def expect_unauthorized(self):
+        """Context manager for expecting that next request, issued in the
+        context manager block, will be unauthorized.
+        Plone will redirect to the login form when the user is not authorized.
+        In order to detect unauthorized responses, the URL is tested for the
+        login view.
+        """
+        if self.exception_bubbling:
+            raise ValueError(
+                'The expect_unauthorized context mangaer does not work when'
+                ' the exception_bubbling option is enabled.'
+                ' Use self.assertRaises(Unauthorized) instead.')
+
+        try:
+            yield
+        except HTTPError, exc:
+            if exc.status_code == 401:
+                # Response is "401 Unauthorized", thus user is probably
+                # logged in but unauthorized anyway;
+                # that's what we expect.
+                return
+            else:
+                raise
+
+        else:
+            view_name = urlparse.urlparse(self.url).path.split('/')[-1]
+            if view_name == 'require_login':
+                # We were redirected to the login form, indicating that the
+                # user is not logged in and not authorized;
+                # that's what we expected.
+                return
+
+        raise AssertionError(
+            'Expected request to be unauthorized, but got: {} {} at {}'.format(
+                self.status_code, self.status_reason, self.url))
+
     def clone(self):
         """Creates a new browser instance with a cloned state of the
         current browser. Headers and cookies are copied but not shared.
