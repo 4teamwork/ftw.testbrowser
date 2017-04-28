@@ -5,7 +5,7 @@ Changelog
 1.22.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Docs: Switch to RTD Sphinx theme. [lgraf]
 
 
 1.22.0 (2017-04-28)
