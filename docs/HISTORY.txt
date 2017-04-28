@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.22.3 (unreleased)
+1.23.0 (2017-04-28)
 -------------------
 
 - Introduce ``browser.expect_unauthorized`` context manager. [jone]
