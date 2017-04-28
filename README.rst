@@ -1,7 +1,7 @@
 ftw.testbrowser
 ===============
 
-`Package documentation <http://pythonhosted.org/ftw.testbrowser/>`_
+`Package documentation <http://ftwtestbrowser.readthedocs.io/>`_
 
 `ftw.testbrowser` is a browser library for testing `Plone`_ web sites and
 applications.
@@ -13,7 +13,7 @@ and querying pages. It supports all the basic features such as filling forms.
 Links
 -----
 
-- Documentation: http://pythonhosted.org/ftw.testbrowser/
+- Documentation: http://ftwtestbrowser.readthedocs.io/
 - Github: https://github.com/4teamwork/ftw.testbrowser
 - Issues: https://github.com/4teamwork/ftw.testbrowser/issues
 - Pypi: http://pypi.python.org/pypi/ftw.testbrowser

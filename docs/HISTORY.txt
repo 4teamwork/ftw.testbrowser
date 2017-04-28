@@ -5,6 +5,7 @@ Changelog
 1.22.1 (unreleased)
 -------------------
 
+- Docs: swith to RTD, update URLs. [jone]
 - Docs: Switch to RTD Sphinx theme. [lgraf]
 
 
