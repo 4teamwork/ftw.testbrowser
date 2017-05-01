@@ -920,10 +920,11 @@ class Browser(object):
             source = self.contents
             if isinstance(source, unicode):
                 source = source.encode('utf-8')
-                file_.write(source)
-                cmd = 'open {0}'.format(path)
-                print '> {0}'.format(cmd)
-                os.system(cmd)
+
+            file_.write(source)
+            cmd = 'open {0}'.format(path)
+            print '> {0}'.format(cmd)
+            os.system(cmd)
 
     def _verify_setup(self):
         if self.request_library is None:
