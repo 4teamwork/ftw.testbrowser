@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.23.1 (unreleased)
+1.23.1 (2017-05-02)
 -------------------
 
 - Fix `browser.debug` when body is a bytestring. [jone]
