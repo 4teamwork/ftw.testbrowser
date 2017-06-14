@@ -5,7 +5,7 @@ Changelog
 1.23.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix `browser.context` when base_url ends with a view name. [phgross]
 
 
 1.23.1 (2017-05-02)
