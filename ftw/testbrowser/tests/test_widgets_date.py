@@ -1,12 +1,12 @@
 from datetime import date
 from ftw.testbrowser import browsing
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 
 
 @all_drivers
-class TestDateWidget(FunctionalTestCase):
+class TestDateWidget(BrowserTestCase):
 
     @browsing
     def test_z3cform_datefield_formfill(self, browser):

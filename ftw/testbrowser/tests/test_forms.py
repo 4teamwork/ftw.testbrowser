@@ -5,7 +5,7 @@ from ftw.testbrowser.form import Form
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.widgets.base import PloneWidget
 from plone.app.testing import SITE_OWNER_NAME
@@ -16,7 +16,7 @@ import lxml.html
 
 
 @all_drivers
-class TestBrowserForms(FunctionalTestCase):
+class TestBrowserForms(BrowserTestCase):
 
     @browsing
     def test_find_form_by_field_label(self, browser):
@@ -205,7 +205,7 @@ class TestBrowserForms(FunctionalTestCase):
 
 
 @all_drivers
-class TestSubmittingForms(FunctionalTestCase):
+class TestSubmittingForms(BrowserTestCase):
 
     @browsing
     def test_should_send_default_submit_button_value(self, browser):
@@ -280,7 +280,7 @@ class TestSubmittingForms(FunctionalTestCase):
 
 
 @all_drivers
-class TestSelectField(FunctionalTestCase):
+class TestSelectField(BrowserTestCase):
 
     @browsing
     def test_select_value(self, browser):

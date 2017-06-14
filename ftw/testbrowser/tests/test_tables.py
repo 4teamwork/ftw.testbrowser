@@ -1,13 +1,13 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.table import colspan_padded_text
 from ftw.testbrowser.table import TableCell
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from operator import attrgetter
 
 
 @all_drivers
-class TestTables(FunctionalTestCase):
+class TestTables(BrowserTestCase):
 
     @browsing
     def test_find_cell_by_text_on_table(self, browser):
@@ -292,7 +292,7 @@ class TestTables(FunctionalTestCase):
 
 
 @all_drivers
-class TestTableRow(FunctionalTestCase):
+class TestTableRow(BrowserTestCase):
 
     @browsing
     def test_table_attribute_is_table_object(self, browser):
@@ -390,7 +390,7 @@ class TestTableRow(FunctionalTestCase):
 
 
 @all_drivers
-class TestTableCell(FunctionalTestCase):
+class TestTableCell(BrowserTestCase):
 
     @browsing
     def test_table_attribute_is_table_object(self, browser):

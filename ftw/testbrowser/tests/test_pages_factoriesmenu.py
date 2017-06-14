@@ -2,12 +2,12 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
 @all_drivers
-class TestFactoriesMenu(FunctionalTestCase):
+class TestFactoriesMenu(BrowserTestCase):
 
     @browsing
     def test_factoriesmenu_visible(self, browser):

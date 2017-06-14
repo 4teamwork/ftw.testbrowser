@@ -1,14 +1,14 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import statusmessages
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import SITE_OWNER_NAME
 
 
 @all_drivers
-class TestDexterityFileUploadWidget(FunctionalTestCase):
+class TestDexterityFileUploadWidget(BrowserTestCase):
 
     @browsing
     def test_filling_file_upload_widget_by_label(self, browser):

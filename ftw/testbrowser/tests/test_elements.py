@@ -1,10 +1,10 @@
 from ftw.testbrowser import browsing
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
 @all_drivers
-class TestBrowserRequestsMechanize(FunctionalTestCase):
+class TestBrowserRequestsMechanize(BrowserTestCase):
 
     @browsing
     def test_find_link_by_text(self, browser):

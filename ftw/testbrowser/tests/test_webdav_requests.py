@@ -3,10 +3,10 @@ from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 
 
-class TestWebdavRequests(FunctionalTestCase):
+class TestWebdavRequests(BrowserTestCase):
     layer = REQUESTS_TESTING
 
     @browsing
@@ -34,7 +34,7 @@ class TestWebdavRequests(FunctionalTestCase):
                           browser.xpath('//d:displayname').first.text)
 
 
-class TestNoZserverWebdavRequests(FunctionalTestCase):
+class TestNoZserverWebdavRequests(BrowserTestCase):
     layer = MECHANIZE_TESTING
 
     @browsing

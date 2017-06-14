@@ -1,13 +1,13 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_TRAVERSAL
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 
 
 @all_drivers
-class TestMechanizeHeaders(FunctionalTestCase):
+class TestMechanizeHeaders(BrowserTestCase):
 
     @browsing
     def test_headers(self, browser):

@@ -1,12 +1,12 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import z3cform
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
 @all_drivers
-class TestZ3cformPageObject(FunctionalTestCase):
+class TestZ3cformPageObject(BrowserTestCase):
 
     @browsing
     def test_erroneous_fields(self, browser):

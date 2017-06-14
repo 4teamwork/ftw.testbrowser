@@ -6,7 +6,7 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
@@ -19,7 +19,7 @@ from zope.publisher.browser import BrowserView
 
 
 @all_drivers
-class TestBrowserRequests(FunctionalTestCase):
+class TestBrowserRequests(BrowserTestCase):
 
     def setUp(self):
         super(TestBrowserRequests, self).setUp()

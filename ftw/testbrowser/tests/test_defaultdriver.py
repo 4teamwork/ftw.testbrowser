@@ -4,10 +4,10 @@ from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.testing import DEFAULT_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 
 
-class TestDefaultDriver(FunctionalTestCase):
+class TestDefaultDriver(BrowserTestCase):
     layer = DEFAULT_TESTING
 
     def test_library_constants_without_zopeapp(self):
@@ -33,7 +33,7 @@ class TestDefaultDriver(FunctionalTestCase):
             self.assertEquals(LIB_MECHANIZE, browser.get_driver().LIBRARY_NAME)
 
 
-class TestSwitchToRequestDriver(FunctionalTestCase):
+class TestSwitchToRequestDriver(BrowserTestCase):
     layer = REQUESTS_TESTING
 
     @browsing

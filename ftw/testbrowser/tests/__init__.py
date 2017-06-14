@@ -7,7 +7,7 @@ from unittest2 import TestCase
 import transaction
 
 
-class FunctionalTestCase(TestCase):
+class BrowserTestCase(TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']

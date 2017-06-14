@@ -1,6 +1,6 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -8,7 +8,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 
 
 @all_drivers
-class TestBrowserSession(FunctionalTestCase):
+class TestBrowserSession(BrowserTestCase):
 
     @browsing
     def test_browser_stays_logged_in(self, browser):
