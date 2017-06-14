@@ -1,3 +1,4 @@
+from Acquisition import aq_chain
 from contextlib import contextmanager
 from copy import deepcopy
 from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
@@ -18,6 +19,7 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
+from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from StringIO import StringIO
@@ -781,7 +783,10 @@ class Browser(object):
                 ' path "%s" but it is "%s"') % (portal_path, path))
 
         relative_path = path[len(portal_path + '/'):]
-        return portal.restrictedTraverse(relative_path)
+        obj = portal.restrictedTraverse(relative_path)
+
+        # Make sure it returns the context object not a traversable view.
+        return filter(IItem.providedBy, aq_chain(obj))[0]
 
     def parse_as_html(self, html=None):
         """Parse the response document with the HTML parser.

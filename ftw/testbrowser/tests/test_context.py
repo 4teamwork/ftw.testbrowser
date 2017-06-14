@@ -2,8 +2,11 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import ContextNotFound
+from ftw.testbrowser.pages import factoriesmenu
+from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
+from plone.app.testing import SITE_OWNER_NAME
 
 
 @all_drivers
@@ -24,6 +27,18 @@ class TestBrowserContext(FunctionalTestCase):
         folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals(folder, browser.context)
+
+    @browsing
+    def test_context_when_url_contains_view(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('Page')
+
+        browser.fill({'Title': u'Page',
+                      'Exclude from navigation': True}).save()
+        statusmessages.assert_no_error_messages()
+        self.sync_transaction()
+
+        self.assertEquals(self.portal.get('page'), browser.context)
 
     @browsing
     def test_execption_when_not_viewing_any_page(self, browser):
