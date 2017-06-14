@@ -108,6 +108,7 @@ class RedirectLoopException(BrowserException):
         message = re.sub(r'\s+', ' ', self.__doc__.strip())
         message += '\nURL: {}'.format(url)
         Exception.__init__(self, message)
+        self.url = url
 
 
 class HTTPError(IOError):

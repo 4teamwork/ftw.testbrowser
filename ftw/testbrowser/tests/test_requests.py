@@ -5,6 +5,7 @@ from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.exceptions import BlankPage
+from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
@@ -379,3 +380,14 @@ class TestBrowserRequests(BrowserTestCase):
         self.assertEquals(self.portal.absolute_url(), browser.url)
         self.assertEquals(('listing_view', 'plone-site'),
                           plone.view_and_portal_type())
+
+    @browsing
+    def test_redirect_loops_are_interrupted(self, browser):
+        with self.assertRaises(RedirectLoopException) as cm:
+            browser.open(view='test-redirect-loop')
+
+        self.assertEquals(
+            'The server returned a redirect response that would lead'
+            ' to an infinite redirect loop.\n'
+            'URL: {}/test-redirect-loop'.format(self.portal.absolute_url()),
+            str(cm.exception))

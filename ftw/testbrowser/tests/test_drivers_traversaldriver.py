@@ -1,6 +1,5 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
-from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from ftw.testbrowser.tests import BrowserTestCase
@@ -32,14 +31,3 @@ class TestTraversalDriverImplementation(BrowserTestCase):
         self.assertEquals(
             'Plone site', self.portal.Title(),
             'The traversal driver should not commit the transaction.')
-
-    @browsing
-    def test_redirect_loops_are_interrupted(self, browser):
-        with self.assertRaises(RedirectLoopException) as cm:
-            browser.open(view='test-redirect-loop')
-
-        self.assertEquals(
-            'The server returned a redirect response that would lead'
-            ' to an infinite redirect loop.\n'
-            'URL: http://nohost/plone/test-redirect-loop',
-            str(cm.exception))
