@@ -19,9 +19,6 @@ class TestMechanizeHeaders(BrowserTestCase):
     @skip_driver(LIB_MECHANIZE, """
     The `webdav` method can only be used with a running ZServer.
     """)
-    @skip_driver(LIB_TRAVERSAL, """
-    The `webdav` method can only be used with a running ZServer.
-    """)
     @browsing
     def test_webdav_headers(self, browser):
         browser.webdav('get')

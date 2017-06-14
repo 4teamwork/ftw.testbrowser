@@ -14,6 +14,7 @@ from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPError
 from ftw.testbrowser.exceptions import HTTPServerError
 from ftw.testbrowser.exceptions import NoElementFound
+from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
@@ -316,7 +317,10 @@ class Browser(object):
         """
         self._verify_setup()
         url = self._normalize_url(url_or_object, view=view)
-        driver = self.get_driver(LIB_REQUESTS)
+        driver = self.get_driver()
+        if not driver.WEBDAV_SUPPORT:
+            raise NoWebDAVSupport()
+
         self._status_code, self._status_reason, body = driver.make_request(
             method, url, data=data, headers=headers)
         self.parse(body)

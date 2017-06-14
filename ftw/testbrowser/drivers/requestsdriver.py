@@ -18,6 +18,7 @@ class RequestsDriver(object):
     implements(IDriver)
 
     LIBRARY_NAME = 'requests library'
+    WEBDAV_SUPPORT = True
 
     def __init__(self, browser):
         self.browser = browser

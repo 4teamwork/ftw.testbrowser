@@ -27,9 +27,6 @@ class TestCookies(BrowserTestCase):
     @skip_driver(LIB_MECHANIZE, """
     The `webdav` method can only be used with a running ZServer.
     """)
-    @skip_driver(LIB_TRAVERSAL, """
-    The `webdav` method can only be used with a running ZServer.
-    """)
     @browsing
     def test_webdav_cookies(self, browser):
         browser.open(view='login_form')

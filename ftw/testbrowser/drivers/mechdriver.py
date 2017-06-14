@@ -29,6 +29,7 @@ class MechanizeDriver(object):
     implements(IDriver)
 
     LIBRARY_NAME = 'mechanize library'
+    WEBDAV_SUPPORT = False
 
     def __init__(self, browser):
         self.browser = browser
