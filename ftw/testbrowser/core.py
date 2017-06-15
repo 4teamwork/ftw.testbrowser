@@ -16,6 +16,7 @@ from ftw.testbrowser.exceptions import HTTPServerError
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.interfaces import IBrowser
+from ftw.testbrowser.log import ExceptionLogger
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
@@ -108,6 +109,7 @@ class Browser(object):
     def __init__(self):
         self.drivers = {}
         self.default_driver = None
+        self._log_exceptions = True
         self.reset()
 
     def __call__(self, app):
@@ -241,15 +243,20 @@ class Browser(object):
 
         url = self._normalize_url(url_or_object, view=view)
         driver = self.get_driver(library)
-        self._status_code, self._status_reason, body = driver.make_request(
-            method, url, data=data,
-            referer_url=referer_url,
-            headers=headers)
+        with ExceptionLogger() as logger:
+            self._status_code, self._status_reason, body = driver.make_request(
+                method, url, data=data,
+                referer_url=referer_url,
+                headers=headers)
+
         self.parse(body)
-        self.raise_for_status()
+        self.raise_for_status(logger)
         return self
 
-    def raise_for_status(self):
+    def raise_for_status(self, exception_logger):
+        if self._log_exceptions:
+            exception_logger.print_captured_exceptions()
+
         if not self.raise_http_errors:
             return
 
@@ -337,9 +344,12 @@ class Browser(object):
         """
         self._verify_setup()
         driver = self.get_driver()
-        self._status_code, self._status_reason, body = driver.reload()
+
+        with ExceptionLogger() as logger:
+            self._status_code, self._status_reason, body = driver.reload()
+
         self.parse(body)
-        self.raise_for_status()
+        self.raise_for_status(logger)
         return self
 
     @property
@@ -853,6 +863,7 @@ class Browser(object):
         """
 
         try:
+            self._log_exceptions = False
             yield
         except HTTPError, exc:
             if code is not None and code != exc.status_code:
@@ -865,6 +876,8 @@ class Browser(object):
                         reason, exc.status_reason))
         else:
             raise AssertionError('Expected a HTTP error but it didn\'t occur.')
+        finally:
+            self._log_exceptions = True
 
     @contextmanager
     def expect_unauthorized(self):

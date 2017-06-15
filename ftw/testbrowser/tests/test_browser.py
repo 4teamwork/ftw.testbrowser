@@ -7,11 +7,13 @@ from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
+from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
+from StringIO import StringIO
 from zExceptions import BadRequest
 from zope.globalrequest import getRequest
 from zope.publisher.browser import BrowserView
@@ -130,17 +132,20 @@ class TestBrowserCore(BrowserTestCase):
                 raise ValueError('The value is wrong.')
 
         with register_view(ViewWithError, 'view-with-error'):
-            with self.assertRaises(HTTPServerError) as cm:
-                browser.open(view='view-with-error')
+            with capture_streams(stderr=StringIO()):
+                with self.assertRaises(HTTPServerError) as cm:
+                    browser.open(view='view-with-error')
 
             self.assertEquals(500, cm.exception.status_code)
             self.assertEquals('Internal Server Error', cm.exception.status_reason)
 
-            with self.assertRaises(HTTPServerError):
-                browser.reload()
+            with capture_streams(stderr=StringIO()):
+                with self.assertRaises(HTTPServerError):
+                    browser.reload()
 
             browser.raise_http_errors = False
-            browser.reload()
+            with capture_streams(stderr=StringIO()):
+                browser.reload()
 
     @browsing
     def test_expect_http_error(self, browser):

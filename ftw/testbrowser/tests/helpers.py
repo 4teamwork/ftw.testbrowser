@@ -1,7 +1,10 @@
+from contextlib import contextmanager
+from StringIO import StringIO
 from zope.component import getGlobalSiteManager
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
 import os.path
+import sys
 
 
 def asset(name, mode='r'):
@@ -28,3 +31,25 @@ class register_view(object):
 
     def get_sitemanager(self):
         return getGlobalSiteManager()
+
+
+@contextmanager
+def capture_streams(stdout=None, stderr=None):
+    ori_stdout = sys.stdout
+    ori_stderr = sys.stderr
+
+    assert not isinstance(ori_stdout, StringIO), 'stdout already captured'
+    assert not isinstance(ori_stderr, StringIO), 'stderr already captured'
+
+    if stdout is not None:
+        sys.stdout = stdout
+    if stderr is not None:
+        sys.stderr = stderr
+
+    try:
+        yield
+    finally:
+        if stdout is not None:
+            sys.stdout = ori_stdout
+        if stderr is not None:
+            sys.stderr = ori_stderr
