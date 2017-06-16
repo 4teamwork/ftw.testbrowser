@@ -1,5 +1,6 @@
 from ftw.testbrowser.drivers.utils import remembering_for_reload
 from ftw.testbrowser.exceptions import BlankPage
+from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
@@ -47,8 +48,11 @@ class RequestsDriver(object):
             headers['HTTP_REFERER'] = referer_url
 
         with verbose_logging():
-            self.response = self.requests_session.request(
-                method, url, data=data, headers=headers)
+            try:
+                self.response = self.requests_session.request(
+                    method, url, data=data, headers=headers)
+            except requests.exceptions.TooManyRedirects, exc:
+                raise RedirectLoopException(exc.request.url)
 
             return (self.response.status_code,
                     self.response.reason,
