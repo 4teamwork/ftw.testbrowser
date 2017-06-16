@@ -3,13 +3,13 @@ from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
 from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from plone.app.testing import SITE_OWNER_NAME
 from zope.interface.verify import verifyClass
 import transaction
 
 
-class TestTraversalDriverImplementation(FunctionalTestCase):
+class TestTraversalDriverImplementation(BrowserTestCase):
     layer = TRAVERSAL_TESTING
 
     def test_implements_interface(self):

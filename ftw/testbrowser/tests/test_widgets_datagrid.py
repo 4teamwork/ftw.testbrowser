@@ -1,22 +1,18 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testing import staticuid
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
-import transaction
 
 
 @all_drivers
-class TestDexterityDataGridWidget(FunctionalTestCase):
+class TestDexterityDataGridWidget(BrowserTestCase):
 
     @browsing
     @staticuid()
     def test_datagrid_form_fill(self, browser):
-        setRoles(self.layer['portal'], TEST_USER_ID, ['Manager'])
-        transaction.commit()
+        self.grant('Manager')
         browser.login().visit(view='test-z3cform-shopping')
 
         browser.fill({'Cakes': [

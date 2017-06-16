@@ -3,6 +3,7 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
+from ftw.testbrowser.testing import TRAVERSAL_INTEGRATION_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from unittest2 import skip
 import sys
@@ -17,6 +18,7 @@ def all_drivers(testcase):
         ('Mechanize', MECHANIZE_TESTING, LIB_MECHANIZE),
         ('Requests', REQUESTS_TESTING, LIB_REQUESTS),
         ('Traversal', TRAVERSAL_TESTING, LIB_TRAVERSAL),
+        ('TraversalIntegration', TRAVERSAL_INTEGRATION_TESTING, LIB_TRAVERSAL),
     )
     testcase._testbrowser_abstract_testclass = True
 

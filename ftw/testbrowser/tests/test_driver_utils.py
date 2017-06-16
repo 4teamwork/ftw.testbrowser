@@ -5,7 +5,7 @@ from ftw.testbrowser.drivers.utils import isolate_securitymanager
 from ftw.testbrowser.drivers.utils import isolate_sitehook
 from ftw.testbrowser.drivers.utils import isolated
 from ftw.testbrowser.testing import DEFAULT_TESTING
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from Products.CMFPlone.Portal import PloneSite
@@ -15,7 +15,7 @@ from zope.globalrequest import getRequest
 from zope.globalrequest import setRequest
 
 
-class TestIsolation(FunctionalTestCase):
+class TestIsolation(BrowserTestCase):
     layer = DEFAULT_TESTING
 
     def test_isolate_globalrequest(self):

@@ -1,7 +1,7 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_TRAVERSAL
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from plone.app.testing import TEST_USER_NAME
@@ -9,7 +9,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 
 
 @all_drivers
-class TestCookies(FunctionalTestCase):
+class TestCookies(BrowserTestCase):
 
     @browsing
     def test_cookies(self, browser):

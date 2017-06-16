@@ -6,12 +6,12 @@ from ftw.testbrowser.nodes import LinkNode
 from ftw.testbrowser.nodes import Nodes
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 
 
 @all_drivers
-class TestNodesResultSet(FunctionalTestCase):
+class TestNodesResultSet(BrowserTestCase):
 
     @browsing
     def test_text_content_for_many_elements(self, browser):
@@ -269,7 +269,7 @@ class TestNodesResultSet(FunctionalTestCase):
 
 
 @all_drivers
-class TestNodeWrappers(FunctionalTestCase):
+class TestNodeWrappers(BrowserTestCase):
 
     def test_reference_to_browser(self):
         with Browser()(self.layer['app']) as browser:
@@ -684,7 +684,7 @@ class TestNodeWrappers(FunctionalTestCase):
 
 
 @all_drivers
-class TestNodeComparison(FunctionalTestCase):
+class TestNodeComparison(BrowserTestCase):
 
     @browsing
     def test_comparing_two_elements_representing_the_same_node(self, browser):
@@ -703,7 +703,7 @@ class TestNodeComparison(FunctionalTestCase):
 
 
 @all_drivers
-class TestLinkNode(FunctionalTestCase):
+class TestLinkNode(BrowserTestCase):
 
     @browsing
     def test_clicking_links(self, browser):
@@ -728,7 +728,7 @@ class TestLinkNode(FunctionalTestCase):
 
 
 @all_drivers
-class TestDefinitionListNode(FunctionalTestCase):
+class TestDefinitionListNode(BrowserTestCase):
 
     @browsing
     def test_keys_returns_dts(self, browser):

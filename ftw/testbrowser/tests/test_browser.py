@@ -5,7 +5,7 @@ from ftw.testbrowser import HTTPServerError
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.tests import FunctionalTestCase
+from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import register_view
 from plone.app.testing import SITE_OWNER_NAME
@@ -37,7 +37,7 @@ AC_COOKIE_INFO = {'comment': None,
 
 
 @all_drivers
-class TestBrowserCore(FunctionalTestCase):
+class TestBrowserCore(BrowserTestCase):
 
     @browsing
     def test_contents(self, browser):
