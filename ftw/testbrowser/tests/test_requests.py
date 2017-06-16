@@ -3,6 +3,7 @@ from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import FunctionalTestCase
@@ -77,7 +78,8 @@ class TestBrowserRequests(FunctionalTestCase):
 
             self.assertEquals('The value is wrong.', str(cm.exception))
 
-    @skip_driver(LIB_MECHANIZE, 'Exception bubbling is supported.')
+    @skip_driver(LIB_MECHANIZE, 'Exception bubbling is supported by mechanize.')
+    @skip_driver(LIB_TRAVERSAL, 'Exception bubbling is supported by traversal.')
     @browsing
     def test_unsupport_exception_bubbling(self, browser):
         browser.exception_bubbling = True
@@ -370,3 +372,10 @@ class TestBrowserRequests(FunctionalTestCase):
 
         browser.logout().open()
         self.assertFalse(plone.logged_in())
+
+    @browsing
+    def test_redirects_are_followed_automatically(self, browser):
+        browser.open(view='test-redirect-to-portal')
+        self.assertEquals(self.portal.absolute_url(), browser.url)
+        self.assertEquals(('listing_view', 'plone-site'),
+                          plone.view_and_portal_type())

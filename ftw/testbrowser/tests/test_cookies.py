@@ -1,5 +1,6 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.tests import FunctionalTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
@@ -24,6 +25,9 @@ class TestCookies(FunctionalTestCase):
 
 
     @skip_driver(LIB_MECHANIZE, """
+    The `webdav` method can only be used with a running ZServer.
+    """)
+    @skip_driver(LIB_TRAVERSAL, """
     The `webdav` method can only be used with a running ZServer.
     """)
     @browsing

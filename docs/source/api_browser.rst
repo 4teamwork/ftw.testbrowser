@@ -39,6 +39,14 @@ MechanizeDriver
    :members:
 
 
+TraversalDriver
+---------------
+
+.. autoclass:: ftw.testbrowser.drivers.traversaldriver.TraversalDriver
+   :show-inheritance:
+   :members:
+
+
 StaticDriver
 ------------
 

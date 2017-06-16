@@ -1,6 +1,11 @@
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import noSecurityManager
+from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
 from functools import partial
 from functools import wraps
+from zope.component.hooks import getSite
+from zope.component.hooks import setSite
 import pkg_resources
 
 
@@ -32,11 +37,15 @@ def isolated(func):
     """Decorator for isolating the environment within a function.
     Isolates:
     - globalrequest
+    - site hook
+    - security manager
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with isolate_globalrequest():
-            return func(*args, **kwargs)
+        with isolate_globalrequest(), \
+             isolate_sitehook(), \
+             isolate_securitymanager():
+                return func(*args, **kwargs)
     return wrapper
 
 
@@ -54,3 +63,27 @@ def isolate_globalrequest():
         yield
     finally:
         setRequest(request)
+
+
+@contextmanager
+def isolate_sitehook():
+    """Context manager for global site hook isolation.
+    """
+    site = getSite()
+    setSite(None)
+    try:
+        yield
+    finally:
+        setSite(site)
+
+
+@contextmanager
+def isolate_securitymanager():
+    """Context manager for security manager isolation.
+    """
+    manager = getSecurityManager()
+    noSecurityManager()
+    try:
+        yield
+    finally:
+        setSecurityManager(manager)

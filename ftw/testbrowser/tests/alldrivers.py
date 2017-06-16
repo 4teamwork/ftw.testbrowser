@@ -1,7 +1,9 @@
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
+from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from unittest2 import skip
 import sys
 
@@ -11,8 +13,11 @@ def all_drivers(testcase):
     """
 
     module = sys.modules[testcase.__module__]
-    drivers = (('Mechanize', MECHANIZE_TESTING, LIB_MECHANIZE),
-               ('Requests', REQUESTS_TESTING, LIB_REQUESTS))
+    drivers = (
+        ('Mechanize', MECHANIZE_TESTING, LIB_MECHANIZE),
+        ('Requests', REQUESTS_TESTING, LIB_REQUESTS),
+        ('Traversal', TRAVERSAL_TESTING, LIB_TRAVERSAL),
+    )
     testcase._testbrowser_abstract_testclass = True
 
     for postfix, layer, constant in drivers:
@@ -25,8 +30,8 @@ def all_drivers(testcase):
         for attrname in dir(subclass):
             method = getattr(subclass, attrname, None)
             func = getattr(method, 'im_func', None)
-            if getattr(func, '_testbrowser_skip_driver', None) == constant:
-                reason = func._testbrowser_skip_reason
+            if constant in getattr(func, '_testbrowser_skip_driver', {}):
+                reason = func._testbrowser_skip_driver[constant]
                 setattr(subclass, attrname, skip(reason)(method))
 
         setattr(module, name, subclass)
@@ -40,8 +45,10 @@ def skip_driver(driver_constant, reason):
     allows to skip one test method for one driver.
     """
     def decorator(func):
-        func._testbrowser_skip_driver = driver_constant
-        func._testbrowser_skip_reason = reason
+        if '_testbrowser_skip_driver' not in dir(func):
+            func._testbrowser_skip_driver = {}
+
+        func._testbrowser_skip_driver[driver_constant] = reason
         return func
     return decorator
 

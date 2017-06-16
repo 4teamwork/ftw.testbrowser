@@ -1,4 +1,5 @@
 from ftw.testbrowser.core import Browser
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
@@ -41,6 +42,9 @@ def browsing(func):
     test_function.__name__ = func.__name__
     return test_function
 
+
+#: A plone.testing layer which sets the default driver to Traversal.
+TRAVERSAL_BROWSER_FIXTURE = DefaultDriverFixture(LIB_TRAVERSAL)
 
 #: A plone.testing layer which sets the default driver to Mechanize.
 MECHANIZE_BROWSER_FIXTURE = DefaultDriverFixture(LIB_MECHANIZE)

@@ -80,4 +80,18 @@
         name="test-z3cform-payment-vocabulary"
         />
 
+    <browser:page
+        name="test-redirect-to-portal"
+        class=".views.TestRedirectToPortal"
+        for="*"
+        permission="zope.Public"
+        />
+
+    <browser:page
+        name="test-redirect-loop"
+        class=".views.TestRedirectLoop"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>
