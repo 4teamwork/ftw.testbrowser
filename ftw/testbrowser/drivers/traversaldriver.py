@@ -184,6 +184,7 @@ class TraversalDriver(object):
     implements(IDriver)
 
     LIBRARY_NAME = 'traversal library'
+    WEBDAV_SUPPORT = True
 
     def __init__(self, browser):
         self.browser = browser

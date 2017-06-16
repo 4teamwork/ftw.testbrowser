@@ -63,6 +63,11 @@ class ZServerRequired(BrowserException):
     """
 
 
+class NoWebDAVSupport(BrowserException):
+    """The current testbrowser driver does not support webdav requests.
+    """
+
+
 class OptionsNotFound(BrowserException):
     """Could not find the options for a widget.
     """

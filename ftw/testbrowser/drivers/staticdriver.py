@@ -12,6 +12,7 @@ class StaticDriver(object):
     implements(IDriver)
 
     LIBRARY_NAME = 'static driver'
+    WEBDAV_SUPPORT = False
 
     def __init__(self, browser):
         self.browser = browser
