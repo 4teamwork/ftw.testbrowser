@@ -5,6 +5,7 @@ Changelog
 1.23.3 (unreleased)
 -------------------
 
+- Log exceptions to stderr when they are not expected. [jone]
 - Standardize redirect loop detection: always throw a ``RedirectLoopException``. [jone]
 - Add traversal request driver. [jone]
 

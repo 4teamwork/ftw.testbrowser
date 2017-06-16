@@ -4,7 +4,6 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
-from ftw.testbrowser.utils import verbose_logging
 from StringIO import StringIO
 from zope.interface import implements
 import requests
@@ -47,16 +46,15 @@ class RequestsDriver(object):
             headers['REFERER'] = referer_url
             headers['HTTP_REFERER'] = referer_url
 
-        with verbose_logging():
-            try:
-                self.response = self.requests_session.request(
-                    method, url, data=data, headers=headers)
-            except requests.exceptions.TooManyRedirects, exc:
-                raise RedirectLoopException(exc.request.url)
+        try:
+            self.response = self.requests_session.request(
+                method, url, data=data, headers=headers)
+        except requests.exceptions.TooManyRedirects, exc:
+            raise RedirectLoopException(exc.request.url)
 
-            return (self.response.status_code,
-                    self.response.reason,
-                    StringIO(self.response.content))
+        return (self.response.status_code,
+                self.response.reason,
+                StringIO(self.response.content))
 
     def reload(self):
         if self.previous_make_request is None:
