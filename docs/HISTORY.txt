@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.23.3 (unreleased)
+1.24.0 (2017-06-16)
 -------------------
 
 - Log exceptions to stderr when they are not expected. [jone]
