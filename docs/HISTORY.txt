@@ -5,7 +5,7 @@ Changelog
 1.24.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Declare missing dependencies. [lgraf]
 
 
 1.24.0 (2017-06-16)
