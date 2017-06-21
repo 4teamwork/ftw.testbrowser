@@ -30,8 +30,7 @@ class BrowserTestCase(TestCase):
 
     def grant(self, *roles):
         setRoles(self.portal, TEST_USER_ID, list(roles))
-        if self.transactions_enabled():
-            transaction.commit()
+        self.maybe_commit_transaction()
 
     def sync_transaction(self):
         """Especially with the requests driver we sometimes need to sync
@@ -40,3 +39,11 @@ class BrowserTestCase(TestCase):
         """
         if self.transactions_enabled():
             transaction.begin()
+
+    def maybe_commit_transaction(self):
+        """Commit the transaction when transactions are enabled, in order to
+        have a change made in the testing connection available in the next
+        request.
+        """
+        if self.transactions_enabled():
+            transaction.commit()

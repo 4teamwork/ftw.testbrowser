@@ -11,11 +11,14 @@ from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
+from plone.app.testing import applyProfile
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
+from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
+from zope.component import getUtility
 from zope.publisher.browser import BrowserView
 
 
@@ -391,3 +394,24 @@ class TestBrowserRequests(BrowserTestCase):
             ' to an infinite redirect loop.\n'
             'URL: {}/test-redirect-loop'.format(self.portal.absolute_url()),
             str(cm.exception))
+
+    @browsing
+    def test_decompresses_gzip_responses(self, browser):
+        browser.login().open()
+        self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
+
+        # Install plone.app.caching in order to enable compression:
+        applyProfile(self.portal, 'plone.app.caching:default')
+        applyProfile(self.portal, 'plone.app.caching:without-caching-proxy')
+        getUtility(IRegistry)['plone.app.caching.interfaces'
+                              '.IPloneCacheSettings.enableCompression'] = True
+        self.maybe_commit_transaction()
+
+        browser.reload()
+        if browser.get_driver().LIBRARY_NAME != LIB_REQUESTS:
+            self.assertEquals(None, browser.headers.get('content-encoding'),
+                              'The content-encoding header should be removed'
+                              ' in order to indicate that the content is now'
+                              ' unzipped.')
+
+        self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
