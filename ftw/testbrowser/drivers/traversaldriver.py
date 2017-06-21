@@ -39,6 +39,7 @@ from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.Response import Response
 from ZPublisher.Test import publish_module
+import gzip
 import httplib
 import requests
 import sys
@@ -248,6 +249,7 @@ class TraversalDriver(object):
         if self.response.status in (301, 302, 303):
             return self._follow_redirects(method, data, headers)
         else:
+            self._unzip_gzip_response()
             return (self.response.status,
                     self.response.errmsg,
                     StringIO(self.response.body))
@@ -344,6 +346,17 @@ class TraversalDriver(object):
                                  data=redirect_data,
                                  headers=headers.copy(),
                                  referer_url=self.current_url)
+
+    def _unzip_gzip_response(self):
+        """When the response is gzip encoded, decode it inplace in the response
+        so that all future accesses do not trigger uncoding.
+        """
+        if self.get_response_headers().get('content-encoding') != 'gzip':
+            return
+
+        with gzip.GzipFile(fileobj=StringIO(self.response.body)) as zipfile:
+            self.response.body = zipfile.read()
+            self.response.headers.pop('content-encoding', None)
 
     def reload(self):
         if self.previous_make_request is None:
