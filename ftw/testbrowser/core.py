@@ -313,11 +313,11 @@ class Browser(object):
         :param method: The HTTP request method (``OPTIONS``, ``PROPFIND``, etc)
         :type method: string
         :param url_or_object: A full qualified URL or a Plone object (which has
-        an ``absolute_url`` method). Defaults to the Plone Site URL.
+          an ``absolute_url`` method). Defaults to the Plone Site URL.
         :param data: A dict with data which is posted using a `POST` request.
         :type data: dict
         :param view: The name of a view which will be added at the end of the
-        current URL.
+          current URL.
         :type view: string
         :param headers: Pass in reqest headers.
         :type headers: dict
@@ -765,6 +765,7 @@ class Browser(object):
         :type within: :py:class:`ftw.testbrowser.nodes.NodeWrapper`.
         :returns: The browser object.
         :raises: :py:exc:`ftw.testbrowser.exceptions.NoElementFound`
+
         .. seealso:: :py:func:`find`
         """
         node = self.find(text)
