@@ -19,6 +19,6 @@ with open(sphinx_build_path, 'r') as sphinx_build_fio:
 
 with open(requirements_path, 'w+') as requirements_fio:
    for name, version in requirements:
-      requirements_fio.write('{} = {}\n'.format(name, version))
+      requirements_fio.write('{} == {}\n'.format(name, version))
 
 print 'Updated.'
