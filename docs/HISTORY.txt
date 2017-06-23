@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.24.3 (unreleased)
+1.24.3 (2017-06-23)
 -------------------
 
 - Fix issues with read the docs builds. [jone]
