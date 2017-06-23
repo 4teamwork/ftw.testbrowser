@@ -15,8 +15,6 @@ with open(sphinx_build_path, 'r') as sphinx_build_fio:
       match = re.match(r'^ +\'.*?/eggs/([^-]+)-(.*?)-py[\d.]*(?:-.+?)?\.egg\',$', line)
       if match:
          requirements.append(match.groups())
-      else:
-         print 'XX', repr(line)
 
 
 # These are the eggs that are installed by read the docs. Rtd installs specific
