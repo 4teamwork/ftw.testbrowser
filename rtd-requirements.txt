@@ -1,0 +1,4 @@
+# Pin versions for read the docs here when needed.
+
+plone.app.testing = 4.2.5
+plone.testing = 4.1.2
