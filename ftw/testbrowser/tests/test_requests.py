@@ -18,6 +18,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
+from zExceptions import BadRequest
 from zope.component import getUtility
 from zope.publisher.browser import BrowserView
 
@@ -415,3 +416,23 @@ class TestBrowserRequests(BrowserTestCase):
                               ' unzipped.')
 
         self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
+
+    @browsing
+    def test_send_authenticator(self, browser):
+        class ProtectedView(BrowserView):
+            def __call__(self):
+                if not self.context.restrictedTraverse('@@authenticator').verify():
+                    raise BadRequest('No way sir')
+                else:
+                    return 'YAY'
+
+        with register_view(ProtectedView, 'protected-view'):
+            browser.login()
+
+            # Fails when no authenticator token is provided:
+            with browser.expect_http_error(code=400):
+                browser.open(view='protected-view')
+
+            # But we can tell the browser to send the authenticator token:
+            browser.open(view='protected-view', send_authenticator=True)
+            self.assertEquals('YAY', browser.contents)
