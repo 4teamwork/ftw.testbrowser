@@ -25,6 +25,7 @@ from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
+from plone.protect import createToken
 from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
@@ -190,7 +191,8 @@ class Browser(object):
         return self.drivers[library]
 
     def open(self, url_or_object=None, data=None, view=None, library=None,
-             referer=False, method=None, headers=None):
+             referer=False, method=None, headers=None,
+             send_authenticator=False):
         """Opens a page in the browser.
 
         *Request library:*
@@ -222,6 +224,10 @@ class Browser(object):
         :type method: string
         :param headers: A dict with custom headers for this request.
         :type headers: dict
+        :param send_authenticator: When true, a ``plone.protect`` CSRF
+          authenticator token is sent as if we would submit a prepared form.
+          When this flag option is used, the request may be sent as ``POST``.
+        :type send_authenticator: Boolean (Default ``False``)
 
         .. seealso:: :py:func:`visit`
         .. seealso:: :py:const:`LIB_MECHANIZE`
@@ -230,6 +236,12 @@ class Browser(object):
         self._verify_setup()
         self.previous_url = self.url
         library = library or self.request_library
+
+        if send_authenticator:
+            if data is None:
+                data = {}
+
+            data['_authenticator'] = createToken()
 
         if method is None and data is None:
             method = 'GET'
