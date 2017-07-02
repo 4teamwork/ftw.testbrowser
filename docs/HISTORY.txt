@@ -5,6 +5,7 @@ Changelog
 1.24.4 (unreleased)
 -------------------
 
+- Reimplement internal query info with a QueryInfo class. [jone]
 - Add send_authenticator option for CSRF support. [jone]
 
 

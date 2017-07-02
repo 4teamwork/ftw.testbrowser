@@ -19,6 +19,7 @@ from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.log import ExceptionLogger
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
+from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
@@ -542,7 +543,8 @@ class Browser(object):
         self.clear_request_header('Authorization')
         return self
 
-    def css(self, css_selector):
+    @QueryInfo.build
+    def css(self, css_selector, query_info):
         """Select one or more HTML nodes by using a *CSS* selector.
 
         :param css_selector: The CSS selector.
@@ -550,11 +552,11 @@ class Browser(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        query_info = ('browser', 'css', css_selector)
         return self.xpath(CSSSelector(css_selector).path,
                           query_info=query_info)
 
-    def xpath(self, xpath_selector, query_info=None):
+    @QueryInfo.build
+    def xpath(self, xpath_selector, query_info):
         """Select one or more HTML nodes by using an *xpath* selector.
 
         :param xpath_selector: The xpath selector.
@@ -562,7 +564,6 @@ class Browser(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        query_info = query_info or ('browser', 'xpath', xpath_selector)
         nsmap = self.document.getroot().nsmap
         return wrap_nodes(
             self.document.xpath(xpath_selector, namespaces=nsmap),
@@ -768,7 +769,8 @@ class Browser(object):
                       map(attrgetter('field_labels'),
                           self.forms.values()))
 
-    def click_on(self, text, within=None):
+    @QueryInfo.build
+    def click_on(self, text, within=None, query_info=None):
         """Find a link by its text and click on it.
 
         :param text: The text to be looked for.
@@ -782,7 +784,7 @@ class Browser(object):
         """
         node = self.find(text)
         if not node:
-            raise NoElementFound(query_info=(self, 'click_on', text))
+            raise NoElementFound(query_info)
 
         node.click()
         return self

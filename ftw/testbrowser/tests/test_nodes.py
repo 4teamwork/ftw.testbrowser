@@ -107,7 +107,8 @@ class TestNodesResultSet(BrowserTestCase):
             browser.css('.not-existing-class').first
 
         self.assertEquals(
-            'Empty result set: browser.css(".not-existing-class") did not'
+            'Empty result set: <ftw.browser.core.Browser instance>'
+            '.css(\'.not-existing-class\') did not'
             ' match any nodes.',
             str(cm.exception))
 
@@ -118,7 +119,8 @@ class TestNodesResultSet(BrowserTestCase):
             browser.xpath('//some-node').first
 
         self.assertEquals(
-            'Empty result set: browser.xpath("//some-node") did not'
+            'Empty result set: <ftw.browser.core.Browser instance>'
+            ".xpath('//some-node') did not"
             ' match any nodes.',
             str(cm.exception))
 
@@ -130,7 +132,7 @@ class TestNodesResultSet(BrowserTestCase):
             content.css('div.missing').first
 
         self.assertEquals(
-            'Empty result set: <NodeWrapper:div, id="content">.css("div.missing")'
+            'Empty result set: <NodeWrapper:div, id="content">.css(\'div.missing\')'
             ' did not match any nodes.',
             str(cm.exception))
 
@@ -142,7 +144,7 @@ class TestNodesResultSet(BrowserTestCase):
             content.xpath('//table').first
 
         self.assertEquals(
-            'Empty result set: <NodeWrapper:div, id="content">.xpath("//table")'
+            'Empty result set: <NodeWrapper:div, id="content">.xpath(\'//table\')'
             ' did not match any nodes.',
             str(cm.exception))
 
@@ -155,7 +157,7 @@ class TestNodesResultSet(BrowserTestCase):
 
         self.assertEquals(
             'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
-            '.css("div.missing") did not match any nodes.',
+            '.css(\'div.missing\') did not match any nodes.',
             str(cm.exception))
 
     @browsing
@@ -167,7 +169,7 @@ class TestNodesResultSet(BrowserTestCase):
 
         self.assertEquals(
             'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
-            '.xpath("//table") did not match any nodes.',
+            '.xpath(\'//table\') did not match any nodes.',
             str(cm.exception))
 
     @browsing
@@ -723,7 +725,7 @@ class TestLinkNode(BrowserTestCase):
 
         self.assertEquals(
             'Empty result set: <ftw.browser.core.Browser instance>'
-            '.click_on("Missing") did not match any nodes.',
+            ".click_on('Missing') did not match any nodes.",
             str(cm.exception))
 
 
