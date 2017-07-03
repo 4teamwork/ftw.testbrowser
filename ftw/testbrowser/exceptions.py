@@ -50,8 +50,10 @@ class NoElementFound(BrowserException):
 
     def __init__(self, query_info=None):
         if query_info is not None:
-            message = ('Empty result set: {0}.{1}("{2}") '
-                       'did not match any nodes.'.format(*query_info))
+            message = '\n'.join(
+                ['Empty result set: {} did not match any nodes.'.format(
+                    query_info.render_call())]
+                 + query_info.get_hints())
             Exception.__init__(self, message)
         else:
             super(NoElementFound, self).__init__()

@@ -1,5 +1,6 @@
 from cssselect.xpath import HTMLTranslator
 from ftw.testbrowser.exceptions import NoElementFound
+from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
 from operator import attrgetter
 from operator import methodcaller
@@ -69,7 +70,8 @@ def wrapped_nodes(func, browser=_marker):
     return wrapper_method
 
 
-def wrap_nodes(nodes, browser, query_info=None):
+@QueryInfo.build
+def wrap_nodes(nodes, browser, query_info):
     """Wrap one or many nodes.
     """
     if not isinstance(nodes, RESULT_SET_TYPES):
@@ -229,26 +231,24 @@ class Nodes(list):
         """
         return map(attrgetter('raw_text'), self)
 
-    def css(self, *args, **kwargs):
+    @QueryInfo.build
+    def css(self, css_selector, query_info):
         """Find nodes by a *css* expression which are within one of the nodes
         in this result set.
         The resulting nodes are merged into a new result set.
 
-        :param xpath_selector: The xpath selector.
-        :type xpath_selector: string
+        :param css_selector: The CSS selector.
+        :type css_selector: string
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        if len(args) > 0:
-            query_info = (self, 'css', args[0])
-        else:
-            query_info = (self, 'css', args)
+        return Nodes(
+            reduce(list.__add__,
+                   map(methodcaller('css', css_selector, query_info), self)),
+            query_info=query_info)
 
-        return Nodes(reduce(list.__add__,
-                            map(methodcaller('css', *args, **kwargs), self)),
-                     query_info=query_info)
-
-    def xpath(self, *args, **kwargs):
+    @QueryInfo.build
+    def xpath(self, xpath_selector, query_info):
         """Find nodes by an *xpath* expression which are within one of the
         nodes in this result set.
         The resulting nodes are merged into a new result set.
@@ -258,14 +258,10 @@ class Nodes(list):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        if len(args) > 0:
-            query_info = (self, 'xpath', args[0])
-        else:
-            query_info = (self, 'xpath', args)
-
-        return Nodes(reduce(list.__add__,
-                            map(methodcaller('xpath', *args, **kwargs), self)),
-                     query_info=query_info)
+        return Nodes(
+            reduce(list.__add__,
+                   map(methodcaller('xpath', xpath_selector, query_info), self)),
+            query_info=query_info)
 
     def find(self, *args, **kwargs):
         """Find a elements by text. The elements are searched within each node
@@ -376,7 +372,8 @@ class NodeWrapper(object):
         """
         return self._browser
 
-    def css(self, css_selector):
+    @QueryInfo.build
+    def css(self, css_selector, query_info):
         """Find nodes within this node by a *css* selector.
 
         :param css_selector: The CSS selector.
@@ -408,10 +405,10 @@ class NodeWrapper(object):
 
         xpath_expr = ' | '.join(xpath)
 
-        query_info = (self, 'css', css_selector)
         return self.xpath(xpath_expr, query_info=query_info)
 
-    def xpath(self, xpath_selector, query_info=None):
+    @QueryInfo.build
+    def xpath(self, xpath_selector, query_info):
         """Find nodes within this node by a *css* selector.
 
         :param css_selector: The CSS selector.
@@ -419,7 +416,6 @@ class NodeWrapper(object):
         :returns: Object containg matches.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        query_info = query_info or (self, 'xpath', xpath_selector)
         nsmap = self.node.getroottree().getroot().nsmap
         return wrap_nodes(self.node.xpath(xpath_selector, namespaces=nsmap),
                           self.browser,

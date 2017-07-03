@@ -1,5 +1,6 @@
 from ftw.testbrowser import browser
 from ftw.testbrowser import exceptions
+from ftw.testbrowser.queryinfo import QueryInfo
 from unittest2 import TestCase
 
 
@@ -34,6 +35,15 @@ class TestBrowserExceptions(TestCase):
                 'field label', ['missing'], ['foo', 'bar', 'baz'])))
 
 
+class Foo(object):
+    def __repr__(self):
+        return u'<Foo>'
+
+    @QueryInfo.build
+    def method(self, one=None, two=None, three=None, four=None, query_info=None):
+        return query_info
+
+
 class TestNoElementFoundException(TestCase):
 
     def test_no_query_info(self):
@@ -42,16 +52,8 @@ class TestNoElementFoundException(TestCase):
             str(exceptions.NoElementFound()))
 
     def test_query_info_on_browser(self):
-        query_info = ('browser', 'css', '.the-link')
+        query_info = Foo().method(two='two', one=1)
         self.assertEqual(
-            'Empty result set: browser.css(".the-link") did not match any nodes.',
+            "Empty result set: <Foo>.method(one=1, two='two')"
+            ' did not match any nodes.',
             str(exceptions.NoElementFound(query_info)))
-
-    def test_query_info_on_node(self):
-        with browser:
-            browser.open_html('<html><body></body></html>')
-            query_info = (browser.css('body').first, 'xpath', '//div')
-            self.assertEqual(
-                'Empty result set: <NodeWrapper:body, >.xpath("//div") did not'
-                ' match any nodes.',
-                str(exceptions.NoElementFound(query_info)))
