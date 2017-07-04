@@ -14,6 +14,13 @@ Plone page object
    :members:
 
 
+Editbar page object
+===================
+
+.. automodule:: ftw.testbrowser.pages.editbar
+   :members:
+
+
 Factories menu page object
 ==========================
 
