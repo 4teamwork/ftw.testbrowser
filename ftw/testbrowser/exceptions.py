@@ -118,8 +118,8 @@ class HTTPError(IOError):
 
     :ivar status_code: The status code number
     :type status_code: ``int``
-    :ivar status_reasoon: The status reason.
-    :type status_reasoon: ``string``
+    :ivar status_reason: The status reason.
+    :type status_reason: ``string``
     """
 
     def __init__(self, status_code, status_reason):
@@ -134,8 +134,8 @@ class HTTPClientError(HTTPError):
 
     :ivar status_code: The status code number, e.g. ``404``
     :type status_code: ``int``
-    :ivar status_reasoon: The status reason, e.g. ``"Not Found"``
-    :type status_reasoon: ``string``
+    :ivar status_reason: The status reason, e.g. ``"Not Found"``
+    :type status_reason: ``string``
     """
 
 
@@ -144,6 +144,6 @@ class HTTPServerError(HTTPError):
 
     :ivar status_code: The status code number, e.g. ``500``
     :type status_code: ``int``
-    :ivar status_reasoon: The status reason, e.g. ``"Internal Server Error"``
-    :type status_reasoon: ``string``
+    :ivar status_reason: The status reason, e.g. ``"Internal Server Error"``
+    :type status_reason: ``string``
     """
