@@ -904,7 +904,7 @@ class Browser(object):
         """
         if self.exception_bubbling:
             raise ValueError(
-                'The expect_unauthorized context mangaer does not work when'
+                'The expect_unauthorized context manager does not work when'
                 ' the exception_bubbling option is enabled.'
                 ' Use self.assertRaises(Unauthorized) instead.')
 
