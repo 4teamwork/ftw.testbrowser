@@ -13,6 +13,7 @@ from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPError
 from ftw.testbrowser.exceptions import HTTPServerError
+from ftw.testbrowser.exceptions import InsufficientPrivileges
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.interfaces import IBrowser
@@ -277,6 +278,10 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
+        elif urlparse.urlparse(self.url).path.split('/')[-1] == 'require_login':
+            # Plone has redirected to "require_login", indicating that the user
+            # has insufficient privileges.
+            raise InsufficientPrivileges(self.status_code, self.status_reason)
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
         """``on`` does almost the same thing as ``open``. The difference is that
@@ -898,9 +903,6 @@ class Browser(object):
     def expect_unauthorized(self):
         """Context manager for expecting that next request, issued in the
         context manager block, will be unauthorized.
-        Plone will redirect to the login form when the user is not authorized.
-        In order to detect unauthorized responses, the URL is tested for the
-        login view.
         """
         if self.exception_bubbling:
             raise ValueError(
@@ -910,6 +912,11 @@ class Browser(object):
 
         try:
             yield
+
+        except InsufficientPrivileges:
+            # Expectation is met.
+            return
+
         except HTTPError, exc:
             if exc.status_code == 401:
                 # Response is "401 Unauthorized", thus user is probably
@@ -918,14 +925,6 @@ class Browser(object):
                 return
             else:
                 raise
-
-        else:
-            view_name = urlparse.urlparse(self.url).path.split('/')[-1]
-            if view_name == 'require_login':
-                # We were redirected to the login form, indicating that the
-                # user is not logged in and not authorized;
-                # that's what we expected.
-                return
 
         raise AssertionError(
             'Expected request to be unauthorized, but got: {} {} at {}'.format(

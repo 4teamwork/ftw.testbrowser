@@ -5,8 +5,8 @@ Changelog
 1.25.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Feature: raise ``InsufficientPrivileges`` when a Plone request
+  causes a insufficient privileges problem. [jone]
 
 1.25.0 (2017-07-04)
 -------------------

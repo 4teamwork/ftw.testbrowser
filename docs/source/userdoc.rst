@@ -539,6 +539,13 @@ When the response has a status code of `4xx`, a
 when the status code is `5xx`, a
 :py:class:`ftw.testbrowser.exceptions.HTTPServerError` is raised.
 
+When the requests is sent to a Plone CMS and causes an "insufficient privileges"
+result, a
+:py:class:`ftw.testbrowser.exceptions.InsufficientPrivileges` is raised.
+The exception is raised for anonymous users (rendering the login form) as well
+as for logged in users (rendering the "Insufficient Privileges" page).
+
+
 
 Disabling HTTP exceptions
 -------------------------
