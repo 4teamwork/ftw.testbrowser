@@ -2,6 +2,7 @@ from copy import deepcopy
 from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+from ftw.testbrowser.widgets.base import WIDGETS
 from lxml import etree
 from lxml.html import formfill
 
@@ -77,6 +78,15 @@ class DataGridWidget(PloneWidget):
             fields = cell.css(selector)
             if len(fields) == 1:
                 return func(fields.first, value)
+
+        for widget_klass in WIDGETS:
+            try:
+                widget = widget_klass.find_widget_in_datagrid_cell(cell)
+            except NotImplementedError:
+                pass
+            else:
+                widget.fill(value)
+                return
 
         raise Exception('DataGridField: unknown column type "{0}"'.format(
             label))
