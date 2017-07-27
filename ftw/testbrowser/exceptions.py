@@ -147,3 +147,21 @@ class HTTPServerError(HTTPError):
     :ivar status_reason: The status reason, e.g. ``"Internal Server Error"``
     :type status_reason: ``string``
     """
+
+class InsufficientPrivileges(HTTPClientError):
+    """This exception is raised when Plone responds that the user has
+    insufficient privileges for performing that request.
+
+    Plone redirects the user to a "require_login" script when the user has
+    not enough privileges (causing an internal Unauthorized exception to be
+    raised).
+
+    When a user is logged in, the "require_login" script will render a page
+    with the title "Insufficient Privileges".
+    For anonymous users, the login form is rendered.
+    Both cases cause the testbrowser to raise an InsufficientPrivileges
+    exception.
+
+    This exception can be disabled with by disabling the ``raise_http_errors``
+    option.
+    """

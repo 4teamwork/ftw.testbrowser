@@ -2,6 +2,7 @@ from ftw.testbrowser import Browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser import HTTPClientError
 from ftw.testbrowser import HTTPServerError
+from ftw.testbrowser import InsufficientPrivileges
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
@@ -146,6 +147,27 @@ class TestBrowserCore(BrowserTestCase):
             browser.raise_http_errors = False
             with capture_streams(stderr=StringIO()):
                 browser.reload()
+
+    @browsing
+    def test_raises_insufficient_privileges_for_anonymous(self, browser):
+        """When an anonymous user accesses a protected content, Plone will
+        redirect to a "require_login" script, rendering a login form.
+        By default, the ftw.testbrowser should raise an InsufficientPrivileges
+        exception in this case.
+        """
+        with self.assertRaises(InsufficientPrivileges):
+            browser.open(view='plone_control_panel')
+
+    @browsing
+    def test_raises_insufficient_privileges_for_logged_in_user(self, browser):
+        """When an logged in user accesses a protected content, Plone will
+        redirect to a "require_login" script, rendering "Insufficient Privileges".
+        By default, the ftw.testbrowser should raise an InsufficientPrivileges
+        exception in this case.
+        """
+        browser.login()
+        with self.assertRaises(InsufficientPrivileges):
+            browser.open(view='plone_control_panel')
 
     @browsing
     def test_expect_http_error(self, browser):
