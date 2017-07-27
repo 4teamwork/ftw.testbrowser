@@ -5,8 +5,7 @@ Changelog
 1.26.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Datagridfield widget: support cell-filling by other widgets. [jone]
 
 1.26.0 (2017-07-27)
 -------------------

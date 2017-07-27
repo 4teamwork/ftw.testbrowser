@@ -2,7 +2,7 @@ from copy import deepcopy
 from ftw.testbrowser.nodes import wrap_node
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
-from lxml import etree
+from ftw.testbrowser.widgets.base import WIDGETS
 from lxml.html import formfill
 
 
@@ -66,8 +66,13 @@ class DataGridWidget(PloneWidget):
         return self.css('input[name="{0}.count"]'.format(self.fieldname)).first
 
     def _fill_cell(self, cell, label, value):
+        for widget_klass in WIDGETS:
+            widget = widget_klass.find_widget_in_datagrid_cell(cell)
+            if widget is not None:
+                widget.fill(value)
+                return
+
         handlers = (
-            ('div.autocompleteInputWidget', self._fill_autocomplete),
             ('input[type=text]', self._fill_text),
             ('select', self._fill_select),
             ('input[type=checkbox]', self._fill_checkbox),
@@ -93,30 +98,3 @@ class DataGridWidget(PloneWidget):
         else:
             value = ''
         return formfill._fill_multiple(node, value)
-
-    def _fill_autocomplete(self, node, values):
-        if not isinstance(values, (list, set, tuple)):
-            values = [values]
-        values = map(self._resolve_objects_to_path, values)
-
-        # remove currently selected values
-        for span in node.css('span.option'):
-            span.node.getparent().remove(span.node)
-
-        fieldname = node.css('[name$="empty-marker"]').first.attrib.get(
-            'name').replace('-empty-marker', '')
-        for value in values:
-            span = etree.SubElement(node.node, 'span',
-                                    {'class': 'option'})
-            etree.SubElement(span, 'input', {
-                'type': 'checkbox',
-                'name': fieldname,
-                'value': value,
-                'checked': 'checked'})
-            etree.SubElement(span, 'label').text = value
-
-    def _resolve_objects_to_path(self, value):
-        if hasattr(value, 'getPhysicalPath'):
-            return '/'.join(value.getPhysicalPath())
-        else:
-            return value
