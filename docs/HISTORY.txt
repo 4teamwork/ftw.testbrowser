@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.25.1 (unreleased)
+1.26.0 (2017-07-27)
 -------------------
 
 - Feature: raise ``InsufficientPrivileges`` when a Plone request
