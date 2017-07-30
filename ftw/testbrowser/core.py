@@ -113,6 +113,7 @@ class Browser(object):
         self.drivers = {}
         self.default_driver = None
         self._log_exceptions = True
+        self._context_manager_active = False
         self.reset()
 
     def __call__(self, app):
@@ -130,20 +131,28 @@ class Browser(object):
         """Resets the browser: closes active sessions and resets the internal
         state.
         """
-        self.request_library = None
         self.raise_http_errors = True
         self.exception_bubbling = False
-        self.next_app = None
-        self.app = None
         self.document = None
         self.previous_url = None
         self.form_files = {}
         self.session_headers = []
         self._status_code = None
         self._status_reason = None
+
+        if not self._context_manager_active:
+            self.request_library = None
+            self.app = None
+            self.next_app = None
+
         map(methodcaller('reset'), self.drivers.values())
 
     def __enter__(self):
+        if self._context_manager_active:
+            raise ValueError('Nesting browser context manager is not allowed.')
+        else:
+            self._context_manager_active = True
+
         if self.request_library is None:
             if self.default_driver is not None:
                 self.request_library = self.default_driver
@@ -174,6 +183,7 @@ class Browser(object):
 
                 print '\nftw.testbrowser dump:', path,
 
+        self._context_manager_active = False
         self.reset()
 
     def get_driver(self, library=None):

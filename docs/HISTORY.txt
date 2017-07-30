@@ -5,8 +5,8 @@ Changelog
 1.26.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Disallow using browser as nested context manager. [jone]
+- Fix reset behavior while used in context manager. [jone]
 
 1.26.0 (2017-07-27)
 -------------------

@@ -1,4 +1,5 @@
 from ftw.testbrowser import Browser
+from ftw.testbrowser import browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser import HTTPClientError
 from ftw.testbrowser import HTTPServerError
@@ -316,6 +317,20 @@ class TestBrowserCore(BrowserTestCase):
     def test_opening_preserves_global_request(self, browser):
         browser.open()
         self.assertIsNotNone(getRequest())
+
+    def test_reset_does_not_break_context_manager(self):
+        with browser(self.layer['app']):
+            browser.open()
+            browser.reset()
+            browser.open()
+
+    def test_nesting_context_manager_not_allowed(self):
+        with browser:
+            with self.assertRaises(ValueError) as cm:
+                with browser:
+                    pass
+            self.assertEquals('Nesting browser context manager is not allowed.',
+                              str(cm.exception))
 
     def assert_starts_with(self, start, contents):
         self.assertTrue(
