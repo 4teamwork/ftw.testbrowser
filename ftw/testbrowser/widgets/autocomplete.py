@@ -16,6 +16,13 @@ class AutocompleteWidget(PloneWidget):
 
         return len(node.css('div.autocompleteInputWidget')) > 0
 
+    @classmethod
+    def find_widget_in_datagrid_cell(kls, cell):
+        if len(cell.css('div.autocompleteInputWidget')) > 0:
+            return kls(cell, cell.browser)
+        else:
+            return None
+
     def fill(self, values):
         """Fill the autocomplete value with a key from the vocabulary.
         For content tree widgets, the value may be a Plone object which
@@ -30,7 +37,13 @@ class AutocompleteWidget(PloneWidget):
         values = self._resolve_objects_to_path(values)
 
         container = self.css('div.autocompleteInputWidget').first
-        fieldname = '%s:list' % self.fieldname
+
+        if self.fieldname is None:
+            # We are in a datagrid field and self is not a div.field
+            fieldname = (container.css('[name$="empty-marker"]').first
+                         .attrib.get('name').replace('-empty-marker', ''))
+        else:
+            fieldname = '%s:list' % self.fieldname
 
         # remove currently selected values
         for span in container.css('span.option'):
