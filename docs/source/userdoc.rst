@@ -173,12 +173,12 @@ Logout and login a different user:
 .. code:: py
 
     browser.login(username='john.doe', password='secret').open()
-    browser.reset()
+    browser.logout()
     browser.login().open()
 
 
 .. seealso:: :py:func:`ftw.testbrowser.core.Browser.login`,
-             :py:func:`ftw.testbrowser.core.Browser.reset`
+             :py:func:`ftw.testbrowser.core.Browser.logout`
 
 
 Finding elements
