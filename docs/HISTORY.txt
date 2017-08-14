@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.26.2 (unreleased)
+1.26.2 (2017-08-14)
 -------------------
 
 - Disallow using browser as nested context manager. [jone]
