@@ -5,7 +5,7 @@ Changelog
 1.26.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Use current page's default `#form` in `erroneous_fields`. [deiferni]
 
 
 1.26.2 (2017-08-14)
@@ -14,16 +14,19 @@ Changelog
 - Disallow using browser as nested context manager. [jone]
 - Fix reset behavior while used in context manager. [jone]
 
+
 1.26.1 (2017-07-31)
 -------------------
 
 - Datagridfield widget: support cell-filling by other widgets. [jone]
+
 
 1.26.0 (2017-07-27)
 -------------------
 
 - Feature: raise ``InsufficientPrivileges`` when a Plone request
   causes a insufficient privileges problem. [jone]
+
 
 1.25.0 (2017-07-04)
 -------------------
