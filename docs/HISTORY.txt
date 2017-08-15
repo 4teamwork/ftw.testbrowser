@@ -5,7 +5,7 @@ Changelog
 1.26.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Use current page's default `#form` in `erroneous_fields`. [deiferni]
 
 
 1.26.2 (2017-08-14)
