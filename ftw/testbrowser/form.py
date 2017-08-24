@@ -61,6 +61,11 @@ class Form(NodeWrapper):
                          normalize_spaces(input.label.raw_text)):
                 return input
 
+            checkbox_labels = (input.label is not None and
+                               input.label.css('>span.label'))
+            if checkbox_labels and label == checkbox_labels.first.text:
+                return input
+
         return self.find_widget(label_or_name)
 
     @wrapped_nodes
@@ -266,6 +271,11 @@ class Form(NodeWrapper):
                 labels.append(label)
             elif input.name:
                 labels.append(input.name)
+
+            checkbox_labels = (input.label is not None and
+                               input.label.css('>span.label'))
+            if checkbox_labels:
+                labels.append(checkbox_labels.first.text)
 
         return labels
 
