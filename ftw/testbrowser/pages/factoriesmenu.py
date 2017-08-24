@@ -33,7 +33,9 @@ def add(type_name, browser=default_browser):
         raise ValueError('Cannot add "%s": no factories menu visible.' % (
                 type_name))
 
-    links = menu(browser=browser).css('.actionMenuContent').find(type_name)
+    # Plone 4: .actionMenuContent
+    # Plone 5: >ul
+    links = menu(browser=browser).css('.actionMenuContent, >ul').find(type_name)
     if len(links) == 0:
         raise ValueError('The type "%s" is not addable. Addable types: %s' % (
                 type_name,
@@ -50,4 +52,6 @@ def addable_types(browser=default_browser):
     if not visible(browser=browser):
         raise ValueError('Factories menu is not visible.')
 
-    return menu(browser=browser).css('.actionMenuContent a').text
+    # Plone 4: .actionMenuContent
+    # Plone 5: >ul
+    return menu(browser=browser).css('.actionMenuContent, >ul').css('a').text

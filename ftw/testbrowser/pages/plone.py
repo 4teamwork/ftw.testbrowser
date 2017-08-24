@@ -7,7 +7,11 @@ def logged_in(browser=default_browser):
     resturns the user-ID, otherwise ``False``.
     """
 
-    match = browser.css('#user-name')
+    # Plone 4: #user-name
+    # Plone 5: #portal-personaltools .plone-toolbar-submenu-header
+    match = browser.css(
+        '#portal-personaltools .plone-toolbar-submenu-header,'
+        ' #user-name')
     if match:
         return match[0].text.strip()
     else:

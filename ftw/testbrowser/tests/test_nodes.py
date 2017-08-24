@@ -131,10 +131,16 @@ class TestNodesResultSet(BrowserTestCase):
         with self.assertRaises(NoElementFound) as cm:
             content.css('div.missing').first
 
-        self.assertEquals(
-            'Empty result set: <NodeWrapper:div, id="content">.css(\'div.missing\')'
-            ' did not match any nodes.',
-            str(cm.exception))
+        self.assertIn(
+            str(cm.exception),
+            (
+                # Plone 4:
+                'Empty result set: <NodeWrapper:div, id="content">'
+                '.css(\'div.missing\') did not match any nodes.',
+                # Plone 5:
+                'Empty result set: <NodeWrapper:article, id="content">'
+                '.css(\'div.missing\') did not match any nodes.',
+            ))
 
     @browsing
     def test_first_NoElementFound__with_xpath_on_node(self, browser):
@@ -143,10 +149,16 @@ class TestNodesResultSet(BrowserTestCase):
         with self.assertRaises(NoElementFound) as cm:
             content.xpath('//table').first
 
-        self.assertEquals(
-            'Empty result set: <NodeWrapper:div, id="content">.xpath(\'//table\')'
-            ' did not match any nodes.',
-            str(cm.exception))
+        self.assertIn(
+            str(cm.exception),
+            (
+                # Plone 4:
+                'Empty result set: <NodeWrapper:div, id="content">'
+                '.xpath(\'//table\') did not match any nodes.',
+                # Plone 5:
+                'Empty result set: <NodeWrapper:article, id="content">'
+                '.xpath(\'//table\') did not match any nodes.',
+            ))
 
     @browsing
     def test_first_NoElementFound__with_css_on_result_set(self, browser):
@@ -155,10 +167,16 @@ class TestNodesResultSet(BrowserTestCase):
         with self.assertRaises(NoElementFound) as cm:
             content.css('div.missing').first
 
-        self.assertEquals(
-            'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
-            '.css(\'div.missing\') did not match any nodes.',
-            str(cm.exception))
+        self.assertIn(
+            str(cm.exception),
+            (
+                # Plone 4:
+                'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
+                '.css(\'div.missing\') did not match any nodes.',
+                # Plone 5:
+                'Empty result set: <Nodes: [<NodeWrapper:article, id="content">]>'
+                '.css(\'div.missing\') did not match any nodes.',
+            ))
 
     @browsing
     def test_first_NoElementFound__with_xpath_on_result_set(self, browser):
@@ -167,10 +185,16 @@ class TestNodesResultSet(BrowserTestCase):
         with self.assertRaises(NoElementFound) as cm:
             content.xpath('//table').first
 
-        self.assertEquals(
-            'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
-            '.xpath(\'//table\') did not match any nodes.',
-            str(cm.exception))
+        self.assertIn(
+            str(cm.exception),
+            (
+                # Plone 4:
+                'Empty result set: <Nodes: [<NodeWrapper:div, id="content">]>'
+                '.xpath(\'//table\') did not match any nodes.',
+                # Plone 5:
+                'Empty result set: <Nodes: [<NodeWrapper:article, id="content">]>'
+                '.xpath(\'//table\') did not match any nodes.',
+            ))
 
     @browsing
     def test_first_or_none_is_first_node(self, browser):

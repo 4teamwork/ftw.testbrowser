@@ -5,7 +5,7 @@ Changelog
 1.26.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add Plone 5.1 support. [jone, maethu]
 
 
 1.26.2 (2017-08-14)

@@ -8,6 +8,7 @@ from mechanize._form import MimeWriter
 from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
+import pkg_resources
 import shutil
 import urllib
 import urlparse
@@ -58,6 +59,11 @@ class Form(NodeWrapper):
 
             if label in (input.label.text,
                          normalize_spaces(input.label.raw_text)):
+                return input
+
+            checkbox_labels = (input.label is not None and
+                               input.label.css('>span.label'))
+            if checkbox_labels and label == checkbox_labels.first.text:
                 return input
 
         return self.find_widget(label_or_name)
@@ -266,6 +272,11 @@ class Form(NodeWrapper):
             elif input.name:
                 labels.append(input.name)
 
+            checkbox_labels = (input.label is not None and
+                               input.label.css('>span.label'))
+            if checkbox_labels:
+                labels.append(checkbox_labels.first.text)
+
         return labels
 
     def find_widget(self, label):
@@ -354,6 +365,13 @@ class Form(NodeWrapper):
                 f = mw2.startbody(prefix=0)
                 f.write(value)
 
+        if pkg_resources.get_distribution('lxml').version >= '3.6.1':
+            # Since lxml 3.6.1 the lxml.html.form_values no longer include
+            # "file"-inputs, therefore we need to treat them as extra values.
+            for field in self.inputs:
+                if getattr(field, 'type', None) == 'file':
+                    field.write_mime_data(mw)
+
         mw.lastpart()
         value = data.getvalue()
         if isinstance(value, unicode):
@@ -375,12 +393,20 @@ class TextAreaField(NodeWrapper):
         if self.node.label is not None:
             return
 
-        if not self.attrib.get('id', None):
+        if self.attrib.get('id', None):
+            # Tinymce with dexterity has not the same label "for" as ids
+            # on the textarea.
+            for_attribute = self.attrib['id'].replace('.', '-')
+
+        elif self.attrib.get('name', None):
+            # TinyCME in Plone 5 has a even wronger structure, the textarea has
+            # no id attr at all.
+            for_attribute = self.attrib['name'].replace('.', '-')
+            self.attrib['id'] = for_attribute
+
+        else:
             return
 
-        # Tinymce with dexterity has not the same label "for" as ids
-        # on the textarea.
-        for_attribute = self.attrib['id'].replace('.', '-')
         label = self.body.xpath('//label[@for="%s"]' % for_attribute)
         if len(label) > 0:
             self.node.label = label.first.node
