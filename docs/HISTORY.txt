@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.26.3 (unreleased)
+1.26.3 (2017-09-11)
 -------------------
 
 - Make ``plone.protect`` import optional so that ``ftw.testbrowser``
