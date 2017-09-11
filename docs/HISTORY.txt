@@ -5,8 +5,8 @@ Changelog
 1.26.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Make ``plone.protect`` import optional so that ``ftw.testbrowser``
+  works without ``plone.protect``. [jone]
 
 1.26.2 (2017-08-14)
 -------------------

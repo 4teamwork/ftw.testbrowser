@@ -27,7 +27,6 @@ from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
-from plone.protect import createToken
 from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
@@ -239,6 +238,8 @@ class Browser(object):
         :param send_authenticator: When true, a ``plone.protect`` CSRF
           authenticator token is sent as if we would submit a prepared form.
           When this flag option is used, the request may be sent as ``POST``.
+          The code using the testbrowser with the ``send_authenticator`` option
+          must make sure that ``plone.protect`` is installed.
         :type send_authenticator: Boolean (Default ``False``)
 
         .. seealso:: :py:func:`visit`
@@ -253,6 +254,10 @@ class Browser(object):
             if data is None:
                 data = {}
 
+            # plone.protect may not be installed: the import is inline in
+            # order to only require plone.protect when the send_authenticator
+            # option is actually used.
+            from plone.protect import createToken
             data['_authenticator'] = createToken()
 
         if method is None and data is None:
