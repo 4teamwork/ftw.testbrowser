@@ -8,6 +8,7 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
@@ -18,6 +19,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from StringIO import StringIO
+from unittest import skipUnless
 from zExceptions import BadRequest
 from zope.component import getUtility
 from zope.publisher.browser import BrowserView
@@ -400,6 +402,7 @@ class TestBrowserRequests(BrowserTestCase):
             'URL: {}/test-redirect-loop'.format(self.portal.absolute_url()),
             str(cm.exception))
 
+    @skipUnless(IS_PLONE_4, 'gzip compression was removed in Plone 5.')
     @browsing
     def test_decompresses_gzip_responses(self, browser):
         browser.login().open()
