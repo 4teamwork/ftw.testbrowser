@@ -24,6 +24,7 @@ preparation we use the ``requests`` module.
 
 
 from Acquisition import aq_base
+from contextlib import contextmanager
 from ftw.testbrowser.drivers.utils import isolated
 from ftw.testbrowser.drivers.utils import remembering_for_reload
 from ftw.testbrowser.exceptions import BlankPage
@@ -34,6 +35,9 @@ from requests.structures import CaseInsensitiveDict
 from StringIO import StringIO
 from urllib import unquote
 from urlparse import urlparse
+from zope.component import getGlobalSiteManager
+from zope.component import getMultiAdapter
+from zope.component.hooks import getSite
 from zope.interface import implements
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
@@ -41,6 +45,7 @@ from ZPublisher.Response import Response
 from ZPublisher.Test import publish_module
 import gzip
 import httplib
+import pkg_resources
 import requests
 import sys
 import Zope2
@@ -230,17 +235,18 @@ class TraversalDriver(object):
         app = aq_base(self.browser.app).__of__(requestcontainer)
 
         with self.transactions_manager(zope_request, app):
-            try:
-                publish_module(
-                    'Zope2',
-                    response=response,
-                    request=zope_request,
-                    debug=self.browser.exception_bubbling)
+            with self._plone_protect_autocsrf_handling():
+                try:
+                    publish_module(
+                        'Zope2',
+                        response=response,
+                        request=zope_request,
+                        debug=self.browser.exception_bubbling)
 
-            except:
-                self.response = None
-                self.current_url = None
-                raise
+                except:
+                    self.response = None
+                    self.current_url = None
+                    raise
 
         self._extract_cookies(prepared_request, response)
         self.response = response
@@ -357,6 +363,67 @@ class TraversalDriver(object):
         with gzip.GzipFile(fileobj=StringIO(self.response.body)) as zipfile:
             self.response.body = zipfile.read()
             self.response.headers.pop('content-encoding', None)
+
+    @contextmanager
+    def _plone_protect_autocsrf_handling(self):
+        """Support plone.protect's auto CSRF protection as good as possible.
+
+        The problem is that we use the same connection and transaction for
+        preparation as for performing a request with ftw.testbrowser.
+
+        This means that we may already have changed objects on the connection
+        but the change is not from within the request.
+
+        We fix that by marking all objects which are already marked as changed
+        on the current as safe for CSRF.
+        This also means that the auto protection does no longer trigger within
+        the test for the followed requests.
+        """
+
+        if not self._is_plone_protect_autocsrf_enabled():
+            # Abort but do not break context manager.
+            yield
+            return
+
+        from ZPublisher.interfaces import IPubAfterTraversal
+
+        site_manager = getGlobalSiteManager()
+        site_manager.registerHandler(
+            self._plone_protect_mark_all_as_save, [IPubAfterTraversal])
+        try:
+            yield
+        finally:
+            site_manager.unregisterHandler(
+                self._plone_protect_mark_all_as_save, [IPubAfterTraversal])
+
+
+    def _is_plone_protect_autocsrf_enabled(self):
+        """Returns whether we expect the plone.protect auto CSRF protection
+        to be enabled.
+        It is usually enabled in Plone 5.
+        """
+
+        try:
+            dist = pkg_resources.get_distribution('plone.protect')
+        except pkg_resources.DistributionNotFound:
+            # plone.protect is not installed
+            return False
+        else:
+            # auto CSRF is enabled in plone.protect>=3
+            return int(dist.version.split('.')[0]) >= 3
+
+    def _plone_protect_mark_all_as_save(self, event):
+        """Event handler for marking all objects touched on this connection
+        as save writes.
+        """
+        from plone.protect.auto import safeWrite
+        from plone.transformchain.interfaces import ITransform
+
+        transform = getMultiAdapter((getSite(), event.request),
+                                    ITransform,
+                                    name='plone.protect.autocsrf')
+        for obj in transform._registered_objects():
+            safeWrite(obj, event.request)
 
     def reload(self):
         if self.previous_make_request is None:
