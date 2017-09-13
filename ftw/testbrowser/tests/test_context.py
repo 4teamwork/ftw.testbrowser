@@ -5,8 +5,10 @@ from ftw.testbrowser.exceptions import ContextNotFound
 from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
+from unittest import skipUnless
 
 
 @all_drivers
@@ -28,6 +30,7 @@ class TestBrowserContext(BrowserTestCase):
         browser.login().visit(folder, view='folder_contents')
         self.assertEquals(folder, browser.context)
 
+    @skipUnless(IS_PLONE_4, 'Plone 5 has an unaffected implementation.')
     @browsing
     def test_context_when_url_contains_view(self, browser):
         browser.login(SITE_OWNER_NAME).open()
