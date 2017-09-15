@@ -5,8 +5,7 @@ Changelog
 1.26.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Improve multi browser support in standard page objects. [jone]
 
 1.26.3 (2017-09-11)
 -------------------
