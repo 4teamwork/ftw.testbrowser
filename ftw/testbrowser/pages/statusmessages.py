@@ -46,7 +46,7 @@ def error_messages(browser=default_browser):
     return messages(browser=browser)['error']
 
 
-def as_string(filter_=None):
+def as_string(filter_=None, browser=default_browser):
     """All status messages as string instead of dict, so that it can be used
     for formatting assertion errors.
     Pass a type ("info", "warning" or "error") for filter_ing the messages.
@@ -58,7 +58,7 @@ def as_string(filter_=None):
         filter_ = (filter_,)
 
     result = []
-    for msg_type, msg_texts in sorted(messages().items()):
+    for msg_type, msg_texts in sorted(messages(browser=browser).items()):
         if msg_type not in filter_:
             continue
 
@@ -73,7 +73,7 @@ def assert_message(text, browser=default_browser):
     all_messages = reduce(list.__add__, messages(browser=browser).values())
     if text not in all_messages:
         raise AssertionError('No status message "%s". Current messages: %s' % (
-                text, as_string()))
+                text, as_string(browser=browser)))
     return True
 
 
@@ -82,7 +82,8 @@ def assert_no_messages(browser=default_browser):
     """
     all_messages = reduce(list.__add__, messages(browser=browser).values())
     if len(all_messages) > 0:
-        raise AssertionError('Unexpected status messages: %s' % as_string())
+        raise AssertionError('Unexpected status messages: {}'.format(
+            as_string(browser=browser)))
     return True
 
 
@@ -91,5 +92,5 @@ def assert_no_error_messages(browser=default_browser):
     """
     if len(error_messages(browser=browser)) > 0:
         raise AssertionError('Unexpected "error" status messages: %s' % (
-                as_string('error')))
+                as_string('error', browser=browser)))
     return True

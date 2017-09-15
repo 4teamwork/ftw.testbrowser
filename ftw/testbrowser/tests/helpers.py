@@ -1,4 +1,6 @@
 from contextlib import contextmanager
+from ftw.testbrowser import browsing
+from functools import wraps
 from StringIO import StringIO
 from zope.component import getGlobalSiteManager
 from zope.interface import Interface
@@ -53,3 +55,23 @@ def capture_streams(stdout=None, stderr=None):
             sys.stdout = ori_stdout
         if stderr is not None:
             sys.stderr = ori_stderr
+
+
+def nondefault_browsing(func):
+    """The @nondefault_browsing decorator is similar to the @browsing
+    decorator, but it creates a cloned browser instance instead of using
+    the default browser.
+
+    This decorator is used for testing page objects.
+    Page objects allow to pass in the browser instance in order to support
+    multiple browser.
+    By using a non-default browser and passing in the browser object, we make
+    sure that the page objects actually use the passed in browser instace
+    recursively.
+    """
+    @wraps(func)
+    @browsing
+    def wrapper(self, browser):
+        with browser.clone() as cloned_browser:
+            return func(self, cloned_browser)
+    return wrapper
