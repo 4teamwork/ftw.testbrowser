@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.26.4 (unreleased)
+1.27.0 (2017-09-15)
 -------------------
 
 - Improve multi browser support in standard page objects. [jone]
