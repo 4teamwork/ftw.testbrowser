@@ -46,3 +46,10 @@ z3cform page object
 
 .. automodule:: ftw.testbrowser.pages.z3cform
    :members:
+
+
+Folder contents page object
+===========================
+
+.. automodule:: ftw.testbrowser.pages.folder_contents
+   :members:
