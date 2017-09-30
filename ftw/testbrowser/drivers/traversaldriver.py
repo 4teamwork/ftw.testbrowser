@@ -419,11 +419,25 @@ class TraversalDriver(object):
         from plone.protect.auto import safeWrite
         from plone.transformchain.interfaces import ITransform
 
+        self._ensure_plone_catalog_queue_processed()
+
         transform = getMultiAdapter((getSite(), event.request),
                                     ITransform,
                                     name='plone.protect.autocsrf')
         for obj in transform._registered_objects():
             safeWrite(obj, event.request)
+
+    def _ensure_plone_catalog_queue_processed(self):
+        """In order for marking added objects as safe in plone.protect,
+        we must ensure that the catalog is processed and those objects
+        actually are created at this point.
+        """
+        try:
+            from Products.CMFCore.indexing import processQueue
+        except ImportError:
+            pass
+        else:
+            processQueue()
 
     def reload(self):
         if self.previous_make_request is None:
