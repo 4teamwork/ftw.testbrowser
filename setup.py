@@ -13,7 +13,7 @@ tests_require = [
     'Products.statusmessages',
     'collective.z3cform.datagridfield',
     'ftw.builder',
-    'ftw.testing',
+    'ftw.testing >= 1.17.0',
     'plone.app.content',
     'plone.app.contenttypes',
     'plone.app.dexterity',
