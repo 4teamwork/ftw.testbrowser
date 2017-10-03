@@ -51,6 +51,7 @@ setup(name='ftw.testbrowser',
       classifiers=[
         'Framework :: Plone',
         'Framework :: Plone :: 4.3',
+        'Framework :: Plone :: 5.1',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
