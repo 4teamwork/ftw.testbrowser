@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.27.1 (unreleased)
+1.28.0 (2017-10-03)
 -------------------
 
 - Let traversal driver support plone.protect>=3 auto CSRF protection. [jone]
