@@ -54,4 +54,4 @@ def addable_types(browser=default_browser):
 
     # Plone 4: .actionMenuContent
     # Plone 5: >ul
-    return menu(browser=browser).css('.actionMenuContent, >ul').css('a').text
+    return menu(browser=browser).css('.actionMenuContent a, >ul a').text

@@ -5,8 +5,7 @@ Changelog
 1.28.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Factories menu: fix regression when menu visible but empty. [jone]
 
 1.28.0 (2017-10-03)
 -------------------
