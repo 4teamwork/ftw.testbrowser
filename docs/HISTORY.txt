@@ -5,7 +5,8 @@ Changelog
 1.27.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Let traversal driver support plone.protect>=3 auto CSRF protection. [jone]
+- Add Plone 5.1 support. [jone, maethu]
 
 
 1.27.0 (2017-09-15)

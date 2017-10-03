@@ -4,7 +4,11 @@ from plone.app.testing import FunctionalTesting
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from unittest2 import TestCase
+import pkg_resources
 import transaction
+
+
+IS_PLONE_4 = pkg_resources.get_distribution('Plone').version[:2] == '4.'
 
 
 class BrowserTestCase(TestCase):

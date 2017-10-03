@@ -74,7 +74,11 @@ def wrapped_nodes(func, browser=_marker):
 def wrap_nodes(nodes, browser, query_info):
     """Wrap one or many nodes.
     """
-    if not isinstance(nodes, RESULT_SET_TYPES):
+    # lxml's C-code generator type is not types.GeneratorType.
+    is_generator = isinstance(nodes, types.GeneratorType) \
+                   or type(nodes).__name__ == 'generator'
+
+    if not isinstance(nodes, RESULT_SET_TYPES) and not is_generator:
         return wrap_node(nodes, browser)
 
     result = Nodes(query_info=query_info)

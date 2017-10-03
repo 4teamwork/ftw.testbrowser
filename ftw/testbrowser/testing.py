@@ -5,9 +5,9 @@ from ftw.builder.testing import set_builder_session_factory
 from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
-from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import PloneSandboxLayer
@@ -55,7 +55,7 @@ TRAVERSAL_TESTING = FunctionalTesting(
            TRAVERSAL_BROWSER_FIXTURE),
     name='ftw.testbrowser:functional:traversal')
 
-TRAVERSAL_INTEGRATION_TESTING = IntegrationTesting(
+TRAVERSAL_INTEGRATION_TESTING = FTWIntegrationTesting(
     bases=(BROWSER_FIXTURE,
            TRAVERSAL_BROWSER_FIXTURE),
     name='ftw.testbrowser:integration:traversal')

@@ -5,7 +5,6 @@ from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.dexterity.behaviors.exclfromnav import IExcludeFromNavigation
-from plone.app.testing import SITE_OWNER_NAME
 
 
 @all_drivers
@@ -14,7 +13,7 @@ class TestDexterityForms(BrowserTestCase):
     @browsing
     def test_tinymce_formfill(self, browser):
         self.grant('Manager')
-        browser.login(SITE_OWNER_NAME).open()
+        browser.login().open()
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page',
                       'Text': '<p>The body text.</p>'}).find('Save').click()
@@ -23,7 +22,8 @@ class TestDexterityForms(BrowserTestCase):
 
     @browsing
     def test_save_add_form(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
@@ -33,7 +33,8 @@ class TestDexterityForms(BrowserTestCase):
 
     @browsing
     def test_fill_umlauts(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Page')
         browser.fill({'Title': u'F\xf6lder'}).save()
         statusmessages.assert_no_error_messages()
@@ -41,7 +42,8 @@ class TestDexterityForms(BrowserTestCase):
 
     @browsing
     def test_changing_checkbox_values(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Page')
         browser.fill({'Title': u'Page',
                       'Exclude from navigation': True}).save()
@@ -58,7 +60,8 @@ class TestDexterityForms(BrowserTestCase):
 
     @browsing
     def test_checkbox_values_are_preserved(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Page')
 
         browser.fill({'Title': u'Page',
@@ -74,8 +77,11 @@ class TestDexterityForms(BrowserTestCase):
         self.assertTrue(IExcludeFromNavigation(browser.context).exclude_from_nav)
 
     @browsing
-    def test_radio_button_values_are_preserved(self, browser):
-        browser.login(SITE_OWNER_NAME).open()
+    def test_relation_list_and_relation_choice_autocomplete_widgets(self, browser):
+        # Plone 4: AutocompleteWidget from plone.formwidget.contenttree
+        # Plone 5: Patternslib based Autocompletewidget
+        self.grant('Manager')
+        browser.login().open()
         factoriesmenu.add('Page')
         browser.fill({'Title': u'Page used as relation'}).save()
         statusmessages.assert_no_error_messages()

@@ -8,6 +8,7 @@ from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
+from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
@@ -264,7 +265,11 @@ class TestBrowserCore(BrowserTestCase):
         folder_contents_url = portal_url + 'folder_contents'
 
         browser.login(SITE_OWNER_NAME).open(folder_contents_url)
-        self.assertEquals(portal_url, browser.base_url)
+        if IS_PLONE_4:
+            self.assertEquals(portal_url, browser.base_url)
+        else:
+            self.assertEquals(folder_contents_url, browser.base_url)
+
         self.assertEquals(folder_contents_url, browser.url)
 
     @browsing
@@ -291,16 +296,16 @@ class TestBrowserCore(BrowserTestCase):
         browser.open(view='login_form').fill(
             {'Login Name': TEST_USER_NAME,
              'Password': TEST_USER_PASSWORD}).submit()
-        self.assertTrue(browser.css('#user-name'))
+        self.assertTrue(plone.logged_in())
 
         with browser.clone() as subbrowser:
             subbrowser.open()
-            self.assertTrue(subbrowser.css('#user-name'))
+            self.assertTrue(plone.logged_in(subbrowser))
             subbrowser.find('Log out').click()
-            self.assertFalse(subbrowser.css('#user-name'))
+            self.assertFalse(plone.logged_in(subbrowser))
 
         browser.reload()
-        self.assertTrue(browser.css('#user-name'))
+        self.assertTrue(plone.logged_in())
 
     @browsing
     def test_cloning_a_browser_copies_headers(self, browser):

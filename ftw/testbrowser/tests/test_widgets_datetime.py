@@ -4,10 +4,20 @@ from ftw.testbrowser.pages import factoriesmenu
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
+import transaction
 
 
 @all_drivers
 class TestDatetimeWidget(BrowserTestCase):
+
+    def setUp(self):
+        super(TestDatetimeWidget, self).setUp()
+        registry = getUtility(IRegistry)
+        if 'plone.portal_timezone' in registry:
+            registry['plone.portal_timezone'] = 'Europe/Berlin'
+            transaction.commit()
 
     @browsing
     def test_z3cform_formfill(self, browser):
