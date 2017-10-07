@@ -243,7 +243,7 @@ class TraversalDriver(object):
                         request=zope_request,
                         debug=self.browser.exception_bubbling)
 
-                except:
+                except:  # noqa
                     self.response = None
                     self.current_url = None
                     raise
@@ -395,7 +395,6 @@ class TraversalDriver(object):
         finally:
             site_manager.unregisterHandler(
                 self._plone_protect_mark_all_as_save, [IPubAfterTraversal])
-
 
     def _is_plone_protect_autocsrf_enabled(self):
         """Returns whether we expect the plone.protect auto CSRF protection

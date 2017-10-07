@@ -42,6 +42,6 @@ class ExceptionLogger(logging.Handler):
         if not self.error_messages:
             return
 
-        print >>sys.stderr,  '\n'
+        print >>sys.stderr, '\n'
         for message in self.error_messages:
             print >>sys.stderr, message
