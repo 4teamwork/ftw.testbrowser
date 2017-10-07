@@ -4,6 +4,7 @@ from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
 from functools import partial
 from functools import wraps
+from zope.component import getMultiAdapter
 from zope.component.hooks import getSite
 from zope.component.hooks import setSite
 import pkg_resources
@@ -87,3 +88,49 @@ def isolate_securitymanager():
         yield
     finally:
         setSecurityManager(manager)
+
+
+def ensure_plone_catalog_queue_processed():
+    """In order for marking added objects as safe in plone.protect,
+    we must ensure that the catalog is processed and the data structures
+    actually are created at this point.
+    """
+    try:
+        from Products.CMFCore.indexing import processQueue
+    except ImportError:
+        pass
+    else:
+        processQueue()
+
+
+def ensure_plone_protect_changes_marked_as_save(request):
+    """Event handler for marking all objects touched on this request
+    as save writes.
+    """
+    if not is_plone_protect_autocsrf_enabled():
+        return
+
+    from plone.protect.auto import safeWrite
+    from plone.transformchain.interfaces import ITransform
+
+    transform = getMultiAdapter((None, request),
+                                ITransform,
+                                name='plone.protect.autocsrf')
+    for obj in transform._registered_objects():
+        safeWrite(obj, request)
+
+
+def is_plone_protect_autocsrf_enabled():
+    """Returns whether we expect the plone.protect auto CSRF protection
+    to be enabled.
+    It is usually enabled in Plone 5.
+    """
+
+    try:
+        dist = pkg_resources.get_distribution('plone.protect')
+    except pkg_resources.DistributionNotFound:
+        # plone.protect is not installed
+        return False
+    else:
+        # auto CSRF is enabled in plone.protect>=3
+        return int(dist.version.split('.')[0]) >= 3
