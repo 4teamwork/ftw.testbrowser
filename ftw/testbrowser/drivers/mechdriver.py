@@ -66,7 +66,7 @@ class MechanizeDriver(object):
                 raise RedirectLoopException(response.geturl())
 
             self.response = response
-        except:
+        except:  # noqa
             self.response = None
             raise
 

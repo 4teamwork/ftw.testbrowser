@@ -52,8 +52,7 @@ class NoElementFound(BrowserException):
         if query_info is not None:
             message = '\n'.join(
                 ['Empty result set: {} did not match any nodes.'.format(
-                    query_info.render_call())]
-                 + query_info.get_hints())
+                    query_info.render_call())] + query_info.get_hints())
             Exception.__init__(self, message)
         else:
             super(NoElementFound, self).__init__()
@@ -147,6 +146,7 @@ class HTTPServerError(HTTPError):
     :ivar status_reason: The status reason, e.g. ``"Internal Server Error"``
     :type status_reason: ``string``
     """
+
 
 class InsufficientPrivileges(HTTPClientError):
     """This exception is raised when Plone responds that the user has
