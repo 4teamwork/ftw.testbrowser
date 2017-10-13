@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.28.2 (unreleased)
+1.29.0 (2017-10-13)
 -------------------
 
 - Refactor plone.protect auto CSRF support for compatibility
