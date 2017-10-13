@@ -5,8 +5,8 @@ Changelog
 1.28.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Refactor plone.protect auto CSRF support for compatibility
+  with ftw.testing's COMPONENT_REGISTRY_ISOLATION isolation layer. [jone]
 
 1.28.1 (2017-10-03)
 -------------------
