@@ -540,6 +540,8 @@ class Browser(object):
         The base URL can be defined in HTML using a ``<base>``-tag.
         If no ``<base>``-tag is found, the page URL is used.
         """
+        if not self.document:
+            return self.url
         base_tags = self.css('base')
         if base_tags:
             return base_tags.first.attrib.get('href', self.url)
@@ -1010,8 +1012,8 @@ class Browser(object):
             parts[2] = '/'.join((parts[2].rstrip('/'), view))
             url = urlparse.urlunparse(parts)
 
-        if self.url:
-            url = urlparse.urljoin(self.url, url)
+        if self.base_url:
+            url = urlparse.urljoin(self.base_url, url)
 
         return url
 

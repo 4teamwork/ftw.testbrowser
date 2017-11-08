@@ -5,7 +5,7 @@ Changelog
 1.29.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Improve opening relative URLs. [mbaechtold]
 
 
 1.29.0 (2017-10-13)
