@@ -5,8 +5,7 @@ Changelog
 1.29.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Fix browser.debug to finish writing file before opening. [jone]
 
 1.29.1 (2017-11-08)
 -------------------
