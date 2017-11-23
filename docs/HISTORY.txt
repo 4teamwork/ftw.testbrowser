@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.29.3 (unreleased)
+1.29.3 (2017-11-23)
 -------------------
 
 - Add missing dependency on plone.uuid. [njohner]
