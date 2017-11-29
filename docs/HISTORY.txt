@@ -5,7 +5,7 @@ Changelog
 1.29.4 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix unbound local error. [deiferni]
 
 
 1.29.3 (2017-11-23)
