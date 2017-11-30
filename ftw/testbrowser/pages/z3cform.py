@@ -20,6 +20,7 @@ def erroneous_fields(form, browser=default_browser):
         if not input.parent('.field.error'):
             continue
 
+        label = None
         if input.label is not None:
             label = input.label.text_content()
         if not label:
