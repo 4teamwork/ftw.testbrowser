@@ -16,16 +16,8 @@ def erroneous_fields(form, browser=default_browser):
     """
 
     result = {}
-    for input in form.inputs:
-        if not input.parent('.field.error'):
-            continue
+    for field in form.css('.field.error'):
+        errors = field.css('.fieldErrorBox').text
+        result[field.css('label, div.label').first.text] = errors
 
-        label = None
-        if input.label is not None:
-            label = input.label.text_content()
-        if not label:
-            label = input.name
-
-        errors = input.parent('.field').css('.fieldErrorBox').normalized_text()
-        result[normalize_spaces(label)] = errors
     return result
