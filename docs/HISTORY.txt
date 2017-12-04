@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.29.5 (unreleased)
+1.29.5 (2017-12-04)
 -------------------
 
 - Improve extraction of erroneous fields. [jone, mbaechtold]
