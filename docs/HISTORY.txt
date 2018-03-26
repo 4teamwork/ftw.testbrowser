@@ -5,8 +5,7 @@ Changelog
 1.29.6 (unreleased)
 -------------------
 
-- Nothing changed yet.
-
+- Fix MIME encoding error when uploading files and using unicode form values. [jone]
 
 1.29.5 (2017-12-04)
 -------------------
