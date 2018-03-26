@@ -1,5 +1,6 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import factoriesmenu
+from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import SITE_OWNER_NAME
@@ -76,6 +77,17 @@ class TestFileUploadsArchetypes(TestCase):
         with asset('file.pdf') as pdf:
             self.assertTrue(pdf.read().strip() == browser.contents.strip(),
                             'The PDF was changed when uploaded!')
+
+    @browsing
+    def test_upload_unicode(self, browser):
+        browser.login(SITE_OWNER_NAME).open()
+        factoriesmenu.add('File')
+
+        with asset('cities-utf8.xml') as pdf:
+            browser.fill({'Title': u'Hall\xf6chen',
+                          'File': pdf}).save()
+
+        statusmessages.assert_no_error_messages()
 
     def assert_file_download(self, data, browser, filename='foo.txt',
                              content_type='text/plain'):

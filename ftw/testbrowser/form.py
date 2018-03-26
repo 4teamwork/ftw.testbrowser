@@ -355,6 +355,9 @@ class Form(NodeWrapper):
         mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
 
         for fieldname, value in values:
+            if isinstance(value, unicode):
+                value = value.encode('utf-8')
+
             field = self.find_field(fieldname)
             if isinstance(field, FileField):
                 field.write_mime_data(mw)
