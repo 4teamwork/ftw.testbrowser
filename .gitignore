@@ -3,6 +3,10 @@
 *.pyc
 .installed.cfg
 .mr.developer.cfg
+/.pytest_cache
+/.python-version
+/.tox
+/lib
 README.html
 bin/
 build/
