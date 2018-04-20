@@ -4,18 +4,24 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
-from StringIO import StringIO
-from zope.interface import implements
+from zope.interface import implementer
 import requests
-import urlparse
+
+
+try:
+    from StringIO import StringIO
+    from urlparse import urlparse
+except ImportError:
+    from io import StringIO
+    from urllib.parse import urlparse
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class RequestsDriver(object):
     """The requests driver uses the "requests" library for making
     real requests.
     """
-    implements(IDriver)
 
     LIBRARY_NAME = 'requests library'
     WEBDAV_SUPPORT = True
@@ -32,7 +38,7 @@ class RequestsDriver(object):
     @remembering_for_reload
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):
-        if urlparse.urlparse(url).hostname == 'nohost':
+        if urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
         if self.browser.exception_bubbling:
@@ -49,12 +55,12 @@ class RequestsDriver(object):
         try:
             self.response = self.requests_session.request(
                 method, url, data=data, headers=headers)
-        except requests.exceptions.TooManyRedirects, exc:
+        except requests.exceptions.TooManyRedirects as exc:
             raise RedirectLoopException(exc.request.url)
 
         return (self.response.status_code,
                 self.response.reason,
-                StringIO(self.response.content))
+                StringIO(self.response.content.decode(self.response.encoding)))
 
     def reload(self):
         if self.previous_make_request is None:

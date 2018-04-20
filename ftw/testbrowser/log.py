@@ -1,14 +1,20 @@
 from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
-from contextlib import contextmanager
 import logging
 import sys
 
 
 if not HAS_PLONE_EXTRAS:
-    @contextmanager
-    def ExceptionLogger():
-        yield
 
+    class ExceptionLogger(object):
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            pass
+
+        def print_captured_exceptions(self):
+            pass
 
 else:
     from Products.SiteErrorLog import SiteErrorLog

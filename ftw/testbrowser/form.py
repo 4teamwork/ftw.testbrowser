@@ -5,13 +5,23 @@ from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
-from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
 import pkg_resources
 import shutil
 import urllib
-import urlparse
+
+
+try:
+    # Python 2
+    from StringIO import StringIO
+    from urlparse import urlparse
+    from urlparse import urljoin
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from urllib.parse import urlparse
+    from urllib.parse import urljoin
 
 
 if HAS_PLONE_EXTRAS:
@@ -330,11 +340,11 @@ class Form(NodeWrapper):
         if not action:
             return self.browser.url
 
-        if urlparse.urlparse(action).scheme:
+        if urlparse(action).scheme:
             # The action is full qualified
             return action
 
-        return urlparse.urljoin(self.browser.base_url, action)
+        return urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
         URL = self.action_url

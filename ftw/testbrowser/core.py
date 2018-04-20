@@ -1,10 +1,9 @@
+from __future__ import print_function
 from contextlib import contextmanager
 from copy import deepcopy
 from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
-from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
-from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -27,15 +26,31 @@ from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
 from operator import attrgetter
 from operator import methodcaller
-from StringIO import StringIO
-from zope.interface import implements
+from zope.interface import implementer
 import json
 import lxml
 import lxml.html
 import os
 import re
 import tempfile
-import urlparse
+
+
+try:
+    # Python 2
+    from StringIO import StringIO
+    from urlparse import urlparse
+    from urlparse import urlunparse
+    from urlparse import urljoin
+    bytes = object()  # fake type
+    STRING_TYPES = (unicode, str)
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from urllib.parse import urlparse
+    from urllib.parse import urlunparse
+    from urllib.parse import urljoin
+    unicode = object()  # fake type
+    STRING_TYPES = (bytes, str)
 
 
 if is_installed('plone.app.testing'):
@@ -64,6 +79,8 @@ DRIVER_FACTORIES = {
 if HAS_PLONE_EXTRAS:
     from Acquisition import aq_chain
     from OFS.interfaces import IItem
+    from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
+    from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
     from zope.component.hooks import getSite
 
     #: Constant for choosing the mechanize library (interally dispatched requests)
@@ -75,6 +92,7 @@ if HAS_PLONE_EXTRAS:
     DRIVER_FACTORIES[MechanizeDriver.LIBRARY_NAME] = MechanizeDriver
 
 
+@implementer(IBrowser)
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
     It represents the browser instance and is used for navigating and
@@ -107,8 +125,6 @@ class Browser(object):
       (Default: ``False``).
     :type exception_bubbling: ``bool``
     """
-
-    implements(IBrowser)
 
     def __init__(self):
         self.drivers = {}
@@ -177,12 +193,15 @@ class Browser(object):
                 _, path = tempfile.mkstemp(suffix='.html',
                                            prefix='ftw.testbrowser-')
                 with open(path, 'w+') as file_:
-                    if isinstance(source, unicode):
+                    if isinstance(source, bytes):
+                        encoding = self.headers.get('content-type', 'utf-8').split(';')[-1].split('=')[-1]
+                        source = source.decode(encoding)
+                    if not isinstance(source, str):
                         source = source.encode('utf-8')
 
                     file_.write(source)
 
-                print '\nftw.testbrowser dump:', path,
+                print('\nftw.testbrowser dump:', path)
 
         self._context_manager_active = False
         self.reset()
@@ -295,7 +314,7 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
-        elif urlparse.urlparse(self.url).path.split('/')[-1] == 'require_login':
+        elif urlparse(self.url).path.split('/')[-1] == 'require_login':
             # Plone has redirected to "require_login", indicating that the user
             # has insufficient privileges.
             raise InsufficientPrivileges(self.status_code, self.status_reason)
@@ -844,7 +863,7 @@ class Browser(object):
             raise ContextNotFound(
                 'No <base> tag and no <body data-base-url> found.')
 
-        path = urlparse.urlparse(url).path.rstrip('/')
+        path = urlparse(url).path.rstrip('/')
         portal = getSite()
         portal_path = '/'.join(portal.getPhysicalPath())
         if not path.startswith(portal_path):
@@ -916,7 +935,7 @@ class Browser(object):
         try:
             self._log_exceptions = False
             yield
-        except HTTPError, exc:
+        except HTTPError as exc:
             if code is not None and code != exc.status_code:
                 raise AssertionError(
                     'Expected HTTP error with status code {}, got {}.'.format(
@@ -948,7 +967,7 @@ class Browser(object):
             # Expectation is met.
             return
 
-        except HTTPError, exc:
+        except HTTPError as exc:
             if exc.status_code == 401:
                 # Response is "401 Unauthorized", thus user is probably
                 # logged in but unauthorized anyway;
@@ -990,13 +1009,13 @@ class Browser(object):
                                    prefix='ftw.testbrowser-')
         with open(path, 'w+') as file_:
             source = self.contents
-            if isinstance(source, unicode):
+            if not isinstance(source, str):
                 source = source.encode('utf-8')
 
             file_.write(source)
 
         cmd = 'open {0}'.format(path)
-        print '> {0}'.format(cmd)
+        print('> {0}'.format(cmd))
         os.system(cmd)
 
     def _verify_setup(self):
@@ -1017,12 +1036,12 @@ class Browser(object):
             url = url_or_object
 
         if view is not None:
-            parts = list(urlparse.urlparse(url))
+            parts = list(urlparse(url))
             parts[2] = '/'.join((parts[2].rstrip('/'), view))
-            url = urlparse.urlunparse(parts)
+            url = urlunparse(parts)
 
         if self.base_url:
-            url = urlparse.urljoin(self.base_url, url)
+            url = urljoin(self.base_url, url)
 
         return url
 
@@ -1032,7 +1051,7 @@ class Browser(object):
         if hasattr(html, 'seek'):
             html.seek(0)
 
-        if isinstance(html, (unicode, str)):
+        if isinstance(html, STRING_TYPES):
             html = StringIO(html)
 
         if len(html.read()) == 0:

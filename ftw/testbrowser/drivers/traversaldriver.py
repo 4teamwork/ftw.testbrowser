@@ -33,7 +33,6 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from requests.structures import CaseInsensitiveDict
-from StringIO import StringIO
 from urllib import unquote
 from urlparse import urlparse
 from zope.interface import implements
@@ -47,6 +46,12 @@ import requests
 import sys
 import Zope2
 import ZPublisher
+
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 # from plone.testing._z2_testbrowser

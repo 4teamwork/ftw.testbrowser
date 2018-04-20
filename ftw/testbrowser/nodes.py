@@ -39,8 +39,8 @@ PROPERTIES_TO_WRAP = (
     )
 
 
-RESULT_SET_TYPES = (types.ListType,
-                    types.TupleType,
+RESULT_SET_TYPES = (type(list()),
+                    type(tuple()),
                     types.GeneratorType,
                     lxml.etree.ElementDepthFirstIterator,
                     lxml.etree.AncestorsIterator,
