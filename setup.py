@@ -38,7 +38,10 @@ tests_require = [
 
 extras_require = {
     'tests': tests_require,
-    'plone': ['plone.app.testing']}
+    'plone': [
+        'AccessControl',
+        'plone.app.testing',
+    ]}
 
 
 setup(name='ftw.testbrowser',
@@ -68,7 +71,6 @@ setup(name='ftw.testbrowser',
       zip_safe=False,
 
       install_requires=[
-        'AccessControl',
         'Acquisition',
         'cssselect',
         'lxml',

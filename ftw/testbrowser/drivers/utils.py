@@ -1,6 +1,3 @@
-from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.SecurityManagement import noSecurityManager
-from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
 from ftw.testbrowser.utils import is_installed
 from functools import partial
@@ -15,6 +12,13 @@ HAS_GLOBALREQUEST = is_installed('zope.globalrequest')
 if HAS_GLOBALREQUEST:
     from zope.globalrequest import getRequest
     from zope.globalrequest import setRequest
+
+
+HAS_ACCESSCONTROL = is_installed('AccessControl')
+if HAS_ACCESSCONTROL:
+    from AccessControl.SecurityManagement import getSecurityManager
+    from AccessControl.SecurityManagement import noSecurityManager
+    from AccessControl.SecurityManagement import setSecurityManager
 
 
 def remembering_for_reload(func):
@@ -79,6 +83,10 @@ def isolate_sitehook():
 def isolate_securitymanager():
     """Context manager for security manager isolation.
     """
+    if not HAS_ACCESSCONTROL:
+        yield
+        return
+
     manager = getSecurityManager()
     noSecurityManager()
     try:
