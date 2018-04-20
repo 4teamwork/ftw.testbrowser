@@ -2,6 +2,7 @@ from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
+from ftw.testbrowser.utils import is_installed
 from functools import partial
 from functools import wraps
 from zope.component import getMultiAdapter
@@ -10,12 +11,8 @@ from zope.component.hooks import setSite
 import pkg_resources
 
 
-try:
-    pkg_resources.get_distribution('zope.globalrequest')
-except pkg_resources.DistributionNotFound:
-    HAS_GLOBALREQUEST = False
-else:
-    HAS_GLOBALREQUEST = True
+HAS_GLOBALREQUEST = is_installed('zope.globalrequest')
+if HAS_GLOBALREQUEST:
     from zope.globalrequest import getRequest
     from zope.globalrequest import setRequest
 

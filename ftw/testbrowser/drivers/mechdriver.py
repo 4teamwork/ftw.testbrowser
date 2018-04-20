@@ -5,21 +5,17 @@ from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
+from ftw.testbrowser.utils import is_installed
 from mechanize import Request
 from mechanize._urllib2_fork import HTTPRedirectHandler
 from requests.structures import CaseInsensitiveDict
 from zope.interface import implements
-import pkg_resources
 import urllib
 import urllib2
 
 
-try:
-    pkg_resources.get_distribution('zope.testbrowser')
-except pkg_resources.DistributionNotFound:
-    HAS_PLONE_EXTRAS = False
-else:
-    HAS_PLONE_EXTRAS = True
+HAS_PLONE_EXTRAS = is_installed('zope.testbrowser')
+if HAS_PLONE_EXTRAS:
     from plone.testing._z2_testbrowser import Zope2MechanizeBrowser
 
 

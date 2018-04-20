@@ -1,6 +1,7 @@
 from ftw.testbrowser.parser import TestbrowserHTMLParser
 from zope.interface.declarations import implementedBy
 import lxml
+import pkg_resources
 import re
 
 
@@ -23,3 +24,16 @@ def copy_docs_from_interface(klass):
         getattr(klass, name).im_func.__doc__ = spec.__doc__
 
     return klass
+
+
+def is_installed(*package_names):
+    """Returns ``True`` when all packages provided as positional arguments
+    are installed.
+    """
+    try:
+        for pkg_name in package_names:
+            pkg_resources.get_distribution(pkg_name)
+    except pkg_resources.DistributionNotFound:
+        return False
+    else:
+        return True

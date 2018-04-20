@@ -21,6 +21,7 @@ from ftw.testbrowser.log import ExceptionLogger
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.queryinfo import QueryInfo
+from ftw.testbrowser.utils import is_installed
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
@@ -34,20 +35,17 @@ import json
 import lxml
 import lxml.html
 import os
-import pkg_resources
 import re
 import tempfile
 import urlparse
 
 
-try:
-    pkg_resources.get_distribution('plone.app.testing')
-except pkg_resources.DistributionNotFound:
-    TEST_USER_NAME = 'test-user'
-    TEST_USER_PASSWORD = 'secret'
-else:
+if is_installed('plone.app.testing'):
     from plone.app.testing import TEST_USER_NAME
     from plone.app.testing import TEST_USER_PASSWORD
+else:
+    TEST_USER_NAME = 'test-user'
+    TEST_USER_PASSWORD = 'secret'
 
 
 #: Constant for choosing the mechanize library (interally dispatched requests)
