@@ -61,8 +61,8 @@ class Form(NodeWrapper):
                          normalize_spaces(input.label.raw_text)):
                 return input
 
-            checkbox_labels = (input.label is not None and
-                               input.label.css('>span.label'))
+            checkbox_labels = (input.label is not None
+                               and input.label.css('>span.label'))
             if checkbox_labels and label == checkbox_labels.first.text:
                 return input
 
@@ -116,8 +116,8 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
-        to_unicode = (lambda val: isinstance(val, str) and
-                      val.decode('utf-8') or val)
+        to_unicode = (lambda val: isinstance(val, str)
+                      and val.decode('utf-8') or val)
         values = dict(map(lambda item: map(to_unicode, item), values.items()))
 
         widgets = []
@@ -265,15 +265,15 @@ class Form(NodeWrapper):
         """
         labels = []
         for input in self.inputs:
-            label = (input.label is not None and
-                     normalize_spaces(input.label.text))
+            label = (input.label is not None
+                     and normalize_spaces(input.label.text))
             if label:
                 labels.append(label)
             elif input.name:
                 labels.append(input.name)
 
-            checkbox_labels = (input.label is not None and
-                               input.label.css('>span.label'))
+            checkbox_labels = (input.label is not None
+                               and input.label.css('>span.label'))
             if checkbox_labels:
                 labels.append(checkbox_labels.first.text)
 

@@ -1,5 +1,4 @@
 from ftw.testbrowser import browser as default_browser
-from ftw.testbrowser.utils import normalize_spaces
 
 
 def erroneous_fields(form, browser=default_browser):
