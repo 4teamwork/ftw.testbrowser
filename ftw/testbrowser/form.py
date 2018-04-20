@@ -1,10 +1,10 @@
 from collections import defaultdict
+from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
 from ftw.testbrowser.exceptions import FormFieldNotFound
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
-from mechanize._form import MimeWriter
 from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
@@ -12,6 +12,12 @@ import pkg_resources
 import shutil
 import urllib
 import urlparse
+
+
+if HAS_PLONE_EXTRAS:
+    from mechanize._form import MimeWriter
+else:
+    from MimeWriter import MimeWriter
 
 
 class Form(NodeWrapper):

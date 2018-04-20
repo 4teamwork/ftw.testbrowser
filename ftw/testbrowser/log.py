@@ -1,47 +1,57 @@
-from Products.SiteErrorLog import SiteErrorLog
+from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
+from contextlib import contextmanager
 import logging
 import sys
 
 
-class ExceptionLogger(logging.Handler):
-    """When an exception happens while publishing an object, Zope will render
-    an error page (500).
-    For convenience we want the exception to be printed for a good developer
-    experience.
-    """
+if not HAS_PLONE_EXTRAS:
+    @contextmanager
+    def ExceptionLogger():
+        yield
 
-    def __init__(self):
-        super(ExceptionLogger, self).__init__()
-        self.error_messages = []
 
-    def __enter__(self):
-        logging.root.addHandler(self)
-        self._ori_rate_period = SiteErrorLog._rate_restrict_period
-        # Make sure the rate limit of the error_log does not swallow our
-        # exceptions.
-        SiteErrorLog._rate_restrict_period = 0
-        return self
+else:
+    from Products.SiteErrorLog import SiteErrorLog
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        SiteErrorLog._rate_restrict_period = self._ori_rate_period
-        logging.root.removeHandler(self)
+    class ExceptionLogger(logging.Handler):
+        """When an exception happens while publishing an object, Zope will render
+        an error page (500).
+        For convenience we want the exception to be printed for a good developer
+        experience.
+        """
 
-    def filter(self, record):
-        if record.name != 'Zope.SiteErrorLog':
-            return False
+        def __init__(self):
+            super(ExceptionLogger, self).__init__()
+            self.error_messages = []
 
-        if not record.msg or not record.msg.strip():
-            return False
+        def __enter__(self):
+            logging.root.addHandler(self)
+            self._ori_rate_period = SiteErrorLog._rate_restrict_period
+            # Make sure the rate limit of the error_log does not swallow our
+            # exceptions.
+            SiteErrorLog._rate_restrict_period = 0
+            return self
 
-        return True
+        def __exit__(self, exc_type, exc_value, traceback):
+            SiteErrorLog._rate_restrict_period = self._ori_rate_period
+            logging.root.removeHandler(self)
 
-    def emit(self, record):
-        self.error_messages.append(record.msg)
+        def filter(self, record):
+            if record.name != 'Zope.SiteErrorLog':
+                return False
 
-    def print_captured_exceptions(self):
-        if not self.error_messages:
-            return
+            if not record.msg or not record.msg.strip():
+                return False
 
-        print >>sys.stderr, '\n'
-        for message in self.error_messages:
-            print >>sys.stderr, message
+            return True
+
+        def emit(self, record):
+            self.error_messages.append(record.msg)
+
+        def print_captured_exceptions(self):
+            if not self.error_messages:
+                return
+
+            print >>sys.stderr, '\n'
+            for message in self.error_messages:
+                print >>sys.stderr, message

@@ -1,6 +1,6 @@
-from Acquisition import aq_chain
 from contextlib import contextmanager
 from copy import deepcopy
+from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
 from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
@@ -25,11 +25,9 @@ from ftw.testbrowser.utils import is_installed
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
-from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from StringIO import StringIO
-from zope.component.hooks import getSite
 from zope.interface import implements
 import json
 import lxml
@@ -48,14 +46,8 @@ else:
     TEST_USER_PASSWORD = 'secret'
 
 
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
-
 #: Constant for choosing the requests library (actual requests)
 LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
-
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
 
 #: Constant for choosing the static driver.
 LIB_STATIC = StaticDriver.LIBRARY_NAME
@@ -65,10 +57,22 @@ LIB_STATIC = StaticDriver.LIBRARY_NAME
 #: This design is historical so that the library constants
 #: keep working. This mapping may be monkey patched.
 DRIVER_FACTORIES = {
-    TraversalDriver.LIBRARY_NAME: TraversalDriver,
-    MechanizeDriver.LIBRARY_NAME: MechanizeDriver,
     RequestsDriver.LIBRARY_NAME: RequestsDriver,
     StaticDriver.LIBRARY_NAME: StaticDriver}
+
+
+if HAS_PLONE_EXTRAS:
+    from Acquisition import aq_chain
+    from OFS.interfaces import IItem
+    from zope.component.hooks import getSite
+
+    #: Constant for choosing the mechanize library (interally dispatched requests)
+    LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
+    DRIVER_FACTORIES[TraversalDriver.LIBRARY_NAME] = TraversalDriver
+
+    #: Constant for choosing the mechanize library (interally dispatched requests)
+    LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
+    DRIVER_FACTORIES[MechanizeDriver.LIBRARY_NAME] = MechanizeDriver
 
 
 class Browser(object):
@@ -820,6 +824,9 @@ class Browser(object):
         if self.document is None:
             raise ContextNotFound('Not viewing any page.')
 
+        if not HAS_PLONE_EXTRAS:
+            raise ContextNotFound('ftw.testbrowser[plone] extras is not installed.')
+
         url = None
 
         # Plone 4: <base url="..." />
@@ -999,7 +1006,10 @@ class Browser(object):
 
     def _normalize_url(self, url_or_object, view=None):
         if url_or_object is None:
-            url_or_object = getSite().absolute_url()
+            if HAS_PLONE_EXTRAS:
+                url_or_object = getSite().absolute_url()
+            else:
+                raise ValueError('No url provided.')
 
         if hasattr(url_or_object, 'absolute_url'):
             url = url_or_object.absolute_url()

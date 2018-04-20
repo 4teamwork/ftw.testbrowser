@@ -1,13 +1,22 @@
 from cssselect.xpath import HTMLTranslator
+from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
 from operator import attrgetter
 from operator import methodcaller
-from zope.deprecation import deprecate
 import lxml.etree
 import re
 import types
+
+
+if HAS_PLONE_EXTRAS:
+    from zope.deprecation import deprecate
+else:
+    def deprecate(reason):
+        def decorator(func):
+            return func
+        return decorator
 
 
 METHODS_TO_WRAP = (

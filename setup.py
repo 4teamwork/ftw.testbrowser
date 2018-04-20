@@ -40,7 +40,15 @@ extras_require = {
     'tests': tests_require,
     'plone': [
         'AccessControl',
+        'Acquisition',
+        'mechanize',
         'plone.app.testing',
+        'plone.testing',
+        'plone.uuid',
+        'zope.component',
+        'zope.deprecation',
+        'zope.testbrowser',
+        'Zope2',
     ]}
 
 
@@ -71,18 +79,11 @@ setup(name='ftw.testbrowser',
       zip_safe=False,
 
       install_requires=[
-        'Acquisition',
         'cssselect',
         'lxml',
-        'mechanize',
-        'plone.testing',
-        'plone.uuid',
         'requests',
         'setuptools',
-        'zope.component',
-        'zope.deprecation',
         'zope.interface',
-        'Zope2',
         ],
 
       tests_require=tests_require,

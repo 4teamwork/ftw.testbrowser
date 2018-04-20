@@ -1,10 +1,8 @@
 from contextlib import contextmanager
+from ftw.testbrowser.compat import HAS_PLONE_EXTRAS
 from ftw.testbrowser.utils import is_installed
 from functools import partial
 from functools import wraps
-from zope.component import getMultiAdapter
-from zope.component.hooks import getSite
-from zope.component.hooks import setSite
 import pkg_resources
 
 
@@ -14,11 +12,13 @@ if HAS_GLOBALREQUEST:
     from zope.globalrequest import setRequest
 
 
-HAS_ACCESSCONTROL = is_installed('AccessControl')
-if HAS_ACCESSCONTROL:
+if HAS_PLONE_EXTRAS:
     from AccessControl.SecurityManagement import getSecurityManager
     from AccessControl.SecurityManagement import noSecurityManager
     from AccessControl.SecurityManagement import setSecurityManager
+    from zope.component import getMultiAdapter
+    from zope.component.hooks import getSite
+    from zope.component.hooks import setSite
 
 
 def remembering_for_reload(func):
@@ -71,6 +71,10 @@ def isolate_globalrequest():
 def isolate_sitehook():
     """Context manager for global site hook isolation.
     """
+    if not HAS_PLONE_EXTRAS:
+        yield
+        return
+
     site = getSite()
     setSite(None)
     try:
@@ -83,7 +87,7 @@ def isolate_sitehook():
 def isolate_securitymanager():
     """Context manager for security manager isolation.
     """
-    if not HAS_ACCESSCONTROL:
+    if not HAS_PLONE_EXTRAS:
         yield
         return
 
@@ -113,6 +117,8 @@ def ensure_plone_protect_changes_marked_as_save(request):
     as save writes.
     """
     if not is_plone_protect_autocsrf_enabled():
+        return
+    if not HAS_PLONE_EXTRAS:
         return
 
     from plone.protect.auto import safeWrite
