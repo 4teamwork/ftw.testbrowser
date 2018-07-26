@@ -425,6 +425,29 @@ class TestBrowserRequests(BrowserTestCase):
         self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
 
     @browsing
+    def test_partial_template_encoding_utf8(self, browser):
+        """Plone may choose a different encoding (such as ISO-8859-15) when there is
+        neither an encoding specificed in the response header nor in an xml node.
+        The testbrowser must then adapt and use the correct encoding.
+        """
+        browser.open(view='test-partial?set_utf8_encoding=True')
+        self.assertEquals('utf-8', browser.encoding.lower())
+        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+                          browser.css('#names li').text)
+
+    @browsing
+    def test_partial_template_encoding_latin9(self, browser):
+        """Plone may choose a different encoding (such as ISO-8859-15) when there is
+        neither an encoding specificed in the response header nor in an xml node.
+        The testbrowser must then adapt and use the correct encoding.
+        """
+        browser.open(view='test-partial')
+        # iso-8859-15 is the ZPublisher standard encoding for HTTPResponses
+        self.assertEquals('iso-8859-15', browser.encoding.lower())
+        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+                          browser.css('#names li').text)
+
+    @browsing
     def test_send_authenticator(self, browser):
         class ProtectedView(BrowserView):
             def __call__(self):
