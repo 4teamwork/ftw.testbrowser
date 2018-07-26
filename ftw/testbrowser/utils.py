@@ -1,15 +1,9 @@
-from ftw.testbrowser.parser import TestbrowserHTMLParser
 from zope.interface.declarations import implementedBy
-import lxml
 import re
 
 
 def normalize_spaces(text):
     return re.sub(r'[\s\xa0]{1,}', ' ', text).strip()
-
-
-def parse_html(html):
-    return lxml.html.parse(html, TestbrowserHTMLParser())
 
 
 def copy_docs_from_interface(klass):
