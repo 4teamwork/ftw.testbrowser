@@ -20,9 +20,9 @@ from ftw.testbrowser.interfaces import IBrowser
 from ftw.testbrowser.log import ExceptionLogger
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
+from ftw.testbrowser.parser import TestbrowserHTMLParser
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
-from ftw.testbrowser.utils import parse_html
 from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
@@ -862,7 +862,9 @@ class Browser(object):
         :param html: The HTML to parse (default: current response).
         :type html: string
         """
-        return self._load_html(html or self.contents, parse_html)
+        def parse(html):
+            return lxml.html.parse(html, TestbrowserHTMLParser(encoding=self.encoding))
+        return self._load_html(html or self.contents, parse)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -1033,7 +1035,7 @@ class Browser(object):
 
         return html
 
-    def _load_html(self, html, parser=parse_html):
+    def _load_html(self, html, parser):
         self.form_files = {}
 
         if hasattr(html, 'seek'):
