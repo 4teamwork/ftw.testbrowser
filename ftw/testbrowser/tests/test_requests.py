@@ -432,7 +432,7 @@ class TestBrowserRequests(BrowserTestCase):
         """
         browser.open(view='test-partial?set_utf8_encoding=True')
         self.assertEquals('utf-8', browser.encoding.lower())
-        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+        self.assertEquals([u'Bj\xf6rn', u'Bj\xf6rn', u'Bj\xf6rn'],
                           browser.css('#names li').text)
 
     @browsing
@@ -444,7 +444,7 @@ class TestBrowserRequests(BrowserTestCase):
         browser.open(view='test-partial')
         # iso-8859-15 is the ZPublisher standard encoding for HTTPResponses
         self.assertEquals('iso-8859-15', browser.encoding.lower())
-        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+        self.assertEquals([u'Bj\xf6rn', u'Bj\xf6rn', u'Bj\xf6rn'],
                           browser.css('#names li').text)
 
     @browsing
