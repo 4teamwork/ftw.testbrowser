@@ -94,3 +94,12 @@ class TestRedirectLoop(BrowserView):
 
     def __call__(self):
         return self.request.response.redirect(self.request['ACTUAL_URL'])
+
+
+class TestPartialView(BrowserView):
+
+    def __call__(self):
+        self.request.response.setHeader('X-Theme-Disabled', 'True')
+        if self.request.get('set_utf8_encoding'):
+            self.request.response.setHeader('content-type', 'text/html; charset=utf-8')
+        return super(TestPartialView, self).__call__()

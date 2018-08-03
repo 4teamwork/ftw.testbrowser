@@ -94,4 +94,12 @@
         permission="zope.Public"
         />
 
+    <browser:page
+        name="test-partial"
+        template="test-partial.pt"
+        class=".views.TestPartialView"
+        for="*"
+        permission="zope.Public"
+        />
+
 </configure>
