@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.29.8 (unreleased)
+1.30.0 (2018-08-03)
 -------------------
 
 - Fix encoding problems for HTML documents without encoding declaration by respecting
