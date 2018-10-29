@@ -22,6 +22,7 @@ tests_require = [
     'plone.formwidget.autocomplete',
     'plone.formwidget.contenttree',
     'plone.i18n',
+    'plone.restapi',
     'plone.z3cform',
     'transaction',
     'unittest2',
