@@ -33,6 +33,10 @@ class BrowserLayer(PloneSandboxLayer):
                        ftw.testbrowser.tests,
                        context=configurationContext)
 
+        xmlconfig.file('profiles/restapi.zcml',
+                       ftw.testbrowser.tests,
+                       context=configurationContext)
+
         import ftw.testbrowser.tests.views
         xmlconfig.file('configure.zcml',
                        ftw.testbrowser.tests.views,
@@ -42,6 +46,7 @@ class BrowserLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
+        applyProfile(portal, 'ftw.testbrowser.tests:restapi')
         applyProfile(portal, 'plone.formwidget.autocomplete:default')
         applyProfile(portal, 'plone.app.contenttypes:default')
         register_dx_content_builders(force=True)
