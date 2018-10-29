@@ -17,6 +17,7 @@ from ftw.testbrowser.exceptions import InsufficientPrivileges
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.interfaces import IBrowser
+from ftw.testbrowser.interfaces import IRESTAPIClient
 from ftw.testbrowser.log import ExceptionLogger
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
@@ -1052,3 +1053,163 @@ class Browser(object):
             self.document = parser(html)
 
             return html
+
+
+class APIClient(Browser):
+
+    implements(IRESTAPIClient)
+
+    def __repr__(self):
+        return '<ftw.browser.core.APIClient instance>'
+
+    def __enter__(self):
+        if self._context_manager_active:
+            raise ValueError('Nesting api client context manager is not allowed.')
+        else:
+            self._context_manager_active = True
+
+        if self.request_library is None:
+            if self.default_driver is not None:
+                self.request_library = self.default_driver
+            elif self.next_app is None:
+                self.request_library = LIB_REQUESTS
+            else:
+                self.request_library = LIB_MECHANIZE
+
+        if self.app is None:
+            self.app = self.next_app
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if (exc_type or exc_value):
+            try:
+                source = json.dumps(self.contents)
+            except ValueError:
+                pass
+            else:
+                _, path = tempfile.mkstemp(suffix='.json', prefix='ftw.testbrowser-')
+                with open(path, 'w+') as file_:
+                    if isinstance(source, unicode):
+                        source = source.encode('utf-8')
+
+                    file_.write(source)
+
+                print '\nftw.testbrowser dump:', path,
+        self._context_manager_active = False
+        self.reset()
+
+    def reset(self):
+        """Resets the API client: closes active sessions and resets the
+        internal state.
+        """
+        self.raise_http_errors = True
+        self.exception_bubbling = False
+        self.document = None
+        self.previous_url = None
+        self.form_files = {}
+        self.session_headers = []
+        self.session_headers.append(('Accept', 'application/json'))
+        self._status_code = None
+        self._status_reason = None
+
+        if not self._context_manager_active:
+            self.request_library = None
+            self.app = None
+            self.next_app = None
+
+        map(methodcaller('reset'), self.drivers.values())
+
+    def login(self, username=TEST_USER_NAME, password=TEST_USER_PASSWORD):
+        """Login a user by setting the ``Authorization`` header."""
+        if hasattr(username, 'getUserName'):
+            username = username.getUserName()
+
+        token = self.open(data={'login': username, 'password': password}, endpoint='@login').get('token')
+        self.replace_request_header('Authorization', 'Bearer {0}'.format(token))
+
+        return self
+
+    @property
+    def contents(self):
+        """The source of the current page (usually HTML).
+        """
+        self._verify_setup()
+        return json.loads(self.get_driver().get_response_body())
+
+    def get(self, attrname):
+        """A simplified attribute getter."""
+        return self.contents.get(attrname)
+
+    def parse(self, json_seekable):
+        """Parse JSON.
+
+        :param json_seekable: The JSON to parse.
+        :type json_seekable: filewrapper
+        """
+        try:
+            return json.load(json_seekable)
+        except ValueError:
+            return None
+
+    def open(self, url_or_object=None, data=None, endpoint=None, library=None, method=None, headers=None):
+        """Opens an API endpoint with the API client.
+
+        *Request library:*
+        When running tests on a Plone testing layer and using the ``@restapi``
+        decorator, the ``mechanize`` library is used by default, dispatching
+        the request internal directly into Zope.
+        When the API client is used differently (no decorator nor zope app
+        setup), the ``requests`` library is used, doing actual requests.
+        If the default does not fit your needs you can change the library per
+        request by passing in ``LIB_MECHANIZE`` or ``LIB_REQUESTS`` or you can
+        change the library for the session by setting
+        ``api_client.request_library`` to either of those constants.
+
+        :param url_or_object: A full qualified URL or a Plone object (which has
+          an ``absolute_url`` method). Defaults to the Plone Site URL.
+        :param data: A dict with data which is posted using a `POST` request,
+          or request payload as string.
+        :type data: dict or string
+        :param endpoint: The name of an API endpoit which will be added at the
+          end of the current URL.
+        :type endpoint: string
+        :param library: Lets you explicitly choose the request library to be
+          used for this request.
+        :type library: ``LIB_MECHANIZE`` or ``LIB_REQUESTS``
+        :param method: The HTTP request method. Defaults to 'GET' when not set,
+          unless ``data`` is provided, then its set to 'POST'.
+        :type method: string
+
+        .. seealso:: :py:func:`visit`
+        .. seealso:: :py:const:`LIB_MECHANIZE`
+        .. seealso:: :py:const:`LIB_REQUESTS`
+        """
+        self._verify_setup()
+        self.previous_url = self.url
+        library = library or self.request_library
+        if method in (None, 'DELETE') and data is None:
+            if not headers:
+                headers = dict(self.session_headers)
+            if not method:
+                method = 'GET'
+        elif method in (None, 'POST', 'PUT', 'PATCH'):
+            if not headers:
+                headers = dict(self.session_headers + [('Content-Type', 'application/json')])
+            if not method:
+                method = 'POST'
+            if data:
+                # Non-JSON posts fall through unmolested
+                if headers and headers.get('Content-Type') == 'application/json':
+                    data = json.dumps(data)
+            else:
+                data = json.dumps({})
+
+        url = self._normalize_url(url_or_object, view=endpoint)
+        driver = self.get_driver(library)
+        with ExceptionLogger() as logger:
+            self._status_code, self._status_reason, body = driver.make_request(method, url, data=data, headers=headers)
+
+        self.parse(body)
+        self.raise_for_status(logger)
+        return self

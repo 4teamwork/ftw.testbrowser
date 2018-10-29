@@ -1,7 +1,8 @@
+from ftw.testbrowser.core import APIClient
 from ftw.testbrowser.core import Browser
-from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
 from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPServerError
@@ -39,6 +40,38 @@ def browsing(func):
         app = getattr(self, 'layer', {}).get('app', False)
         with browser(app):
             args = list(args) + [browser]
+            return func(self, *args, **kwargs)
+    test_function.__name__ = func.__name__
+    return test_function
+
+
+#: The singleton API client instance acting as default API client.
+api_client = APIClient()
+
+
+def restapi(func):
+    """The ``restapi`` decorator is used in tests for automatically setting up
+    the api client and passing it into the test function as additional argument:
+
+    .. code:: py
+
+        from ftw.testbrowser import restapi
+        from plone.app.testing import PLONE_FUNCTIONAL_TESTING
+        from unittest2 import TestCase
+
+        class TestSomething(TestCase):
+            layer = PLONE_FUNCTIONAL_TESTING
+
+            @restapi
+            def test_login_form(self, api_client):
+                api_client.open(endpoint='@login')
+                self.assertEquals('http://nohost/plone/@login', api_client.url)
+    """
+
+    def test_function(self, *args, **kwargs):
+        app = getattr(self, 'layer', {}).get('app', False)
+        with api_client(app):
+            args = list(args) + [api_client]
             return func(self, *args, **kwargs)
     test_function.__name__ = func.__name__
     return test_function

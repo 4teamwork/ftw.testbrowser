@@ -1,3 +1,4 @@
+from ftw.testbrowser import api_client
 from ftw.testbrowser import browser
 from ftw.testbrowser import LIB_TRAVERSAL
 from plone.app.testing import FunctionalTesting
@@ -29,6 +30,8 @@ class BrowserTestCase(TestCase):
         if not isinstance(self.layer, FunctionalTesting):
             return False
         if browser.default_driver == LIB_TRAVERSAL:
+            return False
+        if api_client.default_driver == LIB_TRAVERSAL:
             return False
         return True
 

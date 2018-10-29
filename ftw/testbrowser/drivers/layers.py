@@ -9,10 +9,15 @@ class DefaultDriverFixture(Layer):
         self.library_constant = library_constant
 
     def setUp(self):
+        from ftw.testbrowser import api_client
         from ftw.testbrowser import browser
-        self.previous_default_driver = browser.default_driver
+        self.previous_browser_default_driver = browser.default_driver
+        self.previous_api_client_default_driver = api_client.default_driver
+        api_client.default_driver = self.library_constant
         browser.default_driver = self.library_constant
 
     def tearDown(self):
+        from ftw.testbrowser import api_client
         from ftw.testbrowser import browser
-        browser.default_driver = self.previous_default_driver
+        api_client.default_driver = self.previous_api_client_default_driver
+        browser.default_driver = self.previous_browser_default_driver
