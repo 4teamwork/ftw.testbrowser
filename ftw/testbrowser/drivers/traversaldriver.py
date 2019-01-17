@@ -249,7 +249,7 @@ class TraversalDriver(object):
         self.response = response
         self.current_url = prepared_request.url
 
-        if self.response.status in (301, 302, 303):
+        if self.browser.allow_redirects and self.response.status in (301, 302, 303):
             return self._follow_redirects(method, data, headers)
         else:
             self._unzip_gzip_response()

@@ -483,6 +483,36 @@ Re-parsing with another parser:
 .. seealso:: :py:mod:`ftw.testbrowser.core.Browser.parse`
 
 
+HTTP requests
+===============
+
+`ftw.testbrowser` also supports not following redirects. This is useful for
+testing the bodies of redirect responses or inspecting `Location` headers.
+
+This is currently not implemented for mechanize.
+
+.. code:: py
+
+    from ftw.testbrowser import browsing
+    from unittest2 import TestCase
+
+
+    class TestRedirects(TestCase):
+
+      @browsing
+      def test_redirects_are_followed_automatically(self, browser):
+          browser.open(view='test-redirect-to-portal')
+          self.assertEquals(self.portal.absolute_url(), browser.url)
+          self.assertEquals(('listing_view', 'plone-site'), plone.view_and_portal_type())
+
+      @browsing
+      def test_redirect_following_can_be_prevented(self, browser):
+          browser.allow_redirects = False
+          browser.open(view='test-redirect-to-portal')
+          self.assertEquals('/'.join((self.portal.absolute_url(), 'test-redirect-to-portal')), browser.url)
+          self.assertEquals((None, None), plone.view_and_portal_type())
+
+
 WebDAV requests
 ===============
 

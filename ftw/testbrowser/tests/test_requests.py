@@ -391,6 +391,14 @@ class TestBrowserRequests(BrowserTestCase):
         self.assertEquals(('listing_view', 'plone-site'),
                           plone.view_and_portal_type())
 
+    @skip_driver(LIB_MECHANIZE, 'Changing redirect following behavior is not supported.')
+    @browsing
+    def test_redirect_following_can_be_prevented(self, browser):
+        browser.allow_redirects = False
+        browser.open(view='test-redirect-to-portal')
+        self.assertEquals('/'.join((self.portal.absolute_url(), 'test-redirect-to-portal')), browser.url)
+        self.assertEquals((None, None), plone.view_and_portal_type())
+
     @browsing
     def test_redirect_loops_are_interrupted(self, browser):
         with self.assertRaises(RedirectLoopException) as cm:

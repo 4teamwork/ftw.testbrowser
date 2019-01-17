@@ -136,6 +136,7 @@ class Browser(object):
         self.previous_url = None
         self.form_files = {}
         self.session_headers = []
+        self.allow_redirects = True
         self._status_code = None
         self._status_reason = None
 
