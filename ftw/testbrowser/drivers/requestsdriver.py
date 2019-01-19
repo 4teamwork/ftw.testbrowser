@@ -48,7 +48,7 @@ class RequestsDriver(object):
 
         try:
             self.response = self.requests_session.request(
-                method, url, data=data, headers=headers)
+                method, url, data=data, headers=headers, allow_redirects=self.browser.allow_redirects)
         except requests.exceptions.TooManyRedirects, exc:
             raise RedirectLoopException(exc.request.url)
 

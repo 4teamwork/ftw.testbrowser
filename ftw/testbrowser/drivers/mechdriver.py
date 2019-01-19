@@ -44,8 +44,10 @@ class MechanizeDriver(object):
 
     @remembering_for_reload
     @isolated
-    def make_request(self, method, url, data=None, headers=None,
-                     referer_url=None):
+    def make_request(self, method, url, data=None, headers=None, referer_url=None):
+        if not self.browser.allow_redirects:
+            raise ValueError('The mechanize driver does not support changing the redirect following behaviour.')
+
         data = self._prepare_post_data(data)
         request = Request(url, data)
         if referer_url:
