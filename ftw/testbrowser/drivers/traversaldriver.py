@@ -38,7 +38,7 @@ from six import StringIO
 from six.moves.http_client import HTTPMessage
 from six.moves.urllib.parse import unquote
 from six.moves.urllib.parse import urlparse
-from zope.interface import implements
+from zope.interface import implementer
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.Response import Response
@@ -178,6 +178,7 @@ class NoCommitTransactionsManagerWrapper(object):
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class TraversalDriver(object):
     """The traversal driver simulates requests by by calling
     the zope traversal directly.
@@ -185,8 +186,6 @@ class TraversalDriver(object):
     in the same transaction / connection as the test code is run.
     This makes it possible to write browser tests without transactions.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'traversal library'
     WEBDAV_SUPPORT = True
 

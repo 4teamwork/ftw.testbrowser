@@ -6,17 +6,16 @@ from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from six import BytesIO
 from six.moves.urllib.parse import urlparse
-from zope.interface import implements
+from zope.interface import implementer
 import requests
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class RequestsDriver(object):
     """The requests driver uses the "requests" library for making
     real requests.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'requests library'
     WEBDAV_SUPPORT = True
 

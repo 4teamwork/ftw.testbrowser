@@ -10,7 +10,7 @@ from mechanize._urllib2_fork import HTTPRedirectHandler
 from requests.structures import CaseInsensitiveDict
 from six.moves.urllib.error import HTTPError
 from six.moves.urllib.parse import urlencode
-from zope.interface import implements
+from zope.interface import implementer
 import pkg_resources
 import six
 
@@ -25,12 +25,11 @@ else:
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class MechanizeDriver(object):
     """The mechanize driver uses the Mechanize browser with
     plone.testing integration for making the requests.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'mechanize library'
     WEBDAV_SUPPORT = False
 

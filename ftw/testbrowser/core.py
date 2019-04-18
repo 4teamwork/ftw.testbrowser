@@ -36,7 +36,7 @@ from six.moves.urllib.parse import urljoin
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 import json
 import lxml
 import lxml.html
@@ -80,6 +80,7 @@ DRIVER_FACTORIES = {
     StaticDriver.LIBRARY_NAME: StaticDriver}
 
 
+@implementer(IBrowser)
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
     It represents the browser instance and is used for navigating and
@@ -112,8 +113,6 @@ class Browser(object):
       (Default: ``False``).
     :type exception_bubbling: ``bool``
     """
-
-    implements(IBrowser)
 
     def __init__(self):
         self.drivers = {}
