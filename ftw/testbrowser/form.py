@@ -5,11 +5,11 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from mechanize._form import MimeWriter
+from six import BytesIO
 from six.moves import map
 from six.moves.urllib.parse import urlencode
 from six.moves.urllib.parse import urljoin
 from six.moves.urllib.parse import urlparse
-from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
 import pkg_resources
@@ -351,7 +351,7 @@ class Form(NodeWrapper):
                                  referer=True)
 
     def _prepare_multipart_request(self, URL, values):
-        data = StringIO()
+        data = BytesIO()
         http_headers = []
         mw = MimeWriter(data, http_headers)
         mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
@@ -460,7 +460,7 @@ class FileField(NodeWrapper):
     def write_mime_data(self, mime_writer):
         value = self.browser.form_files.get(self.node, None)
         if value is None:
-            file_object = StringIO()
+            file_object = BytesIO()
             filename = ''
             content_type = 'application/octet-stream'
         else:
@@ -500,8 +500,8 @@ class FileField(NodeWrapper):
             content_type = mimetypes.guess_type(filename)[0] \
                 or 'application/octet-stream'
 
-        if isinstance(value, str):
-            value = StringIO(value)
+        if isinstance(value, six.binary_type):
+            value = BytesIO(value)
 
         return value, filename, content_type
 

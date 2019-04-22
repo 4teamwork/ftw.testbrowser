@@ -29,12 +29,12 @@ from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
+from six import StringIO
 from six.moves import filter
 from six.moves import map
 from six.moves.urllib.parse import urljoin
 from six.moves.urllib.parse import urlparse
 from six.moves.urllib.parse import urlunparse
-from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
 import json

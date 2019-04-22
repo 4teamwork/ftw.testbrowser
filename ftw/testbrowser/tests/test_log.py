@@ -4,7 +4,7 @@ from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
-from StringIO import StringIO
+from six import StringIO
 from zope.publisher.browser import BrowserView
 
 

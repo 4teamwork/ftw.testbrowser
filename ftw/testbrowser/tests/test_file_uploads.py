@@ -4,7 +4,7 @@ from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import SITE_OWNER_NAME
-from StringIO import StringIO
+from six import BytesIO
 from unittest2 import TestCase
 
 
@@ -23,7 +23,7 @@ class TestFileUploadsArchetypes(TestCase):
 
     @browsing
     def test_stream_syntax(self, browser):
-        file_ = StringIO('file data')
+        file_ = BytesIO(b'file data')
         file_.filename = 'foo.txt'
         file_.content_type = 'text/plain'
 

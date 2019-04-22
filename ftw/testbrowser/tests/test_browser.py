@@ -16,7 +16,7 @@ from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
-from StringIO import StringIO
+from six import StringIO
 from zExceptions import BadRequest
 from zope.globalrequest import getRequest
 from zope.publisher.browser import BrowserView

@@ -33,10 +33,11 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from requests.structures import CaseInsensitiveDict
+from six import BytesIO
+from six import StringIO
 from six.moves.http_client import HTTPMessage
 from six.moves.urllib.parse import unquote
 from six.moves.urllib.parse import urlparse
-from StringIO import StringIO
 from zope.interface import implements
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
@@ -255,7 +256,7 @@ class TraversalDriver(object):
             self._unzip_gzip_response()
             return (self.response.status,
                     self.response.errmsg,
-                    StringIO(self.response.body))
+                    BytesIO(self.response.body))
 
     def _prepare_for_request(self, method, url, data, headers, referer_url):
         if referer_url:
@@ -357,7 +358,7 @@ class TraversalDriver(object):
         if self.get_response_headers().get('content-encoding') != 'gzip':
             return
 
-        with gzip.GzipFile(fileobj=StringIO(self.response.body)) as zipfile:
+        with gzip.GzipFile(fileobj=BytesIO(self.response.body)) as zipfile:
             self.response.body = zipfile.read()
             self.response.headers.pop('content-encoding', None)
 

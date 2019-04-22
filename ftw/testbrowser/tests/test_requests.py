@@ -18,7 +18,7 @@ from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
-from StringIO import StringIO
+from six import StringIO
 from unittest import skipUnless
 from zExceptions import BadRequest
 from zope.component import getUtility
