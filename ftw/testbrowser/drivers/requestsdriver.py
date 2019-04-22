@@ -4,10 +4,10 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
+from six.moves.urllib.parse import urlparse
 from StringIO import StringIO
 from zope.interface import implements
 import requests
-import urlparse
 
 
 @copy_docs_from_interface
@@ -32,7 +32,7 @@ class RequestsDriver(object):
     @remembering_for_reload
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):
-        if urlparse.urlparse(url).hostname == 'nohost':
+        if urlparse(url).hostname == 'nohost':
             raise ZServerRequired()
 
         if self.browser.exception_bubbling:
@@ -49,7 +49,7 @@ class RequestsDriver(object):
         try:
             self.response = self.requests_session.request(
                 method, url, data=data, headers=headers, allow_redirects=self.browser.allow_redirects)
-        except requests.exceptions.TooManyRedirects, exc:
+        except requests.exceptions.TooManyRedirects as exc:
             raise RedirectLoopException(exc.request.url)
 
         return (self.response.status_code,

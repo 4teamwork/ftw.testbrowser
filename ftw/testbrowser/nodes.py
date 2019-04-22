@@ -2,11 +2,15 @@ from cssselect.xpath import HTMLTranslator
 from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
+from functools import reduce
 from operator import attrgetter
 from operator import methodcaller
+from six.moves import map
+from six.moves import zip
 from zope.deprecation import deprecate
 import lxml.etree
 import re
+import six
 import types
 
 
@@ -30,8 +34,8 @@ PROPERTIES_TO_WRAP = (
     )
 
 
-RESULT_SET_TYPES = (types.ListType,
-                    types.TupleType,
+RESULT_SET_TYPES = (list,
+                    tuple,
                     types.GeneratorType,
                     lxml.etree.ElementDepthFirstIterator,
                     lxml.etree.AncestorsIterator,
@@ -192,7 +196,7 @@ class Nodes(list):
 
         .. seealso:: :py:func:`ftw.testbrowser.nodes.NodeWrapper.text_content`
         """
-        return map(methodcaller('text_content'), self)
+        return list(map(methodcaller('text_content'), self))
 
     @deprecate('Nodes.normalized_text is deprecated in favor of Nodes.text')
     def normalized_text(self, recursive=True):
@@ -211,7 +215,8 @@ class Nodes(list):
         .. seealso::
           :py:func:`ftw.testbrowser.nodes.NodeWrapper.normalized_text`
         """
-        return map(methodcaller('normalized_text', recursive=recursive), self)
+        return list(
+            map(methodcaller('normalized_text', recursive=recursive), self))
 
     @property
     def text(self):
@@ -222,7 +227,7 @@ class Nodes(list):
         :returns: A list of text
         :rtype: list of string
         """
-        return map(attrgetter('text'), self)
+        return list(map(attrgetter('text'), self))
 
     @property
     def raw_text(self):
@@ -233,7 +238,7 @@ class Nodes(list):
         :returns: A list of raw text
         :rtype: list of string
         """
-        return map(attrgetter('raw_text'), self)
+        return list(map(attrgetter('raw_text'), self))
 
     @QueryInfo.build
     def css(self, css_selector, query_info):
@@ -354,16 +359,14 @@ class NodeWrapper(object):
         attribs = ', '.join(['%s="%s"' % (key, value)
                              for key, value in self.attrib.items()])
 
-        text = self.raw_text
-        if isinstance(text, unicode):
-            text = text.encode('utf-8')
+        text = six.ensure_str(self.raw_text)
 
         if text and text.strip():
             repr = ', '.join((self.tag, attribs, 'text:"%s"' % text))
         else:
             repr = ', '.join((self.tag, attribs))
 
-        if isinstance(repr, unicode):
+        if six.PY2 and isinstance(repr, six.text_type):
             repr = repr.encode('utf-8')
         return '<%s:%s>' % (self.__class__.__name__, repr)
 
@@ -701,7 +704,7 @@ class DefinitionListNode(NodeWrapper):
           value is the `<dd>`-node.
         :rtype: dict
         """
-        return zip(self.keys(), self.values())
+        return list(zip(self.keys(), self.values()))
 
     @property
     def terms(self):
@@ -731,7 +734,7 @@ class DefinitionListNode(NodeWrapper):
           the `<dd>`-node.
         :rtype: dict
         """
-        return zip(self.terms, self.definitions)
+        return list(zip(self.terms, self.definitions))
 
     def text_to_nodes(self):
         """Returns a dict with a mapping of text-terms to `<dd>`-nodes.

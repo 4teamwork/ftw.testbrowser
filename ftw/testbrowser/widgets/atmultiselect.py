@@ -2,6 +2,7 @@ from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+from six.moves import map
 
 
 @widget

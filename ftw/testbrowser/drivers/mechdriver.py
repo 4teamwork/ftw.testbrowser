@@ -8,10 +8,11 @@ from ftw.testbrowser.utils import copy_docs_from_interface
 from mechanize import Request
 from mechanize._urllib2_fork import HTTPRedirectHandler
 from requests.structures import CaseInsensitiveDict
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.parse import urlencode
 from zope.interface import implements
 import pkg_resources
-import urllib
-import urllib2
+import six
 
 
 try:
@@ -63,7 +64,7 @@ class MechanizeDriver(object):
 
         try:
             self.response = self._get_mechbrowser().open(request)
-        except urllib2.HTTPError as response:
+        except HTTPError as response:
             if response.reason.startswith(HTTPRedirectHandler.inf_msg):
                 raise RedirectLoopException(response.geturl())
 
@@ -142,7 +143,7 @@ class MechanizeDriver(object):
         if not data:
             return None
 
-        if isinstance(data, (str, unicode)):
+        if isinstance(data, six.string_types):
             # We already have a payload, e.g. a MIME request.
             return data
 
@@ -151,7 +152,7 @@ class MechanizeDriver(object):
 
         normalized_data = []
         for name, value_or_values in data:
-            if isinstance(name, unicode):
+            if six.PY2 and isinstance(name, six.text_type):
                 name = name.encode('utf-8')
 
             if isinstance(value_or_values, (list, tuple, set)):
@@ -160,12 +161,12 @@ class MechanizeDriver(object):
                 values = [value_or_values]
 
             for value in values:
-                if isinstance(value, unicode):
+                if six.PY2 and isinstance(value, six.text_type):
                     value = value.encode('utf-8')
 
                 normalized_data.append((name, value))
 
-        return urllib.urlencode(normalized_data)
+        return urlencode(normalized_data)
 
     def _add_headers_to_request(self, request, headers):
         if headers is None:

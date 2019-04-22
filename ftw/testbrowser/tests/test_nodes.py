@@ -8,6 +8,8 @@ from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
+from six.moves import zip
+import six
 
 
 @all_drivers
@@ -321,11 +323,11 @@ class TestNodeWrappers(BrowserTestCase):
     @browsing
     def test_string_representation_with_umlauts_in_attr_unicode(self, browser):
         browser.open_html(
-            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+            b'<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
         node = browser.css('a').first
         self.assertEquals(
             u'<LinkNode:a, title="\xc4 link title", text:"Link">',
-            unicode(node))
+            six.ensure_text(node))
 
     @browsing
     def test_string_representation_without_text(self, browser):
@@ -788,8 +790,8 @@ class TestDefinitionListNode(BrowserTestCase):
     def test_items_returns_list_of_dt_to_dd_mapping(self, browser):
         browser.open(view='test-structure')
         self.assertEquals(
-            zip(browser.css('#definition-list-of-links dt'),
-                browser.css('#definition-list-of-links dd')),
+            list(zip(browser.css('#definition-list-of-links dt'),
+                     browser.css('#definition-list-of-links dd'))),
             browser.css('#definition-list-of-links').first.items())
 
     @browsing

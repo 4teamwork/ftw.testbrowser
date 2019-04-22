@@ -5,13 +5,16 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from mechanize._form import MimeWriter
+from six.moves import map
+from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import urljoin
+from six.moves.urllib.parse import urlparse
 from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
 import pkg_resources
 import shutil
-import urllib
-import urlparse
+import six
 
 
 class Form(NodeWrapper):
@@ -116,9 +119,8 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
-        to_unicode = (lambda val: isinstance(val, str)
-                      and val.decode('utf-8') or val)
-        values = dict(map(lambda item: map(to_unicode, item), values.items()))
+        values = dict([
+            tuple(map(six.ensure_text, item)) for item in values.items()])
 
         widgets = []
 
@@ -324,20 +326,20 @@ class Form(NodeWrapper):
         if not action:
             return self.browser.url
 
-        if urlparse.urlparse(action).scheme:
+        if urlparse(action).scheme:
             # The action is full qualified
             return action
 
-        return urlparse.urljoin(self.browser.base_url, action)
+        return urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
         URL = self.action_url
 
         if method.lower() == 'get':
             if '?' in URL:
-                URL += '&' + urllib.urlencode(values)
+                URL += '&' + urlencode(values)
             else:
-                URL += '?' + urllib.urlencode(values)
+                URL += '?' + urlencode(values)
             return self.browser.open(URL, referer=True)
 
         request_body, request_headers = self._prepare_multipart_request(
@@ -355,7 +357,7 @@ class Form(NodeWrapper):
         mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
 
         for fieldname, value in values:
-            if isinstance(value, unicode):
+            if isinstance(value, six.text_type):
                 value = value.encode('utf-8')
 
             field = self.find_field(fieldname)
@@ -377,7 +379,7 @@ class Form(NodeWrapper):
 
         mw.lastpart()
         value = data.getvalue()
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             value = value.encode('utf-8')
         return value, http_headers
 

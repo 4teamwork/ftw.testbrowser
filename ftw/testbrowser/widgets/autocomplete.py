@@ -75,8 +75,8 @@ class AutocompleteWidget(PloneWidget):
 
         with self.browser.clone() as query_browser:
             query_browser.open(url, data={'q': query_string})
-            return map(lambda line: line.split('|'),
-                       query_browser.contents.split('\n'))
+            return [line.split('|') for line
+                    in query_browser.contents.split('\n')]
 
     def _get_query_url(self):
         javascript = self.css('script').first.text

@@ -2,6 +2,7 @@ from ftw.testbrowser.exceptions import OnlyOneValueAllowed
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+from six.moves import map
 
 
 @widget

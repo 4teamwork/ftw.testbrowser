@@ -2,6 +2,7 @@ from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.tests import IS_PLONE_4
 from operator import itemgetter
+from six.moves import map
 
 
 def only_plone_4(func):
@@ -36,8 +37,9 @@ def title_cells(browser=default_browser):
     :returns: Cells of the title column.
     :rtype: list of cell objects
     """
-    cells = map(itemgetter(column_title_by_name('title', browser=browser)),
-                dicts(browser=browser, as_text=False))
+    cells = list(
+        map(itemgetter(column_title_by_name('title', browser=browser)),
+            dicts(browser=browser, as_text=False)))
     return wrap_nodes(cells, browser=browser)
 
 
@@ -122,8 +124,8 @@ def row_by_title(title, browser=default_browser):
     :returns: The row node.
     :rtype: :py:class:`ftw.testbrowser.table.TableRow`
     """
-    cells = filter(lambda cell: cell.text == title,
-                   title_cells(browser=browser))
+    cells = [
+        cell for cell in title_cells(browser=browser) if cell.text == title]
 
     if len(cells) == 0:
         raise ValueError('No row with title "{0}" found.'.format(title))
@@ -132,7 +134,7 @@ def row_by_title(title, browser=default_browser):
         return cells[0].row
 
     else:
-        urls = map(lambda cell: cell.css('a').first.attrib['href'], cells)
+        urls = [cell.css('a').first.attrib['href'] for cell in cells]
         raise ValueError(
             'More than one row with title "{0}" found: {1}'.format(
                 title, urls))
@@ -171,7 +173,7 @@ def row_by_path(path, browser=default_browser):
         raise ValueError(
             'The object with path "{0}" is not visible.'
             ' Visible objects: {1}'.format(
-                path, rows.keys()))
+                path, list(rows.keys())))
 
 
 @only_plone_4
@@ -238,6 +240,7 @@ def column_title_by_name(name, browser=default_browser):
     :returns: Title of the column
     :rtype: str
     """
-    mapping = dict(map(lambda th: (th.attrib.get('id'), th.text),
-                       table(browser=browser).head_rows.css('th.column')))
+    mapping = dict([
+        (th.attrib.get('id'), th.text) for th
+        in table(browser=browser).head_rows.css('th.column')])
     return mapping['foldercontents-{0}-column'.format(name)]

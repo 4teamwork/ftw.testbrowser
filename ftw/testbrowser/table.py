@@ -1,8 +1,11 @@
 from ftw.testbrowser.nodes import Nodes
 from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.utils import normalize_spaces
+from functools import reduce
 from operator import attrgetter
 from operator import itemgetter
+from six.moves import map
+from six.moves import zip
 
 
 def colspan_padded_text(row):
@@ -66,9 +69,9 @@ class Table(NodeWrapper):
         rows = self.get_rows(head=head, body=body, foot=foot,
                              head_offset=head_offset)
         if as_text:
-            return map(colspan_padded_text, rows)
+            return list(map(colspan_padded_text, rows))
         else:
-            return map(attrgetter('cells'), rows)
+            return list(map(attrgetter('cells'), rows))
 
     def dicts(self, body=True, foot=True,
               head_offset=0, as_text=True):
@@ -91,7 +94,7 @@ class Table(NodeWrapper):
 
         titles = self.get_titles(head_offset=head_offset)
         rows = self.lists(head=False, body=body, foot=foot, as_text=as_text)
-        return [dict(zip(titles, values)) for values in rows]
+        return [dict(tuple(zip(titles, values))) for values in rows]
 
     def column(self, index_or_titles, head=True, body=True, foot=True,
                head_offset=0, as_text=True):
@@ -124,11 +127,9 @@ class Table(NodeWrapper):
                 raise ValueError('Title "{0}" not in titles {1}'.format(
                     index_or_titles, titles))
 
-        return map(itemgetter(index), self.lists(head=head,
-                                                 body=body,
-                                                 foot=foot,
-                                                 head_offset=head_offset,
-                                                 as_text=as_text))
+        return list(map(itemgetter(index), self.lists(
+            head=head, body=body, foot=foot, head_offset=head_offset,
+            as_text=as_text)))
 
     @property
     def titles(self):
@@ -151,10 +152,10 @@ class Table(NodeWrapper):
         :returns: A list of table head texts per column.
         :rtype: list
         """
-        texts_per_rows = map(colspan_padded_text,
-                             self.head_rows[head_offset:])
+        texts_per_rows = list(map(colspan_padded_text,
+                                  self.head_rows[head_offset:]))
         texts_per_columns = zip(*texts_per_rows)
-        return map('\n'.join, texts_per_columns)
+        return list(map('\n'.join, texts_per_columns))
 
     @property
     def head_rows(self):
@@ -189,7 +190,7 @@ class Table(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
         exclude_rows = self.head_rows + self.foot_rows
-        return Nodes(filter(lambda node: node not in exclude_rows, self.rows))
+        return Nodes([node for node in self.rows if node not in exclude_rows])
 
     @property
     def rows(self):
@@ -245,7 +246,7 @@ class Table(NodeWrapper):
         :returns: The filtered list of nodes.
         :rtype: :py:class:`ftw.testbrowser.nodes.Nodes`
         """
-        return Nodes(filter(lambda node: self.is_familiar(node), nodes))
+        return Nodes([node for node in nodes if self.is_familiar(node)])
 
     def is_familiar(self, node):
         """Returns ``True`` when ``node`` is a component of the this

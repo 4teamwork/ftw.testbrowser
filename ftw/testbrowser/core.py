@@ -1,3 +1,4 @@
+from __future__ import print_function
 from Acquisition import aq_chain
 from contextlib import contextmanager
 from copy import deepcopy
@@ -23,10 +24,16 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.parser import TestbrowserHTMLParser
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
+from functools import reduce
 from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
+from six.moves import filter
+from six.moves import map
+from six.moves.urllib.parse import urljoin
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlunparse
 from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
@@ -36,8 +43,8 @@ import lxml.html
 import os
 import pkg_resources
 import re
+import six
 import tempfile
-import urlparse
 
 
 try:
@@ -145,7 +152,7 @@ class Browser(object):
             self.app = None
             self.next_app = None
 
-        map(methodcaller('reset'), self.drivers.values())
+        list(map(methodcaller('reset'), self.drivers.values()))
 
     def __enter__(self):
         if self._context_manager_active:
@@ -176,12 +183,10 @@ class Browser(object):
                 _, path = tempfile.mkstemp(suffix='.html',
                                            prefix='ftw.testbrowser-')
                 with open(path, 'w+') as file_:
-                    if isinstance(source, unicode):
-                        source = source.encode('utf-8')
-
+                    source = six.ensure_text(source)
                     file_.write(source)
 
-                print '\nftw.testbrowser dump:', path,
+                print('\nftw.testbrowser dump:', path, end=' ')
 
         self._context_manager_active = False
         self.reset()
@@ -294,7 +299,7 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
-        elif urlparse.urlparse(self.url).path.split('/')[-1] == 'require_login':
+        elif urlparse(self.url).path.split('/')[-1] == 'require_login':
             # Plone has redirected to "require_login", indicating that the user
             # has insufficient privileges.
             raise InsufficientPrivileges(self.status_code, self.status_reason)
@@ -640,7 +645,7 @@ class Browser(object):
         :returns: The form node.
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
-        form = self.find_form_by_fields(*values.keys())
+        form = self.find_form_by_fields(*list(values.keys()))
         return form.fill(values)
 
     def find(self, text, within=None):
@@ -840,7 +845,7 @@ class Browser(object):
             raise ContextNotFound(
                 'No <base> tag and no <body data-base-url> found.')
 
-        path = urlparse.urlparse(url).path.rstrip('/')
+        path = urlparse(url).path.rstrip('/')
         portal = getSite()
         portal_path = '/'.join(portal.getPhysicalPath())
         if not path.startswith(portal_path):
@@ -852,7 +857,7 @@ class Browser(object):
         obj = portal.restrictedTraverse(relative_path)
 
         # Make sure it returns the context object not a traversable view.
-        return filter(IItem.providedBy, aq_chain(obj))[0]
+        return next(filter(IItem.providedBy, aq_chain(obj)))
 
     def parse_as_html(self, html=None):
         """Parse the response document with the HTML parser.
@@ -914,7 +919,7 @@ class Browser(object):
         try:
             self._log_exceptions = False
             yield
-        except HTTPError, exc:
+        except HTTPError as exc:
             if code is not None and code != exc.status_code:
                 raise AssertionError(
                     'Expected HTTP error with status code {}, got {}.'.format(
@@ -946,7 +951,7 @@ class Browser(object):
             # Expectation is met.
             return
 
-        except HTTPError, exc:
+        except HTTPError as exc:
             if exc.status_code == 401:
                 # Response is "401 Unauthorized", thus user is probably
                 # logged in but unauthorized anyway;
@@ -987,14 +992,11 @@ class Browser(object):
         _, path = tempfile.mkstemp(suffix='.html',
                                    prefix='ftw.testbrowser-')
         with open(path, 'w+') as file_:
-            source = self.contents
-            if isinstance(source, unicode):
-                source = source.encode('utf-8')
-
+            source = six.ensure_text(self.contents)
             file_.write(source)
 
         cmd = 'open {0}'.format(path)
-        print '> {0}'.format(cmd)
+        print('> {0}'.format(cmd))
         os.system(cmd)
 
     def _verify_setup(self):
@@ -1012,12 +1014,12 @@ class Browser(object):
             url = url_or_object
 
         if view is not None:
-            parts = list(urlparse.urlparse(url))
+            parts = list(urlparse(url))
             parts[2] = '/'.join((parts[2].rstrip('/'), view))
-            url = urlparse.urlunparse(parts)
+            url = urlunparse(parts)
 
         if self.base_url:
-            url = urlparse.urljoin(self.base_url, url)
+            url = urljoin(self.base_url, url)
 
         return url
 
@@ -1030,7 +1032,7 @@ class Browser(object):
         if isinstance(html, StringIO):
             html = html.getvalue()
 
-        if isinstance(html, basestring) and 'xmlns:d="DAV:"' in html:
+        if isinstance(html, six.text_type) and 'xmlns:d="DAV:"' in html:
             html = html.strip().replace(
                 '<D:href>', '<d:href>').replace('</D:href>', '</d:href>')
 
@@ -1042,7 +1044,7 @@ class Browser(object):
         if hasattr(html, 'seek'):
             html.seek(0)
 
-        if isinstance(html, basestring):
+        if isinstance(html, six.text_type):
             html = StringIO(html)
 
         if len(html.read()) == 0:
