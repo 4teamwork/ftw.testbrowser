@@ -13,6 +13,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 import lxml.html
+import six
 
 
 @all_drivers
@@ -42,23 +43,25 @@ class TestBrowserForms(BrowserTestCase):
     @browsing
     def test_fill_field_by_name(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(u'', browser.forms['login_form'].values['__ac_name'])
+        login_form = browser.find_form_by_field('__ac_name')
+        self.assertEquals(u'', login_form.values['__ac_name'])
 
         browser.fill({'__ac_name': 'hugo.boss'})
-        self.assertEquals(u'hugo.boss', browser.forms['login_form'].values['__ac_name'])
+        self.assertEquals(u'hugo.boss', login_form.values['__ac_name'])
 
     @browsing
     def test_fill_field_by_label(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(u'', browser.forms['login_form'].values['__ac_name'])
+        login_form = browser.find_form_by_field('__ac_name')
+        self.assertEquals(u'', login_form.values['__ac_name'])
 
         browser.fill({'Login Name': 'hugo.boss'})
-        self.assertEquals(u'hugo.boss', browser.forms['login_form'].values['__ac_name'])
+        self.assertEquals(u'hugo.boss', login_form.values['__ac_name'])
 
     @browsing
     def test_forms_are_not_wrapped_multiple_times(self, browser):
         browser.open(view='login_form')
-        form = browser.forms['login_form']
+        form = browser.find_form_by_field('__ac_name')
         self.assertEquals(Form, type(form))
         self.assertEquals(lxml.html.FormElement, type(form.node))
 
@@ -335,11 +338,19 @@ class TestSelectField(BrowserTestCase):
         with self.assertRaises(ValueError) as cm:
             browser.fill({'Select Field': 'baz'})
 
-        self.assertEquals(
-            u'No option u\'baz\' for select "field". '
-            u'Available options: "Please choose\u2026" (), '
-            u'"Foo" (foo), "Bar" (bar).',
-            cm.exception.message)
+        if six.PY2:
+            expected = (
+                u'No option u\'baz\' for select "field". '
+                u'Available options: "Please choose\u2026" (), '
+                u'"Foo" (foo), "Bar" (bar).'
+            )
+        else:
+            expected = (
+                u'No option \'baz\' for select "field". '
+                u'Available options: "Please choose\u2026" (), '
+                u'"Foo" (foo), "Bar" (bar).'
+            )
+        self.assertEquals(expected, str(cm.exception))
 
     @browsing
     def test_fill_multi_select(self, browser):

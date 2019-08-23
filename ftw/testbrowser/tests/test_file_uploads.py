@@ -55,7 +55,7 @@ class TestFileUploadsArchetypes(TestCase):
                           'File': helloworld}).save()
 
         browser.find('helloworld.py').click()
-        self.assert_file_download('print "Hello World"\n',
+        self.assert_file_download('print("Hello World")\n',
                                   filename='helloworld.py',
                                   content_type='text/x-python',
                                   browser=browser)
@@ -102,6 +102,7 @@ class TestFileUploadsArchetypes(TestCase):
             ('attachment; filename="%s"' % filename,
              'attachment; filename*=UTF-8\'\'%s' % filename))
         self.assertIn(browser.headers.get('Content-Type'), (
+            '%s; charset=utf-8' % content_type,
             '%s; charset=iso-8859-15' % content_type,  # mechanize download
             content_type,  # requests lib download
         ))

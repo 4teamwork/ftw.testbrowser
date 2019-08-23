@@ -2,9 +2,9 @@ from ftw.builder.content import register_dx_content_builders
 from ftw.builder.testing import BUILDER_LAYER
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
-from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -42,7 +42,7 @@ class BrowserLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
-        applyProfile(portal, 'plone.formwidget.autocomplete:default')
+        # applyProfile(portal, 'plone.formwidget.autocomplete:default')
         applyProfile(portal, 'plone.app.contenttypes:default')
         register_dx_content_builders(force=True)
 
@@ -60,11 +60,13 @@ TRAVERSAL_INTEGRATION_TESTING = FTWIntegrationTesting(
            TRAVERSAL_BROWSER_FIXTURE),
     name='ftw.testbrowser:integration:traversal')
 
-MECHANIZE_TESTING = FunctionalTesting(
-    bases=(BROWSER_FIXTURE,
-           set_builder_session_factory(functional_session_factory),
-           MECHANIZE_BROWSER_FIXTURE),
-    name='ftw.testbrowser:functional:mechanize')
+if not HAS_ZOPE4:
+    from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
+    MECHANIZE_TESTING = FunctionalTesting(
+        bases=(BROWSER_FIXTURE,
+               set_builder_session_factory(functional_session_factory),
+               MECHANIZE_BROWSER_FIXTURE),
+        name='ftw.testbrowser:functional:mechanize')
 
 REQUESTS_TESTING = FunctionalTesting(
     bases=(BROWSER_FIXTURE,
@@ -73,4 +75,4 @@ REQUESTS_TESTING = FunctionalTesting(
            REQUESTS_BROWSER_FIXTURE),
     name='ftw.testbrowser:functional:requests')
 
-DEFAULT_TESTING = MECHANIZE_TESTING
+DEFAULT_TESTING = REQUESTS_TESTING

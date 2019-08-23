@@ -9,6 +9,7 @@ from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from six.moves import zip
+from unittest import skipIf
 import six
 
 
@@ -314,20 +315,21 @@ class TestNodeWrappers(BrowserTestCase):
     @browsing
     def test_string_representation_with_umlauts_in_attr(self, browser):
         browser.open_html(
-            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+            u'<a title="Ä link title">Link</a>')
         node = browser.css('a').first
         self.assertEquals(
-            '<LinkNode:a, title="\xc3\x84 link title", text:"Link">',
+            '<LinkNode:a, title="Ä link title", text:"Link">',
             str(node))
 
+    @skipIf(six.PY3, "Unicode doesn't exist in Python 3")
     @browsing
     def test_string_representation_with_umlauts_in_attr_unicode(self, browser):
         browser.open_html(
-            b'<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+            u'<a title="Ä link title">Link</a>')
         node = browser.css('a').first
         self.assertEquals(
-            u'<LinkNode:a, title="\xc4 link title", text:"Link">',
-            six.ensure_text(node))
+            u'<LinkNode:a, title="Ä link title", text:"Link">',
+            unicode(node))
 
     @browsing
     def test_string_representation_without_text(self, browser):

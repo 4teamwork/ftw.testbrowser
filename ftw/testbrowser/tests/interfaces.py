@@ -1,12 +1,10 @@
-from plone.formwidget.contenttree import ObjPathSourceBinder
+from plone.app.vocabularies.catalog import CatalogSource
 from z3c.relationfield.schema import RelationChoice
 from z3c.relationfield.schema import RelationList
 from zope.interface import Interface
 
 
-page_source = ObjPathSourceBinder(
-    portal_type="Document",
-)
+page_source = CatalogSource(portal_type='Document')
 
 
 class IDXTypeSchema(Interface):

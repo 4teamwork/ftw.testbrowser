@@ -2,7 +2,7 @@ from __future__ import print_function
 from Acquisition import aq_chain
 from contextlib import contextmanager
 from copy import deepcopy
-from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
+
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
 from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
@@ -24,6 +24,7 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.parser import TestbrowserHTMLParser
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
+from ftw.testbrowser.compat import HAS_ZOPE4
 from functools import reduce
 from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
@@ -45,6 +46,7 @@ import pkg_resources
 import re
 import six
 import tempfile
+from ZPublisher.utils import basic_auth_encode
 
 
 try:
@@ -56,15 +58,12 @@ else:
     from plone.app.testing import TEST_USER_NAME
     from plone.app.testing import TEST_USER_PASSWORD
 
-
 #: Constant for choosing the mechanize library (interally dispatched requests)
 LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
 
 #: Constant for choosing the requests library (actual requests)
 LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
 
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
 
 #: Constant for choosing the static driver.
 LIB_STATIC = StaticDriver.LIBRARY_NAME
@@ -75,9 +74,16 @@ LIB_STATIC = StaticDriver.LIBRARY_NAME
 #: keep working. This mapping may be monkey patched.
 DRIVER_FACTORIES = {
     TraversalDriver.LIBRARY_NAME: TraversalDriver,
-    MechanizeDriver.LIBRARY_NAME: MechanizeDriver,
     RequestsDriver.LIBRARY_NAME: RequestsDriver,
     StaticDriver.LIBRARY_NAME: StaticDriver}
+
+if not HAS_ZOPE4:
+    from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
+    #: Constant for choosing the mechanize library (interally dispatched requests)
+    LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
+    DRIVER_FACTORIES[MechanizeDriver.LIBRARY_NAME] = MechanizeDriver
+else:
+    LIB_MECHANIZE = 'mechanize library'
 
 
 @implementer(IBrowser)
@@ -298,9 +304,13 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
-        elif urlparse(self.url).path.split('/')[-1] == 'require_login':
-            # Plone has redirected to "require_login", indicating that the user
-            # has insufficient privileges.
+        elif (
+            '/login?came_from=' in self.url
+            or '/require_login?came_from=' in self.url
+            or '/insufficient-privileges' in self.url
+        ):
+            # Plone has redirected to the login form or a page indicating that
+            # the user has insufficient privileges.
             raise InsufficientPrivileges(self.status_code, self.status_reason)
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
@@ -395,7 +405,12 @@ class Browser(object):
         """The source of the current page (usually HTML).
         """
         self._verify_setup()
-        return self.get_driver().get_response_body()
+        driver = self.get_driver()
+        content_type = driver.get_response_headers().get('Content-Type', '')
+        if content_type.startswith('text/'):
+            return six.ensure_str(driver.get_response_body())
+        else:
+            return driver.get_response_body()
 
     @property
     def json(self):
@@ -560,8 +575,8 @@ class Browser(object):
             username = username.getUserName()
 
         self.replace_request_header(
-            'Authorization', 'Basic {0}'.format(
-                ':'.join((username, password)).encode('base64').strip()))
+            'Authorization', basic_auth_encode(username, password))
+
         return self
 
     def logout(self):

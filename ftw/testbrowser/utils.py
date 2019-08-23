@@ -14,6 +14,6 @@ def copy_docs_from_interface(klass):
 
     iface, = implementedBy(klass)
     for name, spec in iface.namesAndDescriptions():
-        getattr(klass, name).__func__.__doc__ = spec.__doc__
+        getattr(klass, name).__doc__ = spec.__doc__
 
     return klass

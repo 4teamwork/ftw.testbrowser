@@ -3,13 +3,14 @@ from collective.z3cform.datagridfield import DictRow
 from datetime import date
 from datetime import datetime
 from OFS.interfaces import IItem
-from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
-from plone.formwidget.contenttree import MultiContentTreeFieldWidget
-from plone.formwidget.contenttree import PathSourceBinder
-from plone.formwidget.contenttree import UUIDSourceBinder
+# from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
+# from plone.formwidget.contenttree import MultiContentTreeFieldWidget
+# from plone.formwidget.contenttree import PathSourceBinder
+# from plone.formwidget.contenttree import UUIDSourceBinder
 from plone.i18n.normalizer import idnormalizer
 from plone.uuid.interfaces import IUUID
 from plone.z3cform.layout import FormWrapper
+from plone.app.vocabularies.catalog import CatalogSource
 from six.moves import map
 from six.moves import zip
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -78,7 +79,7 @@ class ICakeSchema(Interface):
 
     reference = RelationChoice(
         title=u'Reference',
-        source=UUIDSourceBinder(),
+        vocabulary='plone.app.vocabularies.Catalog',
         required=False,
     )
 
@@ -116,7 +117,7 @@ class IShoppingFormSchema(Interface):
     documents = schema.List(
         title=u'Documents',
         value_type=schema.Choice(
-            source=PathSourceBinder(portal_type='Document')))
+            source=CatalogSource(portal_type='Document')))
 
     cakes = schema.List(
         title=u'Cakes',
@@ -138,8 +139,8 @@ class ShoppingForm(Form):
     def update(self):
         self.fields['fruits'].widgetFactory = CheckBoxFieldWidget
         self.fields['bag'].widgetFactory = RadioFieldWidget
-        self.fields['payment'].widgetFactory = AutocompleteMultiFieldWidget
-        self.fields['documents'].widgetFactory = MultiContentTreeFieldWidget
+        # self.fields['payment'].widgetFactory = AutocompleteMultiFieldWidget
+        # self.fields['documents'].widgetFactory = MultiContentTreeFieldWidget
         self.fields['cakes'].widgetFactory = DataGridFieldFactory
         return super(ShoppingForm, self).update()
 

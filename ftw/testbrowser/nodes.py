@@ -352,8 +352,8 @@ class NodeWrapper(object):
         else:
             super(NodeWrapper, self).__setattr__(name, value)
 
-    def __cmp__(self, other):
-        return cmp(self.node, getattr(other, 'node', _marker))
+    def __eq__(self, other):
+        return self.node == getattr(other, 'node', _marker)
 
     def __repr__(self):
         attribs = ', '.join(['%s="%s"' % (key, value)

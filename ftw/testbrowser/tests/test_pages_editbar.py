@@ -88,13 +88,13 @@ class TestEditBar(BrowserTestCase):
             self.assertEquals(
             "Empty result set: editbar.menu('Shapes',"
             " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display'].",
+                "\nVisible menus: ['Add new', 'Display'].",
                 str(cm.exception))
         else:
             self.assertEquals(
             "Empty result set: editbar.menu('Shapes',"
             " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display', u'Manage portlets'].",
+                "\nVisible menus: ['Add new', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing
@@ -139,14 +139,14 @@ class TestEditBar(BrowserTestCase):
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display'].",
+                "\nVisible menus: ['Add new', 'Display'].",
                 str(cm.exception))
         else:
             self.assertEquals(
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display', u'Manage portlets'].",
+                "\nVisible menus: ['Add new', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing

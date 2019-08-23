@@ -9,7 +9,7 @@ import os.path
 import sys
 
 
-def asset(name, mode='r'):
+def asset(name, mode='rb'):
     return open(os.path.join(os.path.dirname(__file__), 'assets', name), mode)
 
 

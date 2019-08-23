@@ -1,15 +1,13 @@
 from ftw.testbrowser.core import Browser
 from ftw.testbrowser.core import LIB_TRAVERSAL
-from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
 from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPServerError
 from ftw.testbrowser.exceptions import InsufficientPrivileges
-
+from ftw.testbrowser.compat import HAS_ZOPE4
 
 HTTPClientError, HTTPServerError, InsufficientPrivileges  # noqa
-
 
 #: The singleton browser instance acting as default browser.
 browser = Browser()
@@ -47,8 +45,10 @@ def browsing(func):
 #: A plone.testing layer which sets the default driver to Traversal.
 TRAVERSAL_BROWSER_FIXTURE = DefaultDriverFixture(LIB_TRAVERSAL)
 
-#: A plone.testing layer which sets the default driver to Mechanize.
-MECHANIZE_BROWSER_FIXTURE = DefaultDriverFixture(LIB_MECHANIZE)
+if not HAS_ZOPE4:
+    from ftw.testbrowser.core import LIB_MECHANIZE
+    #: A plone.testing layer which sets the default driver to Mechanize.
+    MECHANIZE_BROWSER_FIXTURE = DefaultDriverFixture(LIB_MECHANIZE)
 
 #: A plone.testing layer which sets the default driver to Requests.
 REQUESTS_BROWSER_FIXTURE = DefaultDriverFixture(LIB_REQUESTS)

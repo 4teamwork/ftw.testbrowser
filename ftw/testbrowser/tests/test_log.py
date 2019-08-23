@@ -6,6 +6,7 @@ from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
 from six import StringIO
 from zope.publisher.browser import BrowserView
+from contextlib import redirect_stderr
 
 
 @all_drivers
@@ -19,12 +20,14 @@ class TestExceptionLogger(BrowserTestCase):
 
         with register_view(FailingView, 'failing-view'):
             stderr = StringIO()
-            with capture_streams(stderr=stderr):
+            with redirect_stderr(stderr):
+            # with capture_streams(stderr=stderr):
                 with self.assertRaises(HTTPError):
                     browser.open(view='failing-view')
 
         output = stderr.getvalue().strip()
         # The output starts with a random error_log id => strip it.
+        import pdb; pdb.set_trace()
         self.assertTrue(output, 'No output in stderr')
         output = output.split(' ', 1)[1]
         self.assertEquals(

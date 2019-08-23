@@ -42,12 +42,15 @@ from zope.interface import implementer
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.Response import Response
-from ZPublisher.Test import publish_module
+# from ZPublisher.Test import publish_module
 import gzip
 import requests
 import sys
 import Zope2
 import ZPublisher
+
+from ftw.testbrowser.drivers.publish import publish_module
+import transaction
 
 
 # from plone.testing._z2_testbrowser
@@ -192,7 +195,7 @@ class TraversalDriver(object):
     def __init__(self, browser):
         self.browser = browser
         self.reset()
-        self.transactions_manager = NoCommitTransactionsManagerWrapper.setup()
+        # self.transactions_manager = NoCommitTransactionsManagerWrapper.setup()
 
     def reset(self):
         self.response = None
@@ -232,7 +235,9 @@ class TraversalDriver(object):
         app = aq_base(self.browser.app).__of__(requestcontainer)
 
         ensure_plone_catalog_queue_processed()
-        with self.transactions_manager(zope_request, app):
+        import pdb; pdb.set_trace()
+        with transaction.manager:
+        # with self.transactions_manager(zope_request, app):
             try:
                 publish_module(
                     'Zope2',
@@ -299,7 +304,7 @@ class TraversalDriver(object):
         response = TestResponse(stdout=StringIO(), stderr=sys.stderr)
 
         # craft a new zope request
-        zrequest = ZPublisher.Request.Request(
+        zrequest = ZPublisher.HTTPRequest.HTTPRequest(
             stdin=StringIO(request.body or ''),
             environ=env,
             response=response)

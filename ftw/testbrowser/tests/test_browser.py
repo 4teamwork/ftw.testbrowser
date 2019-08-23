@@ -20,6 +20,7 @@ from six import StringIO
 from zExceptions import BadRequest
 from zope.globalrequest import getRequest
 from zope.publisher.browser import BrowserView
+import six
 
 
 AC_COOKIE_INFO = {'comment': None,
@@ -75,12 +76,16 @@ class TestBrowserCore(BrowserTestCase):
             browser.json
         self.assertEquals('The browser is on a blank page.', str(cm.exception))
 
+    # Why are we testing a behavior of json.loads()?
     @browsing
     def test_json_raises_when_parsing_not_possible(self, browser):
         browser.open_html('not json')
         with self.assertRaises(ValueError) as cm:
             browser.json
-        self.assertEquals('No JSON object could be decoded', str(cm.exception))
+        if six.PY2:
+            self.assertEquals('No JSON object could be decoded', str(cm.exception))
+        else:
+            self.assertEquals('JSONDecodeError', cm.exception.__class__.__name__)
 
     @browsing
     def test_headers(self, browser):

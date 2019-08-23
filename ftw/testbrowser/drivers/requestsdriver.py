@@ -21,11 +21,14 @@ class RequestsDriver(object):
 
     def __init__(self, browser):
         self.browser = browser
+        self.requests_session = None
         self.reset()
 
     def reset(self):
         self.response = None
         self.previous_make_request = None
+        if self.requests_session is not None:
+            self.requests_session.close()
         self.requests_session = requests.Session()
 
     @remembering_for_reload
