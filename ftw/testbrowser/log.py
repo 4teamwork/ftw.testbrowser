@@ -27,10 +27,6 @@ class ExceptionLogger(logging.Handler):
         SiteErrorLog._rate_restrict_period = self._ori_rate_period
         logging.root.removeHandler(self)
 
-    # def handle(self, record):
-    #     import pdb; pdb.set_trace()
-    #     pass
-
     def filter(self, record):
         return True
         if record.name != 'Zope.SiteErrorLog':

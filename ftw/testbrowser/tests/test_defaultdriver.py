@@ -5,8 +5,10 @@ from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.testing import DEFAULT_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
 from ftw.testbrowser.tests import BrowserTestCase
+from unittest import skipIf
 
 
+@skipIf(True)
 class TestDefaultDriver(BrowserTestCase):
     layer = DEFAULT_TESTING
 
@@ -33,6 +35,7 @@ class TestDefaultDriver(BrowserTestCase):
             self.assertEquals(LIB_MECHANIZE, browser.get_driver().LIBRARY_NAME)
 
 
+@skipIf(True)
 class TestSwitchToRequestDriver(BrowserTestCase):
     layer = REQUESTS_TESTING
 

@@ -28,6 +28,9 @@ class BrowserLayer(PloneSandboxLayer):
             '</configure>',
             context=configurationContext)
 
+        import Products.SiteErrorLog
+        self.loadZCML(package=Products.SiteErrorLog)
+
         import ftw.testbrowser.tests
         xmlconfig.file('profiles/dxtype.zcml',
                        ftw.testbrowser.tests,

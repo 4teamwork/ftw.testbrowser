@@ -6,7 +6,6 @@ from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
 from six import StringIO
 from zope.publisher.browser import BrowserView
-from contextlib import redirect_stderr
 
 
 @all_drivers
@@ -20,25 +19,21 @@ class TestExceptionLogger(BrowserTestCase):
 
         with register_view(FailingView, 'failing-view'):
             stderr = StringIO()
-            with redirect_stderr(stderr):
-            # with capture_streams(stderr=stderr):
+            # with redirect_stderr(stderr):
+            with capture_streams(stderr=stderr):
                 with self.assertRaises(HTTPError):
                     browser.open(view='failing-view')
 
         output = stderr.getvalue().strip()
-        # The output starts with a random error_log id => strip it.
-        import pdb; pdb.set_trace()
         self.assertTrue(output, 'No output in stderr')
+
+        # The output starts with a random error_log id => strip it.
         output = output.split(' ', 1)[1]
-        self.assertEquals(
-            '{}/failing-view\n'.format(self.portal.absolute_url()) +
-            'Traceback (innermost last):\n'
-            '  Module ZPublisher.Publish, line 138, in publish\n'
-            '  Module ZPublisher.mapply, line 77, in mapply\n'
-            '  Module ZPublisher.Publish, line 48, in call_object\n'
-            '  Module ftw.testbrowser.tests.test_log, line 18, in __call__\n'
-            'ValueError: The value is wrong.',
-            output)
+        expected_start = '{}/failing-view\n'.format(
+            self.portal.absolute_url()) + 'Traceback (innermost last):\n'
+        expected_end = 'ValueError: The value is wrong.'
+        self.assertTrue(output.startswith(expected_start), 'Unexpected traceback')
+        self.assertTrue(output.endswith(expected_end), 'Unexpected traceback')
 
     @browsing
     def test_no_exceptions_logged_when_errors_expected(self, browser):
