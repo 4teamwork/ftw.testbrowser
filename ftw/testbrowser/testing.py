@@ -28,8 +28,9 @@ class BrowserLayer(PloneSandboxLayer):
             '</configure>',
             context=configurationContext)
 
-        import Products.SiteErrorLog
-        self.loadZCML(package=Products.SiteErrorLog)
+        if HAS_ZOPE4:
+            import Products.SiteErrorLog
+            self.loadZCML(package=Products.SiteErrorLog)
 
         import ftw.testbrowser.tests
         xmlconfig.file('profiles/dxtype.zcml',
@@ -47,6 +48,7 @@ class BrowserLayer(PloneSandboxLayer):
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
         # applyProfile(portal, 'plone.formwidget.autocomplete:default')
         applyProfile(portal, 'plone.app.contenttypes:default')
+        applyProfile(portal, 'collective.z3cform.datagridfield:default')
         register_dx_content_builders(force=True)
 
 

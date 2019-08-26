@@ -66,7 +66,7 @@ class Z3cChoiceCollection(PloneWidget):
         if not isinstance(values, (list, tuple)):
             values = [values]
 
-        labels_to_values = dict(zip(*reversed(zip(*self.options))))
+        labels_to_values = dict(zip(*reversed(list(zip(*self.options)))))
         available_values = self.options_values
         not_found = []
 

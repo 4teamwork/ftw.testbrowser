@@ -8,9 +8,13 @@ from plone.app.testing import SITE_OWNER_NAME
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.interface.verify import verifyClass
+from Products.CMFPlone.utils import getFSVersionTuple
+import unittest
 import transaction
 
 
+@unittest.skipIf(getFSVersionTuple() >= (5, 2),
+                 'Traversal driver not yet available for Plone 5.2')
 class TestTraversalDriverImplementation(BrowserTestCase):
     layer = TRAVERSAL_TESTING
 

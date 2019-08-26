@@ -4,8 +4,11 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
+from Products.CMFPlone.utils import getFSVersionTuple
+from unittest import skipIf
 
 
+@skipIf(getFSVersionTuple() >= (5, 0), 'Plone 4.3 only')
 @all_drivers
 class TestContentTreeWidget(BrowserTestCase):
 

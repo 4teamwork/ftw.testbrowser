@@ -31,6 +31,7 @@ from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from six import StringIO
+from six import BytesIO
 from six.moves import filter
 from six.moves import map
 from six.moves.urllib.parse import urljoin
@@ -47,6 +48,7 @@ import re
 import six
 import tempfile
 from ZPublisher.utils import basic_auth_encode
+from cgi import parse_header
 
 
 try:
@@ -401,16 +403,27 @@ class Browser(object):
         return self
 
     @property
-    def contents(self):
-        """The source of the current page (usually HTML).
-        """
+    def body(self):
+        """The binary response content"""
         self._verify_setup()
-        driver = self.get_driver()
-        content_type = driver.get_response_headers().get('Content-Type', '')
+        return self.get_driver().get_response_body()
+
+    @property
+    def contents(self):
+        """The response body as native string.
+        """
+        body = self.body
+        content_type = self.get_driver().get_response_headers().get(
+            'Content-Type', '')
         if content_type.startswith('text/'):
-            return six.ensure_str(driver.get_response_body())
+            main, params = parse_header(content_type)
+            encoding = params.get('charset', 'utf8')
+            if six.PY3 and isinstance(body, bytes):
+                return body.decode(encoding)
+            if six.PY2 and isinstance(body, six.text_type):
+                return body.encode(encoding)
         else:
-            return driver.get_response_body()
+            return body
 
     @property
     def json(self):
@@ -884,7 +897,7 @@ class Browser(object):
         """
         def parse(html):
             return lxml.html.parse(html, TestbrowserHTMLParser(encoding=self.encoding))
-        return self._load_html(html or self.contents, parse)
+        return self._load_html(html or self.body, parse)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -895,7 +908,7 @@ class Browser(object):
         :param xml: The XML to parse (default: current response).
         :type xml: string
         """
-        xml = self._correct_webdav_xml(xml or self.contents)
+        xml = self._correct_webdav_xml(xml or self.body)
         return self._load_html(xml, lxml.etree.parse)
 
     def parse(self, xml_or_html):
@@ -1060,6 +1073,9 @@ class Browser(object):
 
         if isinstance(html, six.text_type):
             html = StringIO(html)
+
+        if isinstance(html, six.binary_type):
+            html = BytesIO(html)
 
         if len(html.read()) == 0:
             self.document = None

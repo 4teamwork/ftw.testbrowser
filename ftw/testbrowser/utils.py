@@ -1,3 +1,4 @@
+from base64 import b64encode
 from zope.interface.declarations import implementedBy
 import re
 import six
@@ -21,3 +22,14 @@ def copy_docs_from_interface(klass):
             getattr(klass, name).__doc__ = spec.__doc__
 
     return klass
+
+
+def basic_auth_encode(user, password=None):
+    # user / password and the return value are of type str
+    value = user
+    if password is not None:
+        value = value + ':' + password
+    header = b'Basic ' + b64encode(value.encode('latin-1'))
+    if six.PY3:
+        header = header.decode('latin-1')
+    return header

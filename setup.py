@@ -19,8 +19,6 @@ tests_require = [
     'plone.app.dexterity',
     'plone.app.testing',
     'plone.dexterity',
-    # 'plone.formwidget.autocomplete',
-    # 'plone.formwidget.contenttree',
     'plone.i18n',
     'plone.z3cform',
     'transaction',
@@ -38,6 +36,10 @@ tests_require = [
 
 extras_require = {
     'tests': tests_require,
+    'test_plone4': [
+        'plone.formwidget.autocomplete',
+        'plone.formwidget.contenttree',
+    ],
     'plone': ['plone.app.testing']}
 
 

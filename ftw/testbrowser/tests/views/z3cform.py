@@ -9,7 +9,6 @@ from OFS.interfaces import IItem
 # from plone.formwidget.contenttree import UUIDSourceBinder
 from plone.i18n.normalizer import idnormalizer
 from plone.uuid.interfaces import IUUID
-from plone.z3cform.layout import FormWrapper
 from plone.app.vocabularies.catalog import CatalogSource
 from six.moves import map
 from six.moves import zip
@@ -18,6 +17,7 @@ from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.button import buttonAndHandler
 from z3c.form.field import Fields
 from z3c.form.form import Form
+from z3c.form import form
 from z3c.formwidget.query.interfaces import IQuerySource
 from z3c.relationfield import RelationChoice
 from zope import schema
@@ -27,6 +27,13 @@ from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 import json
+
+
+from plone.app.z3cform.widget import RelatedItemsFieldWidget
+from z3c.relationfield.schema import RelationList
+from plone.autoform.form import AutoExtensibleForm
+from plone.supermodel import model
+from plone.autoform import directives
 
 
 @implementer(IVocabularyFactory, IQuerySource)
@@ -53,7 +60,7 @@ def make_term_from_title(title):
     return SimpleTerm(token, token, title)
 
 
-class ICakeSchema(Interface):
+class ICakeSchema(model.Schema):
     quantity = schema.Int(
         title=u'Quantity',
         required=True,
@@ -77,15 +84,17 @@ class ICakeSchema(Interface):
         required=False,
     )
 
+    directives.widget(reference=RelatedItemsFieldWidget)
     reference = RelationChoice(
         title=u'Reference',
-        vocabulary='plone.app.vocabularies.Catalog',
+        source=CatalogSource(),
         required=False,
     )
 
 
-class IShoppingFormSchema(Interface):
+class IShoppingFormSchema(model.Schema):
 
+    directives.widget(fruits=CheckBoxFieldWidget)
     fruits = schema.List(
         title=u'Fruits',
         value_type=schema.Choice(
@@ -95,6 +104,7 @@ class IShoppingFormSchema(Interface):
                  SimpleTerm(u'orange', u'orange', u'Orange')])),
         required=False)
 
+    directives.widget(bag=RadioFieldWidget)
     bag = schema.List(
         title=u'Bag',
         value_type=schema.Choice([u'plastic bag', u'paper bag']),
@@ -114,11 +124,15 @@ class IShoppingFormSchema(Interface):
         title=u'Day of payment',
         required=False)
 
-    documents = schema.List(
+    directives.widget(documents=RelatedItemsFieldWidget)
+    documents = RelationList(
         title=u'Documents',
-        value_type=schema.Choice(
-            source=CatalogSource(portal_type='Document')))
+        value_type=RelationChoice(
+            source=CatalogSource(portal_type='Document'),
+            ),
+        required=False)
 
+    directives.widget(cakes=DataGridFieldFactory)
     cakes = schema.List(
         title=u'Cakes',
         value_type=DictRow(title=u'Cake', schema=ICakeSchema),
@@ -127,22 +141,23 @@ class IShoppingFormSchema(Interface):
     )
 
 
-class ShoppingForm(Form):
+class ShoppingForm(AutoExtensibleForm, Form):
     label = u'Shopping'
     ignoreContext = True
-    fields = Fields(IShoppingFormSchema)
+    schema = IShoppingFormSchema
 
     def __init__(self, *args, **kwargs):
         super(ShoppingForm, self).__init__(*args, **kwargs)
         self.result_data = None
 
-    def update(self):
-        self.fields['fruits'].widgetFactory = CheckBoxFieldWidget
-        self.fields['bag'].widgetFactory = RadioFieldWidget
+    # def update(self):
+        # self.fields['fruits'].widgetFactory = CheckBoxFieldWidget
+        # self.fields['bag'].widgetFactory = RadioFieldWidget
         # self.fields['payment'].widgetFactory = AutocompleteMultiFieldWidget
         # self.fields['documents'].widgetFactory = MultiContentTreeFieldWidget
-        self.fields['cakes'].widgetFactory = DataGridFieldFactory
-        return super(ShoppingForm, self).update()
+        # self.fields['documents'].widgetFactory = RelatedItemsFieldWidget
+        # self.fields['cakes'].widgetFactory = DataGridFieldFactory
+        # return super(ShoppingForm, self).update()
 
     def updateWidgets(self, prefix=None):
         super(ShoppingForm, self).updateWidgets(prefix)
@@ -160,18 +175,13 @@ class ShoppingForm(Form):
                 continue
             self.result_data[key] = value
 
-
-class ShoppingView(FormWrapper):
-
-    form = ShoppingForm
-
     def render(self):
-        if self.form_instance.result_data:
+        if self.result_data:
             self.request.RESPONSE.setHeader('Content-Type', 'application/json')
             return json.dumps(self.make_json_serializable(
-                self.form_instance.result_data))
+                self.result_data))
         else:
-            return super(ShoppingView, self).render()
+            return super(ShoppingForm, self).render()
 
     def make_json_serializable(self, value):
         if isinstance(value, (datetime, date)):

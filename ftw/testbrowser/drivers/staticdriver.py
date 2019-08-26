@@ -22,7 +22,9 @@ class StaticDriver(object):
         self.body = None
 
     def set_body(self, body):
-        self.body = six.ensure_str(body)
+        if isinstance(body, six.text_type):
+            body = six.ensure_str(body)
+        self.body = body
 
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):

@@ -8,7 +8,7 @@ from ftw.testbrowser.tests import BrowserTestCase
 from unittest import skipIf
 
 
-@skipIf(True)
+@skipIf(True, 'Not yet')
 class TestDefaultDriver(BrowserTestCase):
     layer = DEFAULT_TESTING
 
@@ -35,7 +35,7 @@ class TestDefaultDriver(BrowserTestCase):
             self.assertEquals(LIB_MECHANIZE, browser.get_driver().LIBRARY_NAME)
 
 
-@skipIf(True)
+@skipIf(True, 'Not yet')
 class TestSwitchToRequestDriver(BrowserTestCase):
     layer = REQUESTS_TESTING
 

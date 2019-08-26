@@ -3,6 +3,8 @@ from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 from six.moves.urllib.parse import urljoin
+from Products.CMFPlone.utils import getFSVersionTuple
+from unittest import skipIf
 
 
 @all_drivers
@@ -15,6 +17,7 @@ class TestBrowserZ3CForms(BrowserTestCase):
         browser.find('Submit').click()
         self.assertEquals({u'payment': [u'mastercard']}, browser.json)
 
+    @skipIf(getFSVersionTuple() >= (5, 0), 'Plone 4.3 only')
     @browsing
     def test_autocomplete_query(self, browser):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
@@ -23,6 +26,7 @@ class TestBrowserZ3CForms(BrowserTestCase):
                            ['mastercard', 'MasterCard']],
                           browser.find('Payment').query('ca'))
 
+    @skipIf(getFSVersionTuple() >= (5, 0), 'Plone 4.3 only')
     @browsing
     def test_autocomplete_query_with_querystring_in_base_url(self, browser):
         view_url = browser._normalize_url(None, view='test-z3cform-shopping')
