@@ -356,16 +356,15 @@ class Form(NodeWrapper):
                                  referer=True)
 
     def _prepare_multipart_request(self, URL, values):
-        fields = {}
+        fields = []
         for fieldname, value in values:
-            field = self.find_field(fieldname)
-            fields[fieldname] = value
+            fields.append((fieldname, value))
 
         # Since lxml 3.6.1 the lxml.html.form_values no longer include
         # "file"-inputs, therefore we need to treat them as extra values.
         for field in self.inputs:
             if getattr(field, 'type', None) == 'file':
-                fields[field.name] = field.mime_data()
+                fields.append((field.name, field.mime_data()))
 
         encoder = MultipartEncoder(fields=fields)
         value = encoder.to_string()
