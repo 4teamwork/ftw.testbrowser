@@ -4,14 +4,24 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.pages import plone
-from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from lxml import etree
 from plone.app.testing import SITE_OWNER_NAME
+from Products.CMFPlone.utils import getFSVersionTuple
+from unittest import skipIf
+
+try:
+    from ftw.testbrowser.testing import MECHANIZE_TESTING
+except ImportError:
+    class DummyLayer(object):
+        pass
+    MECHANIZE_TESTING = DummyLayer
 
 
+@skipIf(getFSVersionTuple() >= (5, 2),
+        'WebDAV is no longer available in Plone >= 5.2 (Zope 4)')
 @all_drivers
 class TestWebdavRequests(BrowserTestCase):
 
@@ -65,8 +75,10 @@ class TestWebdavRequests(BrowserTestCase):
         self.assertEqual("Test Token", browser.document.find('.//{DAV:}href').text)
 
 
+@skipIf(getFSVersionTuple() >= (5, 2),
+        'Mechanize driver is not available for Plone >= 5.2')
 class TestNoZserverWebdavRequests(BrowserTestCase):
-    layer = MECHANIZE_TESTING
+    layer = MECHANIZE_TESTING or []
 
     @browsing
     def test_webdav_requires_zserver(self, browser):
