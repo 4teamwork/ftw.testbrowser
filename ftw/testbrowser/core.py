@@ -6,6 +6,7 @@ from copy import deepcopy
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
 from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
+from ftw.testbrowser.drivers.webtest import WebtestDriver
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -77,7 +78,9 @@ LIB_STATIC = StaticDriver.LIBRARY_NAME
 DRIVER_FACTORIES = {
     TraversalDriver.LIBRARY_NAME: TraversalDriver,
     RequestsDriver.LIBRARY_NAME: RequestsDriver,
-    StaticDriver.LIBRARY_NAME: StaticDriver}
+    StaticDriver.LIBRARY_NAME: StaticDriver,
+    'webtest driver': WebtestDriver,
+}
 
 if not HAS_ZOPE4:
     from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
