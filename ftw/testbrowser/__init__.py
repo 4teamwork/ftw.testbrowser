@@ -52,3 +52,5 @@ if not HAS_ZOPE4:
 
 #: A plone.testing layer which sets the default driver to Requests.
 REQUESTS_BROWSER_FIXTURE = DefaultDriverFixture(LIB_REQUESTS)
+
+WEBTEST_BROWSER_FIXTURE = DefaultDriverFixture('webtest driver')

@@ -4,6 +4,7 @@ from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testbrowser import WEBTEST_BROWSER_FIXTURE
 from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
@@ -64,6 +65,11 @@ TRAVERSAL_INTEGRATION_TESTING = FTWIntegrationTesting(
     bases=(BROWSER_FIXTURE,
            TRAVERSAL_BROWSER_FIXTURE),
     name='ftw.testbrowser:integration:traversal')
+
+WEBTEST_INTEGRATION_TESTING = FTWIntegrationTesting(
+    bases=(BROWSER_FIXTURE,
+           WEBTEST_BROWSER_FIXTURE),
+    name='ftw.testbrowser:integration:webtest')
 
 if not HAS_ZOPE4:
     from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
