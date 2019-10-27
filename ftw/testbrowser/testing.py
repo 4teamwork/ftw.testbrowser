@@ -5,6 +5,7 @@ from ftw.builder.testing import set_builder_session_factory
 from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -27,6 +28,10 @@ class BrowserLayer(PloneSandboxLayer):
             '  <includePluginsOverrides package="plone" />'
             '</configure>',
             context=configurationContext)
+
+        if HAS_ZOPE4:
+            import Products.SiteErrorLog
+            self.loadZCML(package=Products.SiteErrorLog)
 
         import ftw.testbrowser.tests
         xmlconfig.file('profiles/dxtype.zcml',
