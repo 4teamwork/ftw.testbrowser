@@ -42,23 +42,25 @@ class TestBrowserForms(BrowserTestCase):
     @browsing
     def test_fill_field_by_name(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(u'', browser.forms['login_form'].values['__ac_name'])
+        login_form = browser.find_form_by_field('__ac_name')
+        self.assertEquals(u'', login_form.values['__ac_name'])
 
         browser.fill({'__ac_name': 'hugo.boss'})
-        self.assertEquals(u'hugo.boss', browser.forms['login_form'].values['__ac_name'])
+        self.assertEquals(u'hugo.boss', login_form.values['__ac_name'])
 
     @browsing
     def test_fill_field_by_label(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(u'', browser.forms['login_form'].values['__ac_name'])
+        login_form = browser.find_form_by_field('__ac_name')
+        self.assertEquals(u'', login_form.values['__ac_name'])
 
         browser.fill({'Login Name': 'hugo.boss'})
-        self.assertEquals(u'hugo.boss', browser.forms['login_form'].values['__ac_name'])
+        self.assertEquals(u'hugo.boss', login_form.values['__ac_name'])
 
     @browsing
     def test_forms_are_not_wrapped_multiple_times(self, browser):
         browser.open(view='login_form')
-        form = browser.forms['login_form']
+        form = browser.find_form_by_field('__ac_name')
         self.assertEquals(Form, type(form))
         self.assertEquals(lxml.html.FormElement, type(form.node))
 
