@@ -272,9 +272,13 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
-        elif urlparse.urlparse(self.url).path.split('/')[-1] == 'require_login':
-            # Plone has redirected to "require_login", indicating that the user
-            # has insufficient privileges.
+        elif (
+            '/login?came_from=' in self.url
+            or '/require_login?came_from=' in self.url
+            or '/insufficient-privileges' in self.url
+        ):
+            # Plone has redirected to the login form or a page indicating that
+            # the user has insufficient privileges.
             raise InsufficientPrivileges(self.status_code, self.status_reason)
 
     def on(self, url_or_object=None, data=None, view=None, library=None):
