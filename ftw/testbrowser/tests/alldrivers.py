@@ -14,12 +14,19 @@ def all_drivers(testcase):
     """
 
     module = sys.modules[testcase.__module__]
-    drivers = (
-        ('Mechanize', MECHANIZE_TESTING, LIB_MECHANIZE),
+    drivers = [
         ('Requests', REQUESTS_TESTING, LIB_REQUESTS),
-        ('Traversal', TRAVERSAL_TESTING, LIB_TRAVERSAL),
-        ('TraversalIntegration', TRAVERSAL_INTEGRATION_TESTING, LIB_TRAVERSAL),
-    )
+    ]
+
+    if LIB_MECHANIZE is not None:
+        drivers.append(('Mechanize', MECHANIZE_TESTING, LIB_MECHANIZE))
+
+    if LIB_TRAVERSAL is not None:
+        drivers.extend([
+            ('Traversal', TRAVERSAL_TESTING, LIB_TRAVERSAL),
+            ('TraversalIntegration', TRAVERSAL_INTEGRATION_TESTING, LIB_TRAVERSAL),
+        ])
+
     testcase._testbrowser_abstract_testclass = True
 
     for postfix, layer, constant in drivers:
