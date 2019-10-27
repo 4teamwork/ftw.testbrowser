@@ -38,7 +38,11 @@ tests_require = [
 
 extras_require = {
     'tests': tests_require,
-    'plone': ['plone.app.testing']}
+    'plone': ['plone.app.testing'],
+    'zope2': [
+        'mechanize',
+    ],
+}
 
 
 setup(name='ftw.testbrowser',
@@ -72,10 +76,10 @@ setup(name='ftw.testbrowser',
         'Acquisition',
         'cssselect',
         'lxml',
-        'mechanize',
         'plone.testing',
         'plone.uuid',
         'requests',
+        'requests_toolbelt',
         'setuptools',
         'zope.component',
         'zope.deprecation',
