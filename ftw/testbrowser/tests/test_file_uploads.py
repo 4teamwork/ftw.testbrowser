@@ -102,6 +102,7 @@ class TestFileUploadsArchetypes(TestCase):
             ('attachment; filename="%s"' % filename,
              'attachment; filename*=UTF-8\'\'%s' % filename))
         self.assertIn(browser.headers.get('Content-Type'), (
+            '%s; charset=utf-8' % content_type,  # Zope 4
             '%s; charset=iso-8859-15' % content_type,  # mechanize download
             content_type,  # requests lib download
         ))
