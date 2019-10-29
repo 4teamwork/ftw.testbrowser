@@ -1,7 +1,6 @@
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
 from lxml import etree
-from plone.uuid.interfaces import IUUID
 import re
 
 
@@ -89,38 +88,6 @@ class AutocompleteWidget(PloneWidget):
         for value in values:
             if hasattr(value, 'getPhysicalPath'):
                 new_values.append('/'.join(value.getPhysicalPath()))
-            else:
-                new_values.append(value)
-        return new_values
-
-
-@widget
-class PatternsLibAutocompleteWidget(PloneWidget):
-    """Represents the Autocomplete widget implemented with patternslib"""
-
-    @staticmethod
-    def match(node):
-        if not PloneWidget.match(node):
-            return False
-
-        return len(node.css('[data-pat-relateditems]')) > 0
-
-    def fill(self, values):
-        """With patternslib the Relation fields are represented as
-        input text field containing one uid, or multiple uids seperated
-        by a colon.
-        """
-        if not isinstance(values, (list, set, tuple)):
-            values = [values]
-
-        values = self._resolve_objects_to_uid(values)
-        self.css('input').first.value = ':'.join(values)
-
-    def _resolve_objects_to_uid(self, values):
-        new_values = []
-        for value in values:
-            if hasattr(value, 'getPhysicalPath'):
-                new_values.append(IUUID(value))
             else:
                 new_values.append(value)
         return new_values
