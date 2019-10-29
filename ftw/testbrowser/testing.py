@@ -13,6 +13,7 @@ from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import PloneSandboxLayer
 from plone.testing import z2
+from Products.CMFPlone.utils import getFSVersionTuple
 from zope.configuration import xmlconfig
 
 
@@ -47,8 +48,10 @@ class BrowserLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
-        applyProfile(portal, 'plone.formwidget.autocomplete:default')
         applyProfile(portal, 'plone.app.contenttypes:default')
+        applyProfile(portal, 'collective.z3cform.datagridfield:default')
+        if getFSVersionTuple() < (5, 0):
+            applyProfile(portal, 'plone.formwidget.autocomplete:default')
         register_dx_content_builders(force=True)
 
 
