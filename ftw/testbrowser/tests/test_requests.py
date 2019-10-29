@@ -456,8 +456,13 @@ class TestBrowserRequests(BrowserTestCase):
         The testbrowser must then adapt and use the correct encoding.
         """
         browser.open(view='test-partial')
-        # iso-8859-15 is the ZPublisher standard encoding for HTTPResponses
-        self.assertEquals('iso-8859-15', browser.encoding.lower())
+
+        default_encoding = 'iso-8859-15'
+        # Plone 5.1.6 (plone.testing 4.3.3) sets ZPublisher encoding to UTF-8
+        if getFSVersionTuple() >= (5, 1, 6):
+            default_encoding = 'utf-8'
+
+        self.assertEquals(default_encoding, browser.encoding.lower())
         self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
                           browser.css('#names li').text)
 
