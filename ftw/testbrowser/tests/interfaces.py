@@ -1,12 +1,15 @@
-from plone.formwidget.contenttree import ObjPathSourceBinder
+from Products.CMFPlone.utils import getFSVersionTuple
 from z3c.relationfield.schema import RelationChoice
 from z3c.relationfield.schema import RelationList
 from zope.interface import Interface
 
 
-page_source = ObjPathSourceBinder(
-    portal_type="Document",
-)
+if getFSVersionTuple() >= (5, 0):
+    from plone.app.vocabularies.catalog import CatalogSource
+    page_source = CatalogSource(portal_type='Document')
+else:
+    from plone.formwidget.contenttree import ObjPathSourceBinder
+    page_source = ObjPathSourceBinder(portal_type="Document")
 
 
 class IDXTypeSchema(Interface):
