@@ -35,7 +35,7 @@ from six import StringIO
 from six.moves import filter
 from six.moves import map
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 
 import json
 import lxml
@@ -63,6 +63,7 @@ if PLONE5:
     from ftw.testbrowser.plone5 import disabled_resource_registries
 
 
+@implementer(IBrowser)
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
     It represents the browser instance and is used for navigating and
@@ -95,8 +96,6 @@ class Browser(object):
       (Default: ``False``).
     :type exception_bubbling: ``bool``
     """
-
-    implements(IBrowser)
 
     def __init__(self):
         self.drivers = {}

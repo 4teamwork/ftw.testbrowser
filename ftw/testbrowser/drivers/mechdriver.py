@@ -8,7 +8,7 @@ from ftw.testbrowser.utils import copy_docs_from_interface
 from mechanize import Request
 from mechanize._urllib2_fork import HTTPRedirectHandler
 from requests.structures import CaseInsensitiveDict
-from zope.interface import implements
+from zope.interface import implementer
 
 import pkg_resources
 import six
@@ -27,12 +27,11 @@ else:
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class MechanizeDriver(object):
     """The mechanize driver uses the Mechanize browser with
     plone.testing integration for making the requests.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'mechanize library'
     WEBDAV_SUPPORT = False
 

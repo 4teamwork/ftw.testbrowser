@@ -1,16 +1,15 @@
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
-from zope.interface import implements
+from zope.interface import implementer
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class StaticDriver(object):
     """The static driver can load static HTML without doing an actual request.
     It does not support making requests at all.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'static driver'
     WEBDAV_SUPPORT = False
 
