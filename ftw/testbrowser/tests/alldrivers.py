@@ -6,6 +6,7 @@ from ftw.testbrowser.testing import REQUESTS_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_INTEGRATION_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from unittest2 import skip
+
 import sys
 
 

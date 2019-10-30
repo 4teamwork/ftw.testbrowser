@@ -4,6 +4,7 @@ from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import nondefault_browsing
+
 import re
 
 

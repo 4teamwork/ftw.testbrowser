@@ -2,7 +2,7 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
-from urlparse import urljoin
+from six.moves.urllib.parse import urljoin
 
 
 @all_drivers

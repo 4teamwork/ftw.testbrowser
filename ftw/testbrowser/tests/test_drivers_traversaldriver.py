@@ -9,7 +9,9 @@ from plone.registry.interfaces import IRegistry
 from unittest import skipIf
 from zope.component import getUtility
 from zope.interface.verify import verifyClass
+
 import transaction
+
 
 if not HAS_ZOPE4:
     from ftw.testbrowser.drivers.traversaldriver import TraversalDriver

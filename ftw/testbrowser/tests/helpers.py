@@ -5,6 +5,7 @@ from StringIO import StringIO
 from zope.component import getGlobalSiteManager
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
+
 import os.path
 import sys
 

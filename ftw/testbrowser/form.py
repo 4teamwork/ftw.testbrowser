@@ -5,13 +5,14 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from requests_toolbelt import MultipartEncoder
+from six.moves import map
 from StringIO import StringIO
+
 import lxml.html.formfill
 import mimetypes
-import pkg_resources
-import shutil
-import urllib
-import urlparse
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 class Form(NodeWrapper):
@@ -118,7 +119,7 @@ class Form(NodeWrapper):
         values = self.field_labels_to_names(values)
         to_unicode = (lambda val: isinstance(val, str)
                       and val.decode('utf-8') or val)
-        values = dict(map(lambda item: map(to_unicode, item), values.items()))
+        values = dict([list(map(to_unicode, item)) for item in values.items()])
 
         widgets = []
 
@@ -324,20 +325,20 @@ class Form(NodeWrapper):
         if not action:
             return self.browser.url
 
-        if urlparse.urlparse(action).scheme:
+        if six.moves.urllib.parse.urlparse(action).scheme:
             # The action is full qualified
             return action
 
-        return urlparse.urljoin(self.browser.base_url, action)
+        return six.moves.urllib.parse.urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
         URL = self.action_url
 
         if method.lower() == 'get':
             if '?' in URL:
-                URL += '&' + urllib.urlencode(values)
+                URL += '&' + six.moves.urllib.parse.urlencode(values)
             else:
-                URL += '?' + urllib.urlencode(values)
+                URL += '?' + six.moves.urllib.parse.urlencode(values)
             return self.browser.open(URL, referer=True)
 
         request_body, request_headers = self._prepare_multipart_request(

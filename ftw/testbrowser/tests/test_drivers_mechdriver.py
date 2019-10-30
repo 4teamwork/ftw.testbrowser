@@ -4,6 +4,7 @@ from unittest import skipIf
 from unittest2 import TestCase
 from zope.interface.verify import verifyClass
 
+
 if not HAS_ZOPE4:
     from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
 else:

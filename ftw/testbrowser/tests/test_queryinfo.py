@@ -1,4 +1,5 @@
 from ftw.testbrowser.queryinfo import QueryInfo
+from six.moves import range
 from unittest2 import TestCase
 
 
@@ -58,7 +59,7 @@ class TestQueryInfo(TestCase):
     def test_instance_method_with_mixed_arguments(self):
         self.assertEquals(
             "<Foo>.method(1, 'two', four=[0, 1, 2, 3])",
-            Foo().method(1, 'two', four=range(4)).render_call())
+            Foo().method(1, 'two', four=list(range(4))).render_call())
 
     def test_arbitrary_args(self):
         self.assertEquals(

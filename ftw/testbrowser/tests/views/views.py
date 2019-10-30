@@ -2,6 +2,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
 from zExceptions import BadRequest
 from zope.publisher.browser import BrowserView
+
 import json
 import os.path
 

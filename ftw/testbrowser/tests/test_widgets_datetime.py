@@ -6,6 +6,7 @@ from ftw.testbrowser.tests.alldrivers import all_drivers
 from plone.app.testing import SITE_OWNER_NAME
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
+
 import transaction
 
 

@@ -33,17 +33,18 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from requests.structures import CaseInsensitiveDict
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.parse import urlparse
 from StringIO import StringIO
-from urllib import unquote
-from urlparse import urlparse
 from zope.interface import implements
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.Response import Response
 from ZPublisher.Test import publish_module
+
 import gzip
-import httplib
 import requests
+import six.moves.http_client
 import sys
 import Zope2
 import ZPublisher
@@ -101,7 +102,7 @@ class NoCommitTransactionsManagerWrapper(object):
             # The cache may already contain the module infos of Zope2.
             # By popping the caches of the Zope2 module it will be refeched
             # from Zope2.zpublisher_transactions_manager on the next call.
-            modules_cache = ZPublisher.Publish.get_module_info.func_defaults[0]
+            modules_cache = ZPublisher.Publish.get_module_info.__defaults__[0]
             assert isinstance(modules_cache, dict), \
                 'get_module_info modules cache changed unexpectedly.'
             modules_cache.pop('Zope2', None)
@@ -323,7 +324,7 @@ class TraversalDriver(object):
 
         # Prepare the response object for cookielib compatibility:
         res = requests.cookies.MockResponse(
-            httplib.HTTPMessage(StringIO(response.stdout.getvalue())))
+            six.moves.http_client.HTTPMessage(StringIO(response.stdout.getvalue())))
 
         self.requests_session.cookies.extract_cookies(res, req)
 

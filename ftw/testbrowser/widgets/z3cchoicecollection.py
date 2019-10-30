@@ -1,6 +1,8 @@
 from ftw.testbrowser.exceptions import OptionsNotFound
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+from six.moves import zip
+
 import lxml.etree
 
 
@@ -56,8 +58,10 @@ class Z3cChoiceCollection(PloneWidget):
         if 'data-fieldname' in self.attrib:
             return self.attrib['data-fieldname']
 
-        kss_fieldname_classes = filter(
-            lambda cls: cls.startswith('kssattr-fieldname-'), self.classes)
+        kss_fieldname_classes = [
+            cls for cls in self.classes
+            if cls.startswith('kssattr-fieldname-')
+        ]
         if kss_fieldname_classes:
             return kss_fieldname_classes[0][len('kssattr-fieldname-'):]
 
@@ -65,7 +69,7 @@ class Z3cChoiceCollection(PloneWidget):
         if not isinstance(values, (list, tuple)):
             values = [values]
 
-        labels_to_values = dict(zip(*reversed(zip(*self.options))))
+        labels_to_values = dict(zip(*reversed(list(zip(*self.options)))))
         available_values = self.options_values
         not_found = []
 

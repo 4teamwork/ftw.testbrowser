@@ -4,6 +4,7 @@ from plone.app.testing import FunctionalTesting
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from unittest2 import TestCase
+
 import pkg_resources
 import transaction
 

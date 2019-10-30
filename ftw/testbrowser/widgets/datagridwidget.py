@@ -5,6 +5,8 @@ from ftw.testbrowser.widgets.base import widget
 from ftw.testbrowser.widgets.base import WIDGETS
 from lxml.html import formfill
 from plone.uuid.interfaces import IUUID
+from six.moves import map
+from six.moves import zip
 
 
 @widget
@@ -18,7 +20,7 @@ class DataGridWidget(PloneWidget):
 
     def fill(self, values):
         self.clear()
-        map(self.append, values)
+        list(map(self.append, values))
 
     def clear(self):
         empty_row = self.empty_row
@@ -33,8 +35,7 @@ class DataGridWidget(PloneWidget):
         row = wrap_node(deepcopy(self.empty_row.node), self.browser)
         row.attrib['class'] = 'datagridwidget-row'
 
-        titles = map(lambda title: title.rstrip('*').rstrip(),
-                     self.table.titles)
+        titles = [title.rstrip('*').rstrip() for title in self.table.titles]
         cells_by_label = dict(zip(titles, row.css('>td')))
         for label, value in row_values.items():
             assert label in cells_by_label, \

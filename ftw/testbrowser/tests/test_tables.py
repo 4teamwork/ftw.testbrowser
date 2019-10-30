@@ -4,6 +4,7 @@ from ftw.testbrowser.table import TableCell
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from operator import attrgetter
+from six.moves import map
 
 
 @all_drivers
@@ -69,10 +70,10 @@ class TestTables(BrowserTestCase):
         rows = browser.css('#simple-table').first.lists(as_text=False)
 
         self.assertEquals([TableCell, TableCell],
-                          map(type, rows[1]))
+                          list(map(type, rows[1])))
 
         self.assertEquals(['Socks', '12.90'],
-                          map(attrgetter('text'), rows[1]))
+                          list(map(attrgetter('text'), rows[1])))
 
     @browsing
     def test_table_as_dicts(self, browser):
@@ -127,11 +128,11 @@ class TestTables(BrowserTestCase):
 
         self.assertEquals(
             [TableCell, TableCell],
-            map(type, first.values()))
+            list(map(type, first.values())))
 
         self.assertEquals(
             ['Socks', '12.90'],
-            map(attrgetter('text'), first.values()))
+            list(map(attrgetter('text'), first.values())))
 
     @browsing
     def test_table_header_offset(self, browser):
