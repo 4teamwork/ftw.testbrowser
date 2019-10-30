@@ -31,9 +31,9 @@ from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from Products.CMFPlone.utils import getFSVersionTuple
+from six import StringIO
 from six.moves import filter
 from six.moves import map
-from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
 

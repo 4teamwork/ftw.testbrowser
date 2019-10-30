@@ -5,8 +5,8 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from requests_toolbelt import MultipartEncoder
+from six import BytesIO
 from six.moves import map
-from StringIO import StringIO
 
 import lxml.html.formfill
 import mimetypes
@@ -442,7 +442,7 @@ class FileField(NodeWrapper):
     def mime_data(self):
         value = self.browser.form_files.get(self.node, None)
         if value is None:
-            file_object = StringIO()
+            file_object = BytesIO()
             filename = ''
             content_type = 'application/octet-stream'
         else:
@@ -472,8 +472,8 @@ class FileField(NodeWrapper):
             content_type = mimetypes.guess_type(filename)[0] \
                 or 'application/octet-stream'
 
-        if isinstance(value, str):
-            value = StringIO(value)
+        if isinstance(value, six.binary_type):
+            value = BytesIO(value)
 
         return value, filename, content_type
 

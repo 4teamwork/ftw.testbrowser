@@ -4,7 +4,7 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.exceptions import ZServerRequired
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
-from StringIO import StringIO
+from six import BytesIO
 from zope.interface import implements
 
 import requests
@@ -55,7 +55,7 @@ class RequestsDriver(object):
 
         return (self.response.status_code,
                 self.response.reason,
-                StringIO(self.response.content))
+                BytesIO(self.response.content))
 
     def reload(self):
         if self.previous_make_request is None:
