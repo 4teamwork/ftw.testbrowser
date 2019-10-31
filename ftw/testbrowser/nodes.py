@@ -3,6 +3,7 @@ from ftw.testbrowser.exceptions import NoElementFound
 from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import normalize_spaces
 from functools import reduce
+from functools import total_ordering
 from operator import attrgetter
 from operator import methodcaller
 from six.moves import map
@@ -322,6 +323,7 @@ class Nodes(list):
         return self
 
 
+@total_ordering
 class NodeWrapper(object):
     """`NodeWrapper` is the default wrapper class in which each element will be
     wrapped for use in `ftw.testbrowser`. It wraps the elements returned by
@@ -352,8 +354,14 @@ class NodeWrapper(object):
         else:
             super(NodeWrapper, self).__setattr__(name, value)
 
-    def __cmp__(self, other):
-        return cmp(self.node, getattr(other, 'node', _marker))
+    def __eq__(self, other):
+        return (self.node == getattr(other, 'node', _marker))
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        return (self.node < getattr(other, 'node', _marker))
 
     def __repr__(self):
         attribs = ', '.join(['%s="%s"' % (key, value)
