@@ -1,5 +1,6 @@
 from __future__ import print_function
 from Acquisition import aq_chain
+from cgi import parse_header
 from contextlib import contextmanager
 from copy import deepcopy
 from ftw.testbrowser.drivers import DRIVER_FACTORIES
@@ -160,16 +161,13 @@ class Browser(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if (exc_type or exc_value):
             try:
-                source = self.contents
+                source = self.body
             except BlankPage:
                 pass
             else:
                 _, path = tempfile.mkstemp(suffix='.html',
                                            prefix='ftw.testbrowser-')
-                with open(path, 'w+') as file_:
-                    if isinstance(source, six.text_type):
-                        source = source.encode('utf-8')
-
+                with open(path, 'wb+') as file_:
                     file_.write(source)
 
                 print('\nftw.testbrowser dump:', path, end=' ')
@@ -383,11 +381,28 @@ class Browser(object):
         return self
 
     @property
-    def contents(self):
-        """The source of the current page (usually HTML).
-        """
+    def body(self):
+        """The binary response content"""
         self._verify_setup()
         return self.get_driver().get_response_body()
+
+    @property
+    def contents(self):
+        """The response body as native string.
+        """
+        body = self.body
+        content_type = self.get_driver().get_response_headers().get(
+            'Content-Type', 'text/html')
+        if content_type.startswith('text/'):
+            main, params = parse_header(content_type)
+            encoding = params.get('charset', 'utf8')
+            if six.PY3 and isinstance(body, bytes):
+                return body.decode(encoding)
+            if six.PY2 and isinstance(body, six.text_type):
+                return body.encode(encoding)
+            return body
+        else:
+            return body
 
     @property
     def json(self):
@@ -981,10 +996,7 @@ class Browser(object):
         _, path = tempfile.mkstemp(suffix='.html',
                                    prefix='ftw.testbrowser-')
         with open(path, 'w+') as file_:
-            source = self.contents
-            if isinstance(source, six.text_type):
-                source = source.encode('utf-8')
-
+            source = six.ensure_text(self.contents)
             file_.write(source)
 
         cmd = 'open {0}'.format(path)
