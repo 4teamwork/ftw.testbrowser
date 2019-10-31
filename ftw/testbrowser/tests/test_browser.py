@@ -21,6 +21,8 @@ from zExceptions import BadRequest
 from zope.globalrequest import getRequest
 from zope.publisher.browser import BrowserView
 
+import six
+
 
 AC_COOKIE_INFO = {'comment': None,
                   # 'domain': ... may be 'localhost.local' or '0.0.0.0'
@@ -80,7 +82,10 @@ class TestBrowserCore(BrowserTestCase):
         browser.open_html('not json')
         with self.assertRaises(ValueError) as cm:
             browser.json
-        self.assertEquals('No JSON object could be decoded', str(cm.exception))
+        if six.PY2:
+            self.assertEquals('No JSON object could be decoded', str(cm.exception))
+        else:
+            self.assertEquals('JSONDecodeError', cm.exception.__class__.__name__)
 
     @browsing
     def test_headers(self, browser):
