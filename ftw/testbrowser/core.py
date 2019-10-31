@@ -24,6 +24,7 @@ from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.parser import TestbrowserHTMLParser
 from ftw.testbrowser.queryinfo import QueryInfo
+from ftw.testbrowser.utils import basic_auth_encode
 from ftw.testbrowser.utils import normalize_spaces
 from functools import reduce
 from lxml.cssselect import CSSSelector
@@ -551,8 +552,7 @@ class Browser(object):
             username = username.getUserName()
 
         self.replace_request_header(
-            'Authorization', 'Basic {0}'.format(
-                ':'.join((username, password)).encode('base64').strip()))
+            'Authorization', basic_auth_encode(username, password))
         return self
 
     def logout(self):

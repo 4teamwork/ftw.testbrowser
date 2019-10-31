@@ -12,6 +12,7 @@ from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
+from ftw.testbrowser.utils import basic_auth_encode
 from plone.app.testing import applyProfile
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -226,8 +227,9 @@ class TestBrowserRequests(BrowserTestCase):
         browser.open()
         self.assertFalse(plone.logged_in())
 
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(TEST_USER_NAME, TEST_USER_PASSWORD))
         browser.open()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
@@ -252,20 +254,23 @@ class TestBrowserRequests(BrowserTestCase):
         hugo = create(Builder('user').named('Hugo', 'Boss'))
         john = create(Builder('user').named('John', 'Doe'))
 
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((hugo.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(hugo.getId(), TEST_USER_PASSWORD))
         browser.open()
         self.assertEquals('Boss Hugo', plone.logged_in())
 
-        browser.replace_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((john.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.replace_request_header(
+            'Authorization',
+            basic_auth_encode(john.getId(), TEST_USER_PASSWORD))
         browser.open()
         self.assertEquals('Doe John', plone.logged_in())
 
     @browsing
     def test_clear_request_header_with_header_selection(self, browser):
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(TEST_USER_NAME, TEST_USER_PASSWORD))
         browser.open()
         self.assertEquals(TEST_USER_ID, plone.logged_in())
 
