@@ -33,6 +33,7 @@ from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from Products.CMFPlone.utils import getFSVersionTuple
+from six import BytesIO
 from six import StringIO
 from six.moves import filter
 from six.moves import map
@@ -874,7 +875,7 @@ class Browser(object):
         """
         def parse(html):
             return lxml.html.parse(html, TestbrowserHTMLParser(encoding=self.encoding))
-        return self._load_html(html or self.contents, parse)
+        return self._load_html(html or self.body, parse)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -885,7 +886,7 @@ class Browser(object):
         :param xml: The XML to parse (default: current response).
         :type xml: string
         """
-        xml = self._correct_webdav_xml(xml or self.contents)
+        xml = self._correct_webdav_xml(xml or self.body)
         return self._load_html(xml, lxml.etree.parse)
 
     def parse(self, xml_or_html):
@@ -1048,8 +1049,11 @@ class Browser(object):
         if hasattr(html, 'seek'):
             html.seek(0)
 
-        if isinstance(html, six.string_types):
+        if isinstance(html, six.text_type):
             html = StringIO(html)
+
+        if isinstance(html, six.binary_type):
+            html = BytesIO(html)
 
         if len(html.read()) == 0:
             self.document = None
