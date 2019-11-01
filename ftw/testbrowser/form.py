@@ -127,7 +127,7 @@ class Form(NodeWrapper):
 
         widgets = []
 
-        for fieldname, value in values.items():
+        for fieldname, value in list(values.items()):
             field = self.find_field(fieldname)
             if isinstance(field, PloneWidget):
                 widgets.append((field, value))
