@@ -367,17 +367,15 @@ class NodeWrapper(object):
         attribs = ', '.join(['%s="%s"' % (key, value)
                              for key, value in self.attrib.items()])
 
-        text = self.raw_text
-        if isinstance(text, six.text_type):
-            text = text.encode('utf-8')
+        text = six.ensure_str(self.raw_text)
 
         if text and text.strip():
             repr = ', '.join((self.tag, attribs, 'text:"%s"' % text))
         else:
             repr = ', '.join((self.tag, attribs))
 
-        if isinstance(repr, six.text_type):
-            repr = repr.encode('utf-8')
+        repr = six.ensure_str(repr)
+
         return '<%s:%s>' % (self.__class__.__name__, repr)
 
     def __unicode__(self):

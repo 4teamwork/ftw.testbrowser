@@ -339,10 +339,10 @@ class TestSelectField(BrowserTestCase):
             browser.fill({'Select Field': 'baz'})
 
         self.assertEquals(
-            u'No option u\'baz\' for select "field". '
-            u'Available options: "Please choose\u2026" (), '
-            u'"Foo" (foo), "Bar" (bar).',
-            cm.exception.message)
+            'No option \'baz\' for select "field". '
+            'Available options: "Please choose\u2026" (), '
+            '"Foo" (foo), "Bar" (bar).',
+            str(cm.exception))
 
     @browsing
     def test_fill_multi_select(self, browser):
