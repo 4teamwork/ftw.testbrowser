@@ -55,7 +55,7 @@ class TestFileUploadsArchetypes(TestCase):
                           'File': helloworld}).save()
 
         browser.find('helloworld.py').click()
-        self.assert_file_download('print "Hello World"\n',
+        self.assert_file_download('print("Hello World")\n',
                                   filename='helloworld.py',
                                   content_type='text/x-python',
                                   browser=browser)
