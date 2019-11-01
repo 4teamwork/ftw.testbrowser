@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 
-version = '1.30.2.dev0'
+version = '2.0.0.dev0'
 
 
 tests_require = [
@@ -58,6 +58,7 @@ setup(name='ftw.testbrowser',
         'Framework :: Plone',
         'Framework :: Plone :: 4.3',
         'Framework :: Plone :: 5.1',
+        'Framework :: Plone :: 5.2',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
