@@ -20,7 +20,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import getFSVersionTuple
-from six import StringIO
+from six import BytesIO
 from unittest import skipUnless
 from zExceptions import BadRequest
 from zope.component import getUtility
@@ -162,10 +162,10 @@ class TestBrowserRequests(BrowserTestCase):
 
     @browsing
     def test_loading_stream_html_without_request(self, browser):
-        html = StringIO()
-        html.write('<html>')
-        html.write('<h1>The heading</h1>')
-        html.write('<html>')
+        html = BytesIO()
+        html.write(b'<html>')
+        html.write(b'<h1>The heading</h1>')
+        html.write(b'<html>')
 
         browser.open_html(html)
         self.assertEquals('The heading', browser.css('h1').first.normalized_text())
