@@ -315,20 +315,20 @@ class TestNodeWrappers(BrowserTestCase):
     @browsing
     def test_string_representation_with_umlauts_in_attr(self, browser):
         browser.open_html(
-            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+            b'<a title="\xc3\x84 link title">Link</a>'.decode('utf8'))
         node = browser.css('a').first
         self.assertEquals(
-            '<LinkNode:a, title="\xc3\x84 link title", text:"Link">',
-            str(node))
+            b'<LinkNode:a, title="\xc3\x84 link title", text:"Link">',
+            six.ensure_binary(str(node)))
 
     @browsing
     def test_string_representation_with_umlauts_in_attr_unicode(self, browser):
         browser.open_html(
-            '<a title="\xc3\x84 link title">Link</a>'.decode('utf-8'))
+            b'<a title="\xc3\x84 link title">Link</a>'.decode('utf8'))
         node = browser.css('a').first
         self.assertEquals(
             u'<LinkNode:a, title="\xc4 link title", text:"Link">',
-            six.text_type(node))
+            six.ensure_text(str(node)))
 
     @browsing
     def test_string_representation_without_text(self, browser):
