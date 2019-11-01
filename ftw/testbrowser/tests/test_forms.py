@@ -14,6 +14,7 @@ from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 
 import lxml.html
+import six
 
 
 @all_drivers
@@ -339,10 +340,10 @@ class TestSelectField(BrowserTestCase):
             browser.fill({'Select Field': 'baz'})
 
         self.assertEquals(
-            'No option \'baz\' for select "field". '
-            'Available options: "Please choose\u2026" (), '
-            '"Foo" (foo), "Bar" (bar).',
-            str(cm.exception))
+            u'No option \'baz\' for select "field". '
+            u'Available options: "Please choose\u2026" (), '
+            u'"Foo" (foo), "Bar" (bar).',
+            six.ensure_text(str(cm.exception)))
 
     @browsing
     def test_fill_multi_select(self, browser):
