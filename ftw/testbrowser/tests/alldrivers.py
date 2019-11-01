@@ -7,6 +7,7 @@ from ftw.testbrowser.testing import TRAVERSAL_INTEGRATION_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from unittest2 import skip
 
+import six
 import sys
 
 
@@ -39,7 +40,10 @@ def all_drivers(testcase):
         subclass = type(name, (testcase,), custom)
         for attrname in dir(subclass):
             method = getattr(subclass, attrname, None)
-            func = getattr(method, 'im_func', None)
+            if six.PY2:
+                func = getattr(method, 'im_func', None)
+            else:
+                func = method
             if constant in getattr(func, '_testbrowser_skip_driver', {}):
                 reason = func._testbrowser_skip_driver[constant]
                 setattr(subclass, attrname, skip(reason)(method))
