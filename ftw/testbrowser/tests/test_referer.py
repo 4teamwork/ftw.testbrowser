@@ -1,7 +1,7 @@
 from ftw.testbrowser import browser
 from ftw.testbrowser import browsing
 from ftw.testbrowser.tests.alldrivers import all_drivers
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 @all_drivers

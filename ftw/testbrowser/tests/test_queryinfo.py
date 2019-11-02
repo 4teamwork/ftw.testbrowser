@@ -1,6 +1,6 @@
 from ftw.testbrowser.queryinfo import QueryInfo
 from six.moves import range
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 class Foo(object):

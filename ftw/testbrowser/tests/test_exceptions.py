@@ -1,6 +1,6 @@
 from ftw.testbrowser import exceptions
 from ftw.testbrowser.queryinfo import QueryInfo
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 class TestBrowserExceptions(TestCase):

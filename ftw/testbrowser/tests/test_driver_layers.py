@@ -9,7 +9,7 @@ from ftw.testbrowser.core import LIB_TRAVERSAL
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import PLONE_FIXTURE
 from unittest import skipIf
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 @skipIf(HAS_ZOPE4, 'Mechanize is not available for Zope 4')

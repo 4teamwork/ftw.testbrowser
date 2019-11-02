@@ -1,6 +1,6 @@
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
 from ftw.testbrowser.interfaces import IDriver
-from unittest2 import TestCase
+from unittest import TestCase
 from zope.interface.verify import verifyClass
 
 

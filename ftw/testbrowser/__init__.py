@@ -23,7 +23,7 @@ def browsing(func):
 
         from ftw.testbrowser import browsing
         from plone.app.testing import PLONE_FUNCTIONAL_TESTING
-        from unittest2 import TestCase
+        from unittest import TestCase
 
         class TestSomething(TestCase):
             layer = PLONE_FUNCTIONAL_TESTING

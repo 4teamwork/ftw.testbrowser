@@ -5,7 +5,7 @@ from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import SITE_OWNER_NAME
 from six import BytesIO
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 @all_drivers

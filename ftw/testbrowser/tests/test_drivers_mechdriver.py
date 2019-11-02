@@ -1,7 +1,7 @@
 from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testbrowser.interfaces import IDriver
 from unittest import skipIf
-from unittest2 import TestCase
+from unittest import TestCase
 from zope.interface.verify import verifyClass
 
 

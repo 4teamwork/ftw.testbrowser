@@ -1,6 +1,6 @@
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import OptionsNotFound
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 WIDGET_HTML = '''

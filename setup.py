@@ -22,7 +22,6 @@ tests_require = [
     'plone.i18n',
     'plone.z3cform',
     'transaction',
-    'unittest2',
     'z3c.form',
     'z3c.formwidget.query',
     'z3c.relationfield',

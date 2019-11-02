@@ -5,7 +5,7 @@ from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_INTEGRATION_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
-from unittest2 import skip
+from unittest import skip
 
 import six
 import sys

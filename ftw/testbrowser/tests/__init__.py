@@ -3,7 +3,7 @@ from ftw.testbrowser import LIB_TRAVERSAL
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from unittest2 import TestCase
+from unittest import TestCase
 
 import pkg_resources
 import transaction
