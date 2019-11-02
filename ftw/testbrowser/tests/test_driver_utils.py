@@ -25,7 +25,7 @@ class TestIsolation(BrowserTestCase):
             self.assertIsNone(None, getRequest())
             setRequest('bar')
 
-        self.assertEquals(self.layer['request'], getRequest())
+        self.assertEqual(self.layer['request'], getRequest())
 
     def test_decorator_isolates_globalrequest(self):
         setRequest(self.layer['request'])
@@ -36,8 +36,8 @@ class TestIsolation(BrowserTestCase):
             setRequest('bar')
             return 'Foo'
 
-        self.assertEquals('Foo', foo())
-        self.assertEquals(self.layer['request'], getRequest())
+        self.assertEqual('Foo', foo())
+        self.assertEqual(self.layer['request'], getRequest())
 
     def test_isolate_sitehook(self):
         setSite(self.layer['portal'])
@@ -46,7 +46,7 @@ class TestIsolation(BrowserTestCase):
             self.assertIsNone(None, getSite())
             setSite(PloneSite('fakesite'))
 
-        self.assertEquals(self.layer['portal'], getSite())
+        self.assertEqual(self.layer['portal'], getSite())
 
     def test_decorator_isolates_sitehook(self):
         setSite(self.layer['portal'])
@@ -57,8 +57,8 @@ class TestIsolation(BrowserTestCase):
             setSite(PloneSite('fakesite'))
             return 'Foo'
 
-        self.assertEquals('Foo', foo())
-        self.assertEquals(self.layer['portal'], getSite())
+        self.assertEqual('Foo', foo())
+        self.assertEqual(self.layer['portal'], getSite())
 
     def test_isolate_securitymanager(self):
         newSecurityManager(self.layer['portal'], TEST_USER_ID)
@@ -68,7 +68,7 @@ class TestIsolation(BrowserTestCase):
             self.assertIsNone(None, getSecurityManager())
             newSecurityManager(self.layer['portal'], SITE_OWNER_NAME)
 
-        self.assertEquals(security_manager, getSecurityManager())
+        self.assertEqual(security_manager, getSecurityManager())
 
     def test_decorator_isolates_security_manager(self):
         newSecurityManager(self.layer['portal'], TEST_USER_ID)
@@ -80,5 +80,5 @@ class TestIsolation(BrowserTestCase):
             newSecurityManager(self.layer['portal'], SITE_OWNER_NAME)
             return 'Foo'
 
-        self.assertEquals('Foo', foo())
-        self.assertEquals(security_manager, getSecurityManager())
+        self.assertEqual('Foo', foo())
+        self.assertEqual(security_manager, getSecurityManager())

@@ -64,18 +64,18 @@ class TestBrowserCore(BrowserTestCase):
     def test_contents_raises_when_on_blank_page(self, browser):
         with self.assertRaises(BlankPage) as cm:
             browser.contents
-        self.assertEquals('The browser is on a blank page.', str(cm.exception))
+        self.assertEqual('The browser is on a blank page.', str(cm.exception))
 
     @browsing
     def test_json(self, browser):
         browser.open_html('{"foo": "bar"}')
-        self.assertEquals({'foo': 'bar'}, browser.json)
+        self.assertEqual({'foo': 'bar'}, browser.json)
 
     @browsing
     def test_json_raises_when_on_blank_page(self, browser):
         with self.assertRaises(BlankPage) as cm:
             browser.json
-        self.assertEquals('The browser is on a blank page.', str(cm.exception))
+        self.assertEqual('The browser is on a blank page.', str(cm.exception))
 
     @browsing
     def test_json_raises_when_parsing_not_possible(self, browser):
@@ -83,9 +83,9 @@ class TestBrowserCore(BrowserTestCase):
         with self.assertRaises(ValueError) as cm:
             browser.json
         if six.PY2:
-            self.assertEquals('No JSON object could be decoded', str(cm.exception))
+            self.assertEqual('No JSON object could be decoded', str(cm.exception))
         else:
-            self.assertEquals('JSONDecodeError', cm.exception.__class__.__name__)
+            self.assertEqual('JSONDecodeError', cm.exception.__class__.__name__)
 
     @browsing
     def test_headers(self, browser):
@@ -95,7 +95,7 @@ class TestBrowserCore(BrowserTestCase):
     @browsing
     def test_headers_with_open_html(self, browser):
         browser.open_html('<html><head></head></html>')
-        self.assertEquals({}, browser.headers)
+        self.assertEqual({}, browser.headers)
 
     @browsing
     def test_cookies(self, browser):
@@ -108,24 +108,24 @@ class TestBrowserCore(BrowserTestCase):
     @browsing
     def test_url(self, browser):
         browser.open(view='login_form')
-        self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
-                                    'login_form')),
-                          browser.url)
+        self.assertEqual('/'.join((self.layer['portal'].absolute_url(),
+                                   'login_form')),
+                         browser.url)
 
     @browsing
     def test_status_is_exposed(self, browser):
         browser.open()
-        self.assertEquals(200, browser.status_code)
-        self.assertEquals('OK', browser.status_reason.upper())
+        self.assertEqual(200, browser.status_code)
+        self.assertEqual('OK', browser.status_reason.upper())
 
     @browsing
     def test_raises_404_as_client_error(self, browser):
         with self.assertRaises(HTTPClientError) as cm:
             browser.open(view='missing')
 
-        self.assertEquals(404, cm.exception.status_code)
-        self.assertEquals('Not Found', cm.exception.status_reason)
-        self.assertEquals('404 Not Found', str(cm.exception))
+        self.assertEqual(404, cm.exception.status_code)
+        self.assertEqual('Not Found', cm.exception.status_reason)
+        self.assertEqual('404 Not Found', str(cm.exception))
 
         with self.assertRaises(HTTPClientError):
             browser.reload()
@@ -144,8 +144,8 @@ class TestBrowserCore(BrowserTestCase):
                 with self.assertRaises(HTTPServerError) as cm:
                     browser.open(view='view-with-error')
 
-            self.assertEquals(500, cm.exception.status_code)
-            self.assertEquals('Internal Server Error', cm.exception.status_reason)
+            self.assertEqual(500, cm.exception.status_code)
+            self.assertEqual('Internal Server Error', cm.exception.status_reason)
 
             with capture_streams(stderr=StringIO()):
                 with self.assertRaises(HTTPServerError):
@@ -192,8 +192,8 @@ class TestBrowserCore(BrowserTestCase):
             with browser.expect_http_error():
                 browser.open()
 
-        self.assertEquals('Expected a HTTP error but it didn\'t occur.',
-                          str(cm.exception))
+        self.assertEqual('Expected a HTTP error but it didn\'t occur.',
+                         str(cm.exception))
 
     @browsing
     def test_expect_http_error_and_assert_correct_status_code(self, browser):
@@ -206,8 +206,8 @@ class TestBrowserCore(BrowserTestCase):
             with browser.expect_http_error(code=400):
                 browser.open(view='no-such-view')
 
-        self.assertEquals('Expected HTTP error with status code 400, got 404.',
-                          str(cm.exception))
+        self.assertEqual('Expected HTTP error with status code 400, got 404.',
+                         str(cm.exception))
 
     @browsing
     def test_expect_http_error_and_assert_correct_status_reason(self, browser):
@@ -220,7 +220,7 @@ class TestBrowserCore(BrowserTestCase):
             with browser.expect_http_error(reason='Bad Request'):
                 browser.open(view='no-such-view')
 
-        self.assertEquals(
+        self.assertEqual(
             'Expected HTTP error with status \'Bad Request\', got \'Not Found\'.',
             str(cm.exception))
 
@@ -271,11 +271,11 @@ class TestBrowserCore(BrowserTestCase):
 
         browser.login(SITE_OWNER_NAME).open(folder_contents_url)
         if IS_PLONE_4:
-            self.assertEquals(portal_url, browser.base_url)
+            self.assertEqual(portal_url, browser.base_url)
         else:
-            self.assertEquals(folder_contents_url, browser.base_url)
+            self.assertEqual(folder_contents_url, browser.base_url)
 
-        self.assertEquals(folder_contents_url, browser.url)
+        self.assertEqual(folder_contents_url, browser.url)
 
     @browsing
     def test_base_url_falls_back_to_page_url(self, browser):
@@ -284,7 +284,7 @@ class TestBrowserCore(BrowserTestCase):
         view_url = portal_url + 'test-form-result'
 
         browser.login(SITE_OWNER_NAME).open(view_url)
-        self.assertEquals(view_url, browser.base_url)
+        self.assertEqual(view_url, browser.base_url)
 
     @browsing
     def test_base_url_is_None_when_unkown(self, browser):
@@ -315,13 +315,13 @@ class TestBrowserCore(BrowserTestCase):
     @browsing
     def test_cloning_a_browser_copies_headers(self, browser):
         browser.login().open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         with browser.clone() as subbrowser:
             subbrowser.open()
-            self.assertEquals(TEST_USER_ID, plone.logged_in(subbrowser))
+            self.assertEqual(TEST_USER_ID, plone.logged_in(subbrowser))
             subbrowser.login(SITE_OWNER_NAME).reload()
-            self.assertEquals(SITE_OWNER_NAME, plone.logged_in(subbrowser))
+            self.assertEqual(SITE_OWNER_NAME, plone.logged_in(subbrowser))
 
     @browsing
     def test_opening_preserves_global_request(self, browser):
@@ -339,8 +339,8 @@ class TestBrowserCore(BrowserTestCase):
             with self.assertRaises(ValueError) as cm:
                 with browser:
                     pass
-            self.assertEquals('Nesting browser context manager is not allowed.',
-                              str(cm.exception))
+            self.assertEqual('Nesting browser context manager is not allowed.',
+                             str(cm.exception))
 
     def assert_starts_with(self, start, contents):
         self.assertTrue(

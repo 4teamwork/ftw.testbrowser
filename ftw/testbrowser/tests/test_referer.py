@@ -47,5 +47,5 @@ class TestReferer(TestCase):
                          'test-referer'))
 
     def assert_referer(self, expected):
-        self.assertEquals(expected,
-                          browser.json['HEADERS'].get('REFERER', ''))
+        self.assertEqual(expected,
+                         browser.json['HEADERS'].get('REFERER', ''))

@@ -26,8 +26,8 @@ class TestRelatedItemsWidget(BrowserTestCase):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Documents': (foo, bar)})
         browser.find('Submit').click()
-        self.assertEquals({u'documents': [IUUID(foo), IUUID(bar)]},
-                          browser.json)
+        self.assertEqual({u'documents': [IUUID(foo), IUUID(bar)]},
+                         browser.json)
 
     @browsing
     def test_querying_objects(self, browser):
@@ -35,5 +35,5 @@ class TestRelatedItemsWidget(BrowserTestCase):
 
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
 
-        self.assertEquals([[IUUID(doc), u'The Document']],
-                          browser.find('Documents').query('doc'))
+        self.assertEqual([[IUUID(doc), u'The Document']],
+                         browser.find('Documents').query('doc'))

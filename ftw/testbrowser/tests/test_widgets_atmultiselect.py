@@ -50,7 +50,7 @@ class TestATMultiSelectionWidget(TestCase):
     def test_filling_file_upload_widget_by_value(self, browser):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': ['apple', 'banana']})
-        self.assertEquals(
+        self.assertEqual(
             [('fruits:default:list', ''),
              ('fruits:list', 'apple'),
              ('fruits:list', 'banana')],
@@ -60,7 +60,7 @@ class TestATMultiSelectionWidget(TestCase):
     def test_filling_file_upload_widget_by_label(self, browser):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': ['Banana', 'Watermelon']})
-        self.assertEquals(
+        self.assertEqual(
             [('fruits:default:list', ''),
              ('fruits:list', 'banana'),
              ('fruits:list', 'watermelon')],
@@ -72,13 +72,13 @@ class TestATMultiSelectionWidget(TestCase):
         with self.assertRaises(OptionsNotFound) as cm:
             browser.fill({'Fruits': ['Banana', 'Rhubarb', 'Watermelon']})
 
-        self.assertEquals('Could not find options [\'Rhubarb\']'
-                          ' for field "Fruits".'
-                          ' Options: "Apple", "Banana", "Watermelon"',
-                          str(cm.exception))
+        self.assertEqual('Could not find options [\'Rhubarb\']'
+                         ' for field "Fruits".'
+                         ' Options: "Apple", "Banana", "Watermelon"',
+                         str(cm.exception))
 
     @browsing
     def test_getting_option_labels(self, browser):
         browser.open_html(WIDGET_HTML)
-        self.assertEquals(['Apple', 'Banana', 'Watermelon'],
-                          browser.find('Fruits').options)
+        self.assertEqual(['Apple', 'Banana', 'Watermelon'],
+                         browser.find('Fruits').options)

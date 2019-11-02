@@ -17,8 +17,8 @@ class TestDexterityForms(BrowserTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page',
                       'Text': '<p>The body text.</p>'}).find('Save').click()
-        self.assertEquals('The body text.',
-                          browser.css('#content-core').first.normalized_text())
+        self.assertEqual('The body text.',
+                         browser.css('#content-core').first.normalized_text())
 
     @browsing
     def test_save_add_form(self, browser):
@@ -27,9 +27,9 @@ class TestDexterityForms(BrowserTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': 'The page'}).save()
         statusmessages.assert_no_error_messages()
-        self.assertEquals('/'.join((self.layer['portal'].absolute_url(),
-                                    'the-page/view')),
-                          browser.url)
+        self.assertEqual('/'.join((self.layer['portal'].absolute_url(),
+                                   'the-page/view')),
+                         browser.url)
 
     @browsing
     def test_fill_umlauts(self, browser):
@@ -38,7 +38,7 @@ class TestDexterityForms(BrowserTestCase):
         factoriesmenu.add('Page')
         browser.fill({'Title': u'F\xf6lder'}).save()
         statusmessages.assert_no_error_messages()
-        self.assertEquals(u'F\xf6lder', plone.first_heading())
+        self.assertEqual(u'F\xf6lder', plone.first_heading())
 
     @browsing
     def test_changing_checkbox_values(self, browser):

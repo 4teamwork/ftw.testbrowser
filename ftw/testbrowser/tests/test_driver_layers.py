@@ -22,7 +22,7 @@ class TestMechanizeFixture(TestCase):
 
     @browsing
     def test(self, browser):
-        self.assertEquals(LIB_MECHANIZE, browser.get_driver().LIBRARY_NAME)
+        self.assertEqual(LIB_MECHANIZE, browser.get_driver().LIBRARY_NAME)
 
 
 class TestRequestsFixture(TestCase):
@@ -34,7 +34,7 @@ class TestRequestsFixture(TestCase):
 
     @browsing
     def test(self, browser):
-        self.assertEquals(LIB_REQUESTS, browser.get_driver().LIBRARY_NAME)
+        self.assertEqual(LIB_REQUESTS, browser.get_driver().LIBRARY_NAME)
 
 
 @skipIf(HAS_ZOPE4, 'Traversal is not available for Zope 4')
@@ -47,4 +47,4 @@ class TestTraversalFixture(TestCase):
 
     @browsing
     def test(self, browser):
-        self.assertEquals(LIB_TRAVERSAL, browser.get_driver().LIBRARY_NAME)
+        self.assertEqual(LIB_TRAVERSAL, browser.get_driver().LIBRARY_NAME)

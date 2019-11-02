@@ -25,8 +25,8 @@ class TestDatetimeWidget(BrowserTestCase):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Delivery date': datetime(2010, 12, 22, 10, 30, 0)})
         browser.find('Submit').click()
-        self.assertEquals({u'delivery_date': u'2010-12-22T10:30:00'},
-                          browser.json)
+        self.assertEqual({u'delivery_date': u'2010-12-22T10:30:00'},
+                         browser.json)
 
     @browsing
     def test_formfill(self, browser):
@@ -37,7 +37,7 @@ class TestDatetimeWidget(BrowserTestCase):
                       'Event Ends': datetime(2010, 12, 23, 10, 5, 0)})
         browser.find('Save').click()
 
-        self.assertEquals(['2010-05-03T23:30:00+02:00'],
-                          browser.css('li.dtstart').text)
-        self.assertEquals(['2010-12-23T10:05:00+01:00'],
-                          browser.css('li.dtend').text)
+        self.assertEqual(['2010-05-03T23:30:00+02:00'],
+                         browser.css('li.dtstart').text)
+        self.assertEqual(['2010-12-23T10:05:00+01:00'],
+                         browser.css('li.dtend').text)

@@ -91,7 +91,7 @@ class TestFileUploadsArchetypes(TestCase):
 
     def assert_file_download(self, data, browser, filename='foo.txt',
                              content_type='text/plain'):
-        self.assertEquals(data, browser.contents)
+        self.assertEqual(data, browser.contents)
         self.assert_file_metadata(browser,
                                   filename=filename,
                                   content_type=content_type)

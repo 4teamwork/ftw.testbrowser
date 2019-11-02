@@ -16,8 +16,8 @@ class TestZ3cformPageObject(BrowserTestCase):
         factoriesmenu.add('Folder', browser=browser)
         browser.find('Save').click()
 
-        self.assertEquals(browser.previous_url, browser.url)
+        self.assertEqual(browser.previous_url, browser.url)
 
         form = browser.css('form#form').first
-        self.assertEquals({u'Title': ['Required input is missing.']},
-                          z3cform.erroneous_fields(form, browser=browser))
+        self.assertEqual({u'Title': ['Required input is missing.']},
+                         z3cform.erroneous_fields(form, browser=browser))

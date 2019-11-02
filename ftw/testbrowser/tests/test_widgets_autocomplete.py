@@ -13,15 +13,15 @@ class TestBrowserZ3CForms(BrowserTestCase):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Payment': 'mastercard'})
         browser.find('Submit').click()
-        self.assertEquals({u'payment': [u'mastercard']}, browser.json)
+        self.assertEqual({u'payment': [u'mastercard']}, browser.json)
 
     @browsing
     def test_autocomplete_query(self, browser):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
 
-        self.assertEquals([['cash', 'Cash'],
-                           ['mastercard', 'MasterCard']],
-                          browser.find('Payment').query('ca'))
+        self.assertEqual([['cash', 'Cash'],
+                          ['mastercard', 'MasterCard']],
+                         browser.find('Payment').query('ca'))
 
     @browsing
     def test_autocomplete_query_with_querystring_in_base_url(self, browser):
@@ -29,6 +29,6 @@ class TestBrowserZ3CForms(BrowserTestCase):
         url = urljoin(view_url, '?key=value')
         browser.login(SITE_OWNER_NAME).visit(url)
 
-        self.assertEquals([['cash', 'Cash'],
-                           ['mastercard', 'MasterCard']],
-                          browser.find('Payment').query('ca'))
+        self.assertEqual([['cash', 'Cash'],
+                          ['mastercard', 'MasterCard']],
+                         browser.find('Payment').query('ca'))
