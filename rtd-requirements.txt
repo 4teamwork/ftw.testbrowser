@@ -215,7 +215,7 @@ plone.app.imaging == 1.0.13
 plone.app.querystring == 1.2.11
 Products.SecureMailHost == 1.1.2
 Products.contentmigration == 2.1.16
-feedparser == 5.0.1
+feedparser == 5.1.2
 collective.monkeypatcher == 1.1.2
 zope.cachedescriptors == 3.5.1
 plone.stringinterp == 1.0.14
