@@ -4,7 +4,7 @@ from ftw.testbrowser.nodes import NodeWrapper
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
-from mechanize._form import MimeWriter
+from requests_toolbelt import MultipartEncoder
 from StringIO import StringIO
 import lxml.html.formfill
 import mimetypes
@@ -349,36 +349,19 @@ class Form(NodeWrapper):
                                  referer=True)
 
     def _prepare_multipart_request(self, URL, values):
-        data = StringIO()
-        http_headers = []
-        mw = MimeWriter(data, http_headers)
-        mw.startmultipartbody("form-data", add_to_http_hdrs=True, prefix=0)
-
+        fields = []
         for fieldname, value in values:
-            if isinstance(value, unicode):
-                value = value.encode('utf-8')
+            fields.append((fieldname, value))
 
-            field = self.find_field(fieldname)
-            if isinstance(field, FileField):
-                field.write_mime_data(mw)
-            else:
-                mw2 = mw.nextpart()
-                mw2.addheader("Content-Disposition",
-                              'form-data; name="%s"' % fieldname, 1)
-                f = mw2.startbody(prefix=0)
-                f.write(value)
+        # Since lxml 3.6.1 the lxml.html.form_values no longer include
+        # "file"-inputs, therefore we need to treat them as extra values.
+        for field in self.inputs:
+            if getattr(field, 'type', None) == 'file':
+                fields.append((field.name, field.mime_data()))
 
-        if pkg_resources.get_distribution('lxml').version >= '3.6.1':
-            # Since lxml 3.6.1 the lxml.html.form_values no longer include
-            # "file"-inputs, therefore we need to treat them as extra values.
-            for field in self.inputs:
-                if getattr(field, 'type', None) == 'file':
-                    field.write_mime_data(mw)
-
-        mw.lastpart()
-        value = data.getvalue()
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
+        encoder = MultipartEncoder(fields=fields)
+        value = encoder.to_string()
+        http_headers = [('Content-Type', encoder.content_type)]
         return value, http_headers
 
 
@@ -455,7 +438,7 @@ class FileField(NodeWrapper):
         self.browser.form_files[self.node] = self._normalize_value(value)
         self.node.set('value', '____marker____')
 
-    def write_mime_data(self, mime_writer):
+    def mime_data(self):
         value = self.browser.form_files.get(self.node, None)
         if value is None:
             file_object = StringIO()
@@ -463,17 +446,7 @@ class FileField(NodeWrapper):
             content_type = 'application/octet-stream'
         else:
             file_object, filename, content_type = value
-
-        mime_part = mime_writer.nextpart()
-        mime_part.addheader(
-            'Content-Disposition',
-            'form-data; name="{0}"; filename="{1}"'.format(
-                self.name, filename),
-            prefix=1)
-
-        filehandle = mime_part.startbody(content_type, prefix=0)
-        file_object.seek(0)
-        shutil.copyfileobj(file_object, filehandle)
+        return filename, file_object, content_type
 
     def _normalize_value(self, value):
         filename = None

@@ -5,6 +5,7 @@ from ftw.builder.testing import set_builder_session_factory
 from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -12,6 +13,7 @@ from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PLONE_ZSERVER
 from plone.app.testing import PloneSandboxLayer
 from plone.testing import z2
+from Products.CMFPlone.utils import getFSVersionTuple
 from zope.configuration import xmlconfig
 
 
@@ -28,6 +30,10 @@ class BrowserLayer(PloneSandboxLayer):
             '</configure>',
             context=configurationContext)
 
+        if HAS_ZOPE4:
+            import Products.SiteErrorLog
+            self.loadZCML(package=Products.SiteErrorLog)
+
         import ftw.testbrowser.tests
         xmlconfig.file('profiles/dxtype.zcml',
                        ftw.testbrowser.tests,
@@ -42,8 +48,10 @@ class BrowserLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
-        applyProfile(portal, 'plone.formwidget.autocomplete:default')
         applyProfile(portal, 'plone.app.contenttypes:default')
+        applyProfile(portal, 'collective.z3cform.datagridfield:default')
+        if getFSVersionTuple() < (5, 0):
+            applyProfile(portal, 'plone.formwidget.autocomplete:default')
         register_dx_content_builders(force=True)
 
 

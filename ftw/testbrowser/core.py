@@ -1,10 +1,11 @@
 from Acquisition import aq_chain
 from contextlib import contextmanager
 from copy import deepcopy
-from ftw.testbrowser.drivers.mechdriver import MechanizeDriver
-from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
-from ftw.testbrowser.drivers.staticdriver import StaticDriver
-from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
+from ftw.testbrowser.drivers import DRIVER_FACTORIES
+from ftw.testbrowser.drivers import LIB_MECHANIZE
+from ftw.testbrowser.drivers import LIB_REQUESTS
+from ftw.testbrowser.drivers import LIB_STATIC
+from ftw.testbrowser.drivers import LIB_TRAVERSAL  # noqa
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -48,29 +49,6 @@ except pkg_resources.DistributionNotFound:
 else:
     from plone.app.testing import TEST_USER_NAME
     from plone.app.testing import TEST_USER_PASSWORD
-
-
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
-
-#: Constant for choosing the requests library (actual requests)
-LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
-
-#: Constant for choosing the mechanize library (interally dispatched requests)
-LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
-
-#: Constant for choosing the static driver.
-LIB_STATIC = StaticDriver.LIBRARY_NAME
-
-
-#: Mapping of driver library constants to its factories.
-#: This design is historical so that the library constants
-#: keep working. This mapping may be monkey patched.
-DRIVER_FACTORIES = {
-    TraversalDriver.LIBRARY_NAME: TraversalDriver,
-    MechanizeDriver.LIBRARY_NAME: MechanizeDriver,
-    RequestsDriver.LIBRARY_NAME: RequestsDriver,
-    StaticDriver.LIBRARY_NAME: StaticDriver}
 
 
 class Browser(object):
@@ -156,7 +134,7 @@ class Browser(object):
         if self.request_library is None:
             if self.default_driver is not None:
                 self.request_library = self.default_driver
-            elif self.next_app is None:
+            elif self.next_app is None or LIB_MECHANIZE is None:
                 self.request_library = LIB_REQUESTS
             else:
                 self.request_library = LIB_MECHANIZE
@@ -294,9 +272,13 @@ class Browser(object):
             raise HTTPClientError(self.status_code, self.status_reason)
         elif 500 <= self.status_code < 600:
             raise HTTPServerError(self.status_code, self.status_reason)
-        elif urlparse.urlparse(self.url).path.split('/')[-1] == 'require_login':
-            # Plone has redirected to "require_login", indicating that the user
-            # has insufficient privileges.
+        elif (
+            '/login?came_from=' in self.url
+            or '/require_login?came_from=' in self.url
+            or '/insufficient-privileges' in self.url
+        ):
+            # Plone has redirected to the login form or a page indicating that
+            # the user has insufficient privileges.
             raise InsufficientPrivileges(self.status_code, self.status_reason)
 
     def on(self, url_or_object=None, data=None, view=None, library=None):

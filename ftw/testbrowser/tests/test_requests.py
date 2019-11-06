@@ -18,11 +18,17 @@ from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import getFSVersionTuple
 from StringIO import StringIO
 from unittest import skipUnless
 from zExceptions import BadRequest
 from zope.component import getUtility
 from zope.publisher.browser import BrowserView
+
+
+LOGIN_FORM_ID = 'login_form'
+if getFSVersionTuple() >= (5, 2):
+    LOGIN_FORM_ID = 'form-1'
 
 
 @all_drivers
@@ -135,12 +141,12 @@ class TestBrowserRequests(BrowserTestCase):
         browser.fill({'Login Name': 'userid'})
         self.assertDictContainsSubset(
             {'__ac_name': 'userid'},
-            dict(browser.forms['login_form'].values))
+            dict(browser.forms[LOGIN_FORM_ID].values))
 
         browser.on(view='login_form')
         self.assertDictContainsSubset(
             {'__ac_name': 'userid'},
-            dict(browser.forms['login_form'].values),
+            dict(browser.forms[LOGIN_FORM_ID].values),
             'Seems that the page was reloaded when using browser.on'
             ' even though we are already on this page.')
 
@@ -273,12 +279,12 @@ class TestBrowserRequests(BrowserTestCase):
         browser.fill({'Login Name': 'the-user-id'})
         self.assertDictContainsSubset(
             {'__ac_name': 'the-user-id'},
-            dict(browser.forms['login_form'].values))
+            dict(browser.forms[LOGIN_FORM_ID].values))
 
         browser.reload()
         self.assertDictContainsSubset(
             {'__ac_name': ''},
-            dict(browser.forms['login_form'].values))
+            dict(browser.forms[LOGIN_FORM_ID].values))
 
     @browsing
     def test_reload_POST_reqest(self, browser):
@@ -450,8 +456,13 @@ class TestBrowserRequests(BrowserTestCase):
         The testbrowser must then adapt and use the correct encoding.
         """
         browser.open(view='test-partial')
-        # iso-8859-15 is the ZPublisher standard encoding for HTTPResponses
-        self.assertEquals('iso-8859-15', browser.encoding.lower())
+
+        default_encoding = 'iso-8859-15'
+        # Plone 5.1.6 (plone.testing 4.3.3) sets ZPublisher encoding to UTF-8
+        if getFSVersionTuple() >= (5, 1, 6):
+            default_encoding = 'utf-8'
+
+        self.assertEquals(default_encoding, browser.encoding.lower())
         self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
                           browser.css('#names li').text)
 

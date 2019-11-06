@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 
-version = '1.30.2.dev0'
+version = '2.0.0.dev0'
 
 
 tests_require = [
@@ -19,8 +19,6 @@ tests_require = [
     'plone.app.dexterity',
     'plone.app.testing',
     'plone.dexterity',
-    'plone.formwidget.autocomplete',
-    'plone.formwidget.contenttree',
     'plone.i18n',
     'plone.z3cform',
     'transaction',
@@ -38,7 +36,15 @@ tests_require = [
 
 extras_require = {
     'tests': tests_require,
-    'plone': ['plone.app.testing']}
+    'tests_plone4': [
+        'plone.formwidget.autocomplete',
+        'plone.formwidget.contenttree',
+     ],
+    'plone': ['plone.app.testing'],
+    'zope2': [
+        'mechanize',
+    ],
+}
 
 
 setup(name='ftw.testbrowser',
@@ -52,6 +58,7 @@ setup(name='ftw.testbrowser',
         'Framework :: Plone',
         'Framework :: Plone :: 4.3',
         'Framework :: Plone :: 5.1',
+        'Framework :: Plone :: 5.2',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
@@ -72,10 +79,10 @@ setup(name='ftw.testbrowser',
         'Acquisition',
         'cssselect',
         'lxml',
-        'mechanize',
         'plone.testing',
         'plone.uuid',
         'requests',
+        'requests_toolbelt',
         'setuptools',
         'zope.component',
         'zope.deprecation',

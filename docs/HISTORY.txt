@@ -2,10 +2,21 @@ Changelog
 =========
 
 
-1.30.2 (unreleased)
--------------------
+2.0.0 (unreleased)
+------------------
 
-- Nothing changed yet.
+- Add support for Plone 5.2. [buchi]
+
+- Make Traversal and Mechanize drivers optional as the underlying libraries are
+  no longer available in Zope 4 (Plone 5.2). [buchi]
+
+- No longer use plone.formwidget.autocomplete and plone.formwidget.contenttree
+  in tests with Plone 5 and later. [buchi]
+
+- Implement AjaxSelectWidget and improve RelatedItemsWidget. [buchi]
+
+- Modernize z3c form used in test by using directives to setup widgets and
+  removing form wrapper. [buchi]
 
 
 1.30.1 (2019-01-25)

@@ -1,6 +1,7 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
+from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.exceptions import NoWebDAVSupport
 from ftw.testbrowser.pages import plone
@@ -10,8 +11,10 @@ from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from lxml import etree
 from plone.app.testing import SITE_OWNER_NAME
+from unittest import skipIf
 
 
+@skipIf(HAS_ZOPE4, 'WebDAV is no longer available in Zope 4')
 @all_drivers
 class TestWebdavRequests(BrowserTestCase):
 
@@ -65,6 +68,7 @@ class TestWebdavRequests(BrowserTestCase):
         self.assertEqual("Test Token", browser.document.find('.//{DAV:}href').text)
 
 
+@skipIf(HAS_ZOPE4, 'WebDAV is no longer available in Zope 4')
 class TestNoZserverWebdavRequests(BrowserTestCase):
     layer = MECHANIZE_TESTING
 

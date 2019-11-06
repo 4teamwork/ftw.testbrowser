@@ -1,16 +1,23 @@
 from ftw.testbrowser import browsing
-from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
+from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests import IS_PLONE_4
 from plone.app.testing import SITE_OWNER_NAME
 from plone.registry.interfaces import IRegistry
+from unittest import skipIf
 from zope.component import getUtility
 from zope.interface.verify import verifyClass
 import transaction
 
+if not HAS_ZOPE4:
+    from ftw.testbrowser.drivers.traversaldriver import TraversalDriver
+else:
+    TraversalDriver = None
 
+
+@skipIf(HAS_ZOPE4, 'Traversal is not available for Zope 4')
 class TestTraversalDriverImplementation(BrowserTestCase):
     layer = TRAVERSAL_TESTING
 

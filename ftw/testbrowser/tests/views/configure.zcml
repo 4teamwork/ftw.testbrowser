@@ -62,7 +62,7 @@
 
     <browser:page
         name="test-z3cform-shopping"
-        class=".z3cform.ShoppingView"
+        class=".z3cform.ShoppingForm"
         for="*"
         permission="cmf.ModifyPortalContent"
         />
