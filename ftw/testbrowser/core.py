@@ -8,6 +8,7 @@ from ftw.testbrowser.drivers import LIB_MECHANIZE
 from ftw.testbrowser.drivers import LIB_REQUESTS
 from ftw.testbrowser.drivers import LIB_STATIC
 from ftw.testbrowser.drivers import LIB_TRAVERSAL  # noqa
+from ftw.testbrowser.drivers import LIB_WEBTEST  # noqa
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException

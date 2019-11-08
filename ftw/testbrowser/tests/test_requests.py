@@ -4,6 +4,7 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
+from ftw.testbrowser.core import LIB_WEBTEST
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.pages import plone
@@ -94,6 +95,7 @@ class TestBrowserRequests(BrowserTestCase):
 
     @skip_driver(LIB_MECHANIZE, 'Exception bubbling is supported by mechanize.')
     @skip_driver(LIB_TRAVERSAL, 'Exception bubbling is supported by traversal.')
+    @skip_driver(LIB_WEBTEST, 'Exception bubbling is supported by webtest.')
     @browsing
     def test_unsupport_exception_bubbling(self, browser):
         browser.exception_bubbling = True
