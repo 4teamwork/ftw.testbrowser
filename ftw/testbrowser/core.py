@@ -150,8 +150,10 @@ class Browser(object):
         if self.request_library is None:
             if self.default_driver is not None:
                 self.request_library = self.default_driver
-            elif self.next_app is None or LIB_MECHANIZE is None:
+            elif self.next_app is None:
                 self.request_library = LIB_REQUESTS
+            elif LIB_WEBTEST is not None:
+                self.request_library = LIB_WEBTEST
             else:
                 self.request_library = LIB_MECHANIZE
 

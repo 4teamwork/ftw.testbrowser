@@ -89,4 +89,8 @@ WEBTEST_TESTING = FunctionalTesting(
            WEBTEST_BROWSER_FIXTURE),
     name='ftw.testbrowser:functional:webtest')
 
-DEFAULT_TESTING = MECHANIZE_TESTING
+
+if HAS_ZOPE4:
+    DEFAULT_TESTING = WEBTEST_TESTING
+else:
+    DEFAULT_TESTING = MECHANIZE_TESTING
