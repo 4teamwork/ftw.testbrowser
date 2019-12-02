@@ -28,6 +28,7 @@ from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
+from Products.CMFPlone.utils import getFSVersionTuple
 from StringIO import StringIO
 from zope.component.hooks import getSite
 from zope.interface import implements
@@ -49,6 +50,11 @@ except pkg_resources.DistributionNotFound:
 else:
     from plone.app.testing import TEST_USER_NAME
     from plone.app.testing import TEST_USER_PASSWORD
+
+PLONE5 = getFSVersionTuple() >= (5, 0)
+
+if PLONE5:
+    from ftw.testbrowser.plone5 import disabled_resource_registries
 
 
 class Browser(object):
@@ -110,6 +116,7 @@ class Browser(object):
         """
         self.raise_http_errors = True
         self.exception_bubbling = False
+        self.disable_resource_registries = True
         self.document = None
         self.previous_url = None
         self.form_files = {}
@@ -252,10 +259,11 @@ class Browser(object):
         url = self._normalize_url(url_or_object, view=view)
         driver = self.get_driver(library)
         with ExceptionLogger() as logger:
-            self._status_code, self._status_reason, body = driver.make_request(
-                method, url, data=data,
-                referer_url=referer_url,
-                headers=headers)
+            with self._disabled_resource_registries():
+                self._status_code, self._status_reason, body = driver.make_request(
+                    method, url, data=data,
+                    referer_url=referer_url,
+                    headers=headers)
 
         self.parse(body)
         self.raise_for_status(logger)
@@ -1035,3 +1043,12 @@ class Browser(object):
             self.document = parser(html)
 
             return html
+
+    @contextmanager
+    def _disabled_resource_registries(self):
+        if not PLONE5 or not self.disable_resource_registries:
+            yield
+            return
+
+        with disabled_resource_registries():
+            yield
