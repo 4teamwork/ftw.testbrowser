@@ -9,6 +9,7 @@ import transaction
 
 
 IS_PLONE_4 = pkg_resources.get_distribution('Plone').version[:2] == '4.'
+IS_PLONE_5 = pkg_resources.get_distribution('Plone').version[:2] == '5.'
 
 
 class BrowserTestCase(TestCase):

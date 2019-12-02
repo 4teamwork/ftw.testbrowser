@@ -648,3 +648,32 @@ and asserted there.
            browser.open(view='failing')
 
        self.assertEquals('No valid value was submitted', str(cm.exception))
+
+
+Plone 5: resource registries disabled
+-------------------------------------
+
+In Plone 5, the resource registries are cooked when the resource registry viewlets are rendered.
+Cooking the bundles takes a lot of time.
+Since ``ftw.testbrowser`` does nothing with JavaScript or CSS, cooking of resources is disabled
+by default for performance improvement.
+That means that ``<script>`` and ``<styles>`` tags are missing in the HTML.
+This can make the tests up to 4-5 times faster.
+
+Tests or projects which require to have the resource tags in the HTML can reenable them.
+
+**Enable by browser flag:**
+
+.. code::
+
+   @browsing
+   def test(self, browser):
+       browser.disable_resource_registries = False
+       browser.open()
+
+
+**Enable by environment variable:**
+
+.. code::
+
+   TESTBROWSER_DISABLE_RESOURCE_REGISTRIES = false
