@@ -4,8 +4,8 @@ from ftw.testbrowser.pages import statusmessages
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import asset
 from plone.app.testing import SITE_OWNER_NAME
-from StringIO import StringIO
-from unittest2 import TestCase
+from six import BytesIO
+from unittest import TestCase
 
 
 @all_drivers
@@ -23,7 +23,7 @@ class TestFileUploadsArchetypes(TestCase):
 
     @browsing
     def test_stream_syntax(self, browser):
-        file_ = StringIO('file data')
+        file_ = BytesIO(b'file data')
         file_.filename = 'foo.txt'
         file_.content_type = 'text/plain'
 
@@ -55,7 +55,7 @@ class TestFileUploadsArchetypes(TestCase):
                           'File': helloworld}).save()
 
         browser.find('helloworld.py').click()
-        self.assert_file_download('print "Hello World"\n',
+        self.assert_file_download('print("Hello World")\n',
                                   filename='helloworld.py',
                                   content_type='text/x-python',
                                   browser=browser)
@@ -91,7 +91,7 @@ class TestFileUploadsArchetypes(TestCase):
 
     def assert_file_download(self, data, browser, filename='foo.txt',
                              content_type='text/plain'):
-        self.assertEquals(data, browser.contents)
+        self.assertEqual(data, browser.contents)
         self.assert_file_metadata(browser,
                                   filename=filename,
                                   content_type=content_type)

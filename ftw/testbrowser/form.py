@@ -5,13 +5,14 @@ from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.utils import normalize_spaces
 from ftw.testbrowser.widgets.base import PloneWidget
 from requests_toolbelt import MultipartEncoder
-from StringIO import StringIO
+from six import BytesIO
+from six.moves import map
+
 import lxml.html.formfill
 import mimetypes
-import pkg_resources
-import shutil
-import urllib
-import urlparse
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 class Form(NodeWrapper):
@@ -116,13 +117,17 @@ class Form(NodeWrapper):
         :rtype: :py:class:`ftw.testbrowser.form.Form`
         """
         values = self.field_labels_to_names(values)
-        to_unicode = (lambda val: isinstance(val, str)
-                      and val.decode('utf-8') or val)
-        values = dict(map(lambda item: map(to_unicode, item), values.items()))
+
+        def to_text(value):
+            if isinstance(value, six.binary_type):
+                return value.decode('utf8')
+            return value
+        values = dict([
+            tuple(map(to_text, item)) for item in values.items()])
 
         widgets = []
 
-        for fieldname, value in values.items():
+        for fieldname, value in list(values.items()):
             field = self.find_field(fieldname)
             if isinstance(field, PloneWidget):
                 widgets.append((field, value))
@@ -324,20 +329,20 @@ class Form(NodeWrapper):
         if not action:
             return self.browser.url
 
-        if urlparse.urlparse(action).scheme:
+        if six.moves.urllib.parse.urlparse(action).scheme:
             # The action is full qualified
             return action
 
-        return urlparse.urljoin(self.browser.base_url, action)
+        return six.moves.urllib.parse.urljoin(self.browser.base_url, action)
 
     def _submit_form(self, method, URL, values):
         URL = self.action_url
 
         if method.lower() == 'get':
             if '?' in URL:
-                URL += '&' + urllib.urlencode(values)
+                URL += '&' + six.moves.urllib.parse.urlencode(values)
             else:
-                URL += '?' + urllib.urlencode(values)
+                URL += '?' + six.moves.urllib.parse.urlencode(values)
             return self.browser.open(URL, referer=True)
 
         request_body, request_headers = self._prepare_multipart_request(
@@ -441,7 +446,7 @@ class FileField(NodeWrapper):
     def mime_data(self):
         value = self.browser.form_files.get(self.node, None)
         if value is None:
-            file_object = StringIO()
+            file_object = BytesIO()
             filename = ''
             content_type = 'application/octet-stream'
         else:
@@ -471,8 +476,8 @@ class FileField(NodeWrapper):
             content_type = mimetypes.guess_type(filename)[0] \
                 or 'application/octet-stream'
 
-        if isinstance(value, str):
-            value = StringIO(value)
+        if isinstance(value, six.binary_type):
+            value = BytesIO(value)
 
         return value, filename, content_type
 
@@ -522,10 +527,12 @@ class SelectField(NodeWrapper):
             try:
                 self.node.value = dict(map(reversed, self.options))[value]
             except (KeyError, ValueError):
-                options = u', '.join([u'"{1}" ({0})'.format(*option)
-                                      for option in self.options])
+                options = ', '.join([
+                    '"{}" ({})'.format(six.ensure_str(option[1]),
+                                       six.ensure_str(option[0]))
+                    for option in self.options])
 
                 raise ValueError(
-                    u'No option {0} for select "{1}". '
-                    u'Available options: {2}.'.format(
-                        repr(value), self.name, options))
+                    'No option {!r} for select "{}". '
+                    'Available options: {}.'.format(
+                        six.ensure_str(value), self.name, options))

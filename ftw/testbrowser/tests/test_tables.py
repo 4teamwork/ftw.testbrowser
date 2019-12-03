@@ -4,6 +4,7 @@ from ftw.testbrowser.table import TableCell
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from operator import attrgetter
+from six.moves import map
 
 
 @all_drivers
@@ -14,12 +15,12 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         table = browser.css('#onecol-table').first
         cell = table.head_rows[0].css('>th').first
-        self.assertEquals(cell, table.find('Foo'))
+        self.assertEqual(cell, table.find('Foo'))
 
     @browsing
     def test_table_as_lists(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [['Product', 'Price'],
              ['Socks', '12.90'],
              ['Pants', '35.00'],
@@ -29,7 +30,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_lists_without_header(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [['Socks', '12.90'],
              ['Pants', '35.00'],
              ['TOTAL:', '47.90']],
@@ -38,7 +39,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_lists_without_body(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [['Product', 'Price'],
              ['TOTAL:', '47.90']],
             browser.css('#simple-table').first.lists(body=False))
@@ -46,7 +47,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_lists_without_footer(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [['Product', 'Price'],
              ['Socks', '12.90'],
              ['Pants', '35.00']],
@@ -55,7 +56,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_lists_with_colspan(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [['Product', 'Product', 'Price'],
              ['Name', 'Category', 'CHF'],
              ['Fancy Pants', 'Pants', '44.80'],
@@ -68,16 +69,16 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         rows = browser.css('#simple-table').first.lists(as_text=False)
 
-        self.assertEquals([TableCell, TableCell],
-                          map(type, rows[1]))
+        self.assertEqual([TableCell, TableCell],
+                         list(map(type, rows[1])))
 
-        self.assertEquals(['Socks', '12.90'],
-                          map(attrgetter('text'), rows[1]))
+        self.assertEqual(['Socks', '12.90'],
+                         list(map(attrgetter('text'), rows[1])))
 
     @browsing
     def test_table_as_dicts(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [{'Product': 'Socks',
               'Price': '12.90'},
              {'Product': 'Pants',
@@ -89,7 +90,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_dicts_without_footer(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [{'Product': 'Socks',
               'Price': '12.90'},
              {'Product': 'Pants',
@@ -99,7 +100,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_dicts_without_body(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [{'Product': 'TOTAL:',
               'Price': '47.90'}],
             browser.css('#simple-table').first.dicts(body=False))
@@ -107,7 +108,7 @@ class TestTables(BrowserTestCase):
     @browsing
     def test_table_as_dicts_with_colspan(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             [{'Product\nName': 'Fancy Pants',
               'Product\nCategory': 'Pants',
               'Price\nCHF': '44.80'},
@@ -125,13 +126,13 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         first = browser.css('#simple-table').first.dicts(as_text=False)[0]
 
-        self.assertEquals(
+        self.assertEqual(
             [TableCell, TableCell],
-            map(type, first.values()))
+            list(map(type, first.values())))
 
-        self.assertEquals(
+        self.assertEqual(
             ['Socks', '12.90'],
-            map(attrgetter('text'), first.values()))
+            list(map(attrgetter('text'), first.values())))
 
     @browsing
     def test_table_header_offset(self, browser):
@@ -145,14 +146,14 @@ class TestTables(BrowserTestCase):
             '  <tr><td>1</td><td>2</td></tr>'
             ' </body>'
             '</table>'
-            )
+        )
 
-        self.assertEquals(
+        self.assertEqual(
             [['Foo', 'Bar'],
              ['1', '2']],
             browser.css('table').first.lists(head_offset=1))
 
-        self.assertEquals(
+        self.assertEqual(
             [{'Foo': '1',
               'Bar': '2'}],
             browser.css('table').first.dicts(head_offset=1))
@@ -161,19 +162,19 @@ class TestTables(BrowserTestCase):
     def test_titles(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#simple-table').first
-        self.assertEquals(['Product', 'Price'], table.titles)
+        self.assertEqual(['Product', 'Price'], table.titles)
 
     @browsing
     def test_titles__multi_rows(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#advanced-table').first
-        self.assertEquals(['Product\nName', 'Product\nCategory', 'Price\nCHF'],
-                          table.titles)
+        self.assertEqual(['Product\nName', 'Product\nCategory', 'Price\nCHF'],
+                         table.titles)
 
     @browsing
     def test_head_rows(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             ['Foo'],
             browser.css('#onecol-table').first.head_rows.normalized_text())
 
@@ -182,14 +183,14 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         table = browser.css('#nested-table').first
         cells = table.head_rows.css('>td')
-        self.assertEquals(
+        self.assertEqual(
             ['Heading'],
             cells.normalized_text(recursive=False))
 
     @browsing
     def test_foot_rows(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             ['Baz'],
             browser.css('#onecol-table').first.foot_rows.normalized_text())
 
@@ -198,14 +199,14 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         table = browser.css('#nested-table').first
         cells = table.foot_rows.css('>td')
-        self.assertEquals(
+        self.assertEqual(
             ['Footer'],
             cells.normalized_text(recursive=False))
 
     @browsing
     def test_body_rows(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             ['Bar'],
             browser.css('#onecol-table').first.body_rows.normalized_text())
 
@@ -214,14 +215,14 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         table = browser.css('#nested-table').first
         cells = table.body_rows.css('>td')
-        self.assertEquals(
+        self.assertEqual(
             ['Body'],
             cells.normalized_text(recursive=False))
 
     @browsing
     def test_rows(self, browser):
         browser.open(view='test-tables')
-        self.assertEquals(
+        self.assertEqual(
             ['Foo', 'Baz', 'Bar'],
             browser.css('#onecol-table').first.rows.normalized_text())
 
@@ -230,7 +231,7 @@ class TestTables(BrowserTestCase):
         browser.open(view='test-tables')
         table = browser.css('#nested-table').first
         cells = table.rows.css('>td')
-        self.assertEquals(
+        self.assertEqual(
             ['Heading', 'Footer', 'Body'],
             cells.normalized_text(recursive=False))
 
@@ -238,36 +239,36 @@ class TestTables(BrowserTestCase):
     def test_get_rows__head(self, browser):
         browser.open(view='test-tables')
         rows = browser.css('#nested-table').first.get_rows(head=True)
-        self.assertEquals(['Heading'],
-                          rows.css('>td').normalized_text(recursive=False))
+        self.assertEqual(['Heading'],
+                         rows.css('>td').normalized_text(recursive=False))
 
     @browsing
     def test_get_rows__body(self, browser):
         browser.open(view='test-tables')
         rows = browser.css('#nested-table').first.get_rows(body=True)
-        self.assertEquals(['Body'],
-                          rows.css('>td').normalized_text(recursive=False))
+        self.assertEqual(['Body'],
+                         rows.css('>td').normalized_text(recursive=False))
 
     @browsing
     def test_get_rows__foot(self, browser):
         browser.open(view='test-tables')
         rows = browser.css('#nested-table').first.get_rows(foot=True)
-        self.assertEquals(['Footer'],
-                          rows.css('>td').normalized_text(recursive=False))
+        self.assertEqual(['Footer'],
+                         rows.css('>td').normalized_text(recursive=False))
 
     @browsing
     def test_get_rows__body_and_foot(self, browser):
         browser.open(view='test-tables')
         rows = browser.css('#nested-table').first.get_rows(body=True, foot=True)
-        self.assertEquals(['Body', 'Footer'],
-                          rows.css('>td').normalized_text(recursive=False))
+        self.assertEqual(['Body', 'Footer'],
+                         rows.css('>td').normalized_text(recursive=False))
 
     @browsing
     def test_cells_attribute_contains_all_table_cells(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#onecol-table').first
-        self.assertEquals(table.css('td, th'),
-                          table.cells)
+        self.assertEqual(table.css('td, th'),
+                         table.cells)
 
     @browsing
     def test_is_familiar(self, browser):
@@ -283,7 +284,7 @@ class TestTables(BrowserTestCase):
         foot_row = table.foot_rows.first
 
         # The "TOTAL:" cell has colspan="2"
-        self.assertEquals(
+        self.assertEqual(
             {'normal': ['TOTAL:', '114.70'],
              'padded': ['TOTAL:', 'TOTAL:', '114.70']},
 
@@ -298,7 +299,7 @@ class TestTableRow(BrowserTestCase):
     def test_table_attribute_is_table_object(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#simple-table').first
-        self.assertEquals(table, table.css('tr').first.table)
+        self.assertEqual(table, table.css('tr').first.table)
 
     @browsing
     def test_cells_attribute_contains_all_cells(self, browser):
@@ -306,16 +307,16 @@ class TestTableRow(BrowserTestCase):
         table = browser.css('#nested-table').first
         row = table.body_rows[0]
         cells = row.css('>td')
-        self.assertEquals(cells, row.cells)
+        self.assertEqual(cells, row.cells)
 
     @browsing
     def test_row_as_dict(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#simple-table').first
         row = table.body_rows[0]
-        self.assertEquals({'Product': 'Socks',
-                           'Price': '12.90'},
-                          row.dict())
+        self.assertEqual({'Product': 'Socks',
+                          'Price': '12.90'},
+                         row.dict())
 
     @browsing
     def test_row_as_dict_with_colspan(self, browser):
@@ -323,10 +324,10 @@ class TestTableRow(BrowserTestCase):
         table = browser.css('#advanced-table').first
         row = table.foot_rows[0]
         # colspan is repeated, therefore we have two "TOTAL:"
-        self.assertEquals({'Product\nName': 'TOTAL:',
-                           'Product\nCategory': 'TOTAL:',
-                           'Price\nCHF': '114.70'},
-                          row.dict())
+        self.assertEqual({'Product\nName': 'TOTAL:',
+                          'Product\nCategory': 'TOTAL:',
+                          'Price\nCHF': '114.70'},
+                         row.dict())
 
     @browsing
     def test_column_by_index(self, browser):
@@ -346,19 +347,19 @@ class TestTableRow(BrowserTestCase):
             '</table>')
         table = browser.css('table').first
 
-        self.assertEquals(
+        self.assertEqual(
             ['Name', 'Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
             table.column(0))
 
-        self.assertEquals(
+        self.assertEqual(
             ['Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
             table.column(0, head=False))
 
-        self.assertEquals(
+        self.assertEqual(
             ['Name', '3'],
             table.column(0, body=False))
 
-        self.assertEquals(
+        self.assertEqual(
             ['Name'],
             table.column(0, body=False, foot=False))
 
@@ -380,11 +381,11 @@ class TestTableRow(BrowserTestCase):
             '</table>')
         table = browser.css('table').first
 
-        self.assertEquals(
+        self.assertEqual(
             ['Name', 'Angelfood Cake', 'Butter Pound Cake', 'Cheesecake', '3'],
             table.column('Name'))
 
-        self.assertEquals(
+        self.assertEqual(
             ['Calories', '72', '116', '257', '445'],
             table.column('Calories'))
 
@@ -396,11 +397,11 @@ class TestTableCell(BrowserTestCase):
     def test_table_attribute_is_table_object(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#simple-table').first
-        self.assertEquals(table, table.css('tr').first.table)
+        self.assertEqual(table, table.css('tr').first.table)
 
     @browsing
     def test_row_attribute_is_table_row_node(self, browser):
         browser.open(view='test-tables')
         table = browser.css('#onecol-table').first
         row = table.body_rows[0]
-        self.assertEquals(row, row.cells.first.row)
+        self.assertEqual(row, row.cells.first.row)

@@ -1,7 +1,8 @@
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
 from plone.uuid.interfaces import IUUID
-from urllib import quote_plus
+from six.moves.urllib.parse import quote_plus
+
 import json
 
 

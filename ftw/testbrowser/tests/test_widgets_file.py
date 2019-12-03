@@ -18,7 +18,7 @@ class TestDexterityFileUploadWidget(BrowserTestCase):
                       'File': ('file data', 'file.txt')}).save()
 
         browser.find('file.txt').click()
-        self.assertEquals('file data', browser.contents)
+        self.assertEqual('file data', browser.contents)
 
     @browsing
     def test_filling_image_upload_widget_by_label(self, browser):
@@ -31,4 +31,4 @@ class TestDexterityFileUploadWidget(BrowserTestCase):
 
         self.sync_transaction()
         browser.open(browser.context, view='@@images/image.gif')
-        self.assertEquals('image/gif', browser.headers.get('Content-Type'))
+        self.assertEqual('image/gif', browser.headers.get('Content-Type'))

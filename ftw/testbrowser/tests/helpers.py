@@ -1,15 +1,16 @@
 from contextlib import contextmanager
 from ftw.testbrowser import browsing
 from functools import wraps
-from StringIO import StringIO
+from six import StringIO
 from zope.component import getGlobalSiteManager
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserView
+
 import os.path
 import sys
 
 
-def asset(name, mode='r'):
+def asset(name, mode='rb'):
     return open(os.path.join(os.path.dirname(__file__), 'assets', name), mode)
 
 

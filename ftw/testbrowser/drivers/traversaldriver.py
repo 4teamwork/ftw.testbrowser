@@ -33,17 +33,19 @@ from ftw.testbrowser.exceptions import RedirectLoopException
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
 from requests.structures import CaseInsensitiveDict
-from StringIO import StringIO
-from urllib import unquote
-from urlparse import urlparse
-from zope.interface import implements
+from six import BytesIO
+from six import StringIO
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.parse import urlparse
+from zope.interface import implementer
 from ZPublisher.BaseRequest import RequestContainer
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.Response import Response
 from ZPublisher.Test import publish_module
+
 import gzip
-import httplib
 import requests
+import six.moves.http_client
 import sys
 import Zope2
 import ZPublisher
@@ -101,7 +103,7 @@ class NoCommitTransactionsManagerWrapper(object):
             # The cache may already contain the module infos of Zope2.
             # By popping the caches of the Zope2 module it will be refeched
             # from Zope2.zpublisher_transactions_manager on the next call.
-            modules_cache = ZPublisher.Publish.get_module_info.func_defaults[0]
+            modules_cache = ZPublisher.Publish.get_module_info.__defaults__[0]
             assert isinstance(modules_cache, dict), \
                 'get_module_info modules cache changed unexpectedly.'
             modules_cache.pop('Zope2', None)
@@ -177,6 +179,7 @@ class NoCommitTransactionsManagerWrapper(object):
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class TraversalDriver(object):
     """The traversal driver simulates requests by by calling
     the zope traversal directly.
@@ -184,8 +187,6 @@ class TraversalDriver(object):
     in the same transaction / connection as the test code is run.
     This makes it possible to write browser tests without transactions.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'traversal library'
     WEBDAV_SUPPORT = True
 
@@ -255,7 +256,7 @@ class TraversalDriver(object):
             self._unzip_gzip_response()
             return (self.response.status,
                     self.response.errmsg,
-                    StringIO(self.response.body))
+                    BytesIO(self.response.body))
 
     def _prepare_for_request(self, method, url, data, headers, referer_url):
         if referer_url:
@@ -323,7 +324,7 @@ class TraversalDriver(object):
 
         # Prepare the response object for cookielib compatibility:
         res = requests.cookies.MockResponse(
-            httplib.HTTPMessage(StringIO(response.stdout.getvalue())))
+            six.moves.http_client.HTTPMessage(StringIO(response.stdout.getvalue())))
 
         self.requests_session.cookies.extract_cookies(res, req)
 
@@ -357,7 +358,7 @@ class TraversalDriver(object):
         if self.get_response_headers().get('content-encoding') != 'gzip':
             return
 
-        with gzip.GzipFile(fileobj=StringIO(self.response.body)) as zipfile:
+        with gzip.GzipFile(fileobj=BytesIO(self.response.body)) as zipfile:
             self.response.body = zipfile.read()
             self.response.headers.pop('content-encoding', None)
 

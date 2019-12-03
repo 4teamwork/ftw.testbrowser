@@ -4,6 +4,7 @@ from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import nondefault_browsing
+
 import re
 
 
@@ -32,8 +33,8 @@ class TestEditBar(BrowserTestCase):
         self.grant('Manager')
         browser.login().open()
         link = editbar.contentview('Contents', browser=browser)
-        self.assertEquals('a', link.tag)
-        self.assertEquals(
+        self.assertEqual('a', link.tag)
+        self.assertEqual(
             self.portal.absolute_url() + '/folder_contents',
             link.attrib['href'].split('?')[0])
 
@@ -58,11 +59,11 @@ class TestEditBar(BrowserTestCase):
         self.grant('Manager')
         browser.login().open()
         if IS_PLONE_4:
-            self.assertEquals([u'Add new', 'Display'],
-                              editbar.menus(browser=browser))
+            self.assertEqual([u'Add new', 'Display'],
+                             editbar.menus(browser=browser))
         else:
-            self.assertEquals([u'Add new', 'Display', 'Manage portlets'],
-                              editbar.menus(browser=browser))
+            self.assertEqual([u'Add new', 'Display', 'Manage portlets'],
+                             editbar.menus(browser=browser))
 
     @nondefault_browsing
     def test_menu(self, browser):
@@ -72,10 +73,10 @@ class TestEditBar(BrowserTestCase):
             self.assertIn('actionMenu', editbar.menu('Display', browser=browser).classes)
             self.assertIn('actionMenu', editbar.menu('Add new', browser=browser).classes)
         else:
-            self.assertEquals('plone-contentmenu-display',
-                              editbar.menu('Display', browser=browser).attrib['id'])
-            self.assertEquals('plone-contentmenu-factories',
-                              editbar.menu('Add new', browser=browser).attrib['id'])
+            self.assertEqual('plone-contentmenu-display',
+                             editbar.menu('Display', browser=browser).attrib['id'])
+            self.assertEqual('plone-contentmenu-factories',
+                             editbar.menu('Add new', browser=browser).attrib['id'])
 
     @nondefault_browsing
     def test_menu_not_found(self, browser):
@@ -85,16 +86,16 @@ class TestEditBar(BrowserTestCase):
             editbar.menu('Shapes', browser=browser)
 
         if IS_PLONE_4:
-            self.assertEquals(
-            "Empty result set: editbar.menu('Shapes',"
-            " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display'].",
+            self.assertEqual(
+                "Empty result set: editbar.menu('Shapes',"
+                " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
+                "\nVisible menus: ['Add new', 'Display'].",
                 str(cm.exception))
         else:
-            self.assertEquals(
-            "Empty result set: editbar.menu('Shapes',"
-            " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display', u'Manage portlets'].",
+            self.assertEqual(
+                "Empty result set: editbar.menu('Shapes',"
+                " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
+                "\nVisible menus: ['Add new', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing
@@ -108,9 +109,9 @@ class TestEditBar(BrowserTestCase):
         self.grant('Manager')
         browser.login().open()
         link = editbar.menu_option('Display', 'Summary view', browser=browser)
-        self.assertEquals('plone-contentmenu-display-summary_view',
-                          link.attrib.get('id'))
-        self.assertEquals('a', link.tag)
+        self.assertEqual('plone-contentmenu-display-summary_view',
+                         link.attrib.get('id'))
+        self.assertEqual('a', link.tag)
 
     @nondefault_browsing
     def test_menu_option_not_found(self, browser):
@@ -119,7 +120,7 @@ class TestEditBar(BrowserTestCase):
         with self.assertRaises(NoElementFound) as cm:
             editbar.menu_option('Add new', 'Dog', browser=browser)
 
-        self.assertEquals(
+        self.assertEqual(
             "Empty result set: editbar.menu_option('Add new', 'Dog',"
             " browser=<ftw.browser.core.Browser instance>)"
             " did not match any nodes."
@@ -135,18 +136,18 @@ class TestEditBar(BrowserTestCase):
             editbar.menu_option('Shapes', 'Square', browser=browser)
 
         if IS_PLONE_4:
-            self.assertEquals(
+            self.assertEqual(
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display'].",
+                "\nVisible menus: ['Add new', 'Display'].",
                 str(cm.exception))
         else:
-            self.assertEquals(
+            self.assertEqual(
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: [u'Add new', u'Display', u'Manage portlets'].",
+                "\nVisible menus: ['Add new', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing

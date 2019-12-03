@@ -29,14 +29,14 @@ class TestFactoriesMenu(BrowserTestCase):
         with self.assertRaises(ValueError) as cm:
             factoriesmenu.addable_types(browser=browser)
 
-        self.assertEquals('Factories menu is not visible.', str(cm.exception))
+        self.assertEqual('Factories menu is not visible.', str(cm.exception))
 
     @nondefault_browsing
     def test_adding_content(self, browser):
         self.grant('Manager')
         browser.login().open()
         factoriesmenu.add('Folder', browser=browser)
-        self.assertEquals(self.portal.portal_url() + '/++add++Folder', browser.url)
+        self.assertEqual(self.portal.portal_url() + '/++add++Folder', browser.url)
 
     @nondefault_browsing
     def test_adding_unallowed_or_missing_type(self, browser):
@@ -56,8 +56,8 @@ class TestFactoriesMenu(BrowserTestCase):
         with self.assertRaises(ValueError) as cm:
             factoriesmenu.add('Folder', browser=browser)
 
-        self.assertEquals('Cannot add "Folder": no factories menu visible.',
-                          str(cm.exception))
+        self.assertEqual('Cannot add "Folder": no factories menu visible.',
+                         str(cm.exception))
 
     @nondefault_browsing
     def test_addable_types_works_with_restrictions_entry(self, browser):

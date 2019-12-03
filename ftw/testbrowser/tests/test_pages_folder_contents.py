@@ -32,8 +32,8 @@ class TestFolderContents(BrowserTestCase):
     def test_titles(self, browser):
         create(Builder('page').titled(u'An exotic page'))
         browser.login().open(view='folder_contents')
-        self.assertEquals(['An exotic page'],
-                          folder_contents.titles(browser=browser))
+        self.assertEqual(['An exotic page'],
+                         folder_contents.titles(browser=browser))
 
     @nondefault_browsing
     def test_select__selects_from_objects(self, browser):
@@ -42,7 +42,7 @@ class TestFolderContents(BrowserTestCase):
 
         browser.login().open(view='folder_contents')
         folder_contents.select(foo, bar, browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             ('/plone/foo', '/plone/bar'),
             folder_contents.selected_paths(browser=browser))
 
@@ -53,7 +53,7 @@ class TestFolderContents(BrowserTestCase):
 
         browser.login().open(view='folder_contents')
         folder_contents.select_by_title('Foo', 'Bar', browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             ('/plone/foo', '/plone/bar'),
             folder_contents.selected_paths(browser=browser))
 
@@ -66,7 +66,7 @@ class TestFolderContents(BrowserTestCase):
 
         browser.login().open(view='folder_contents')
         folder_contents.select_by_path(foo_path, bar_path, browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             ('/plone/foo', '/plone/bar'),
             folder_contents.selected_paths(browser=browser))
 
@@ -77,17 +77,17 @@ class TestFolderContents(BrowserTestCase):
 
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_title('Bar', browser=browser)
-        self.assertEquals('No row with title "Bar" found.',
-                          str(cm.exception))
+        self.assertEqual('No row with title "Bar" found.',
+                         str(cm.exception))
 
-        self.assertEquals(TableRow,
-                          type(folder_contents.row_by_title('Foo', browser=browser)))
+        self.assertEqual(TableRow,
+                         type(folder_contents.row_by_title('Foo', browser=browser)))
 
         create(Builder('page').titled(u'Foo'))
         browser.reload()
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_title('Foo', browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             'More than one row with title "Foo" found: ' +
             "['{0}/foo', '{0}/foo-1']".format(self.portal.portal_url()),
             str(cm.exception))
@@ -98,12 +98,12 @@ class TestFolderContents(BrowserTestCase):
         subobj = create(Builder('page').titled(u'Bar').within(obj))
         browser.login().open(view='folder_contents')
 
-        self.assertEquals(TableRow,
-                          type(folder_contents.row_by_object(obj, browser=browser)))
+        self.assertEqual(TableRow,
+                         type(folder_contents.row_by_object(obj, browser=browser)))
 
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_object(subobj, browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             'The object with path "/plone/foo/bar" is not visible.'
             " Visible objects: ['/plone/foo']",
             str(cm.exception))
@@ -117,12 +117,12 @@ class TestFolderContents(BrowserTestCase):
         obj_path = '/'.join(obj.getPhysicalPath())
         subobj_path = '/'.join(subobj.getPhysicalPath())
 
-        self.assertEquals(TableRow,
-                          type(folder_contents.row_by_path(obj_path, browser=browser)))
+        self.assertEqual(TableRow,
+                         type(folder_contents.row_by_path(obj_path, browser=browser)))
 
         with self.assertRaises(ValueError) as cm:
             folder_contents.row_by_path(subobj_path, browser=browser)
-        self.assertEquals(
+        self.assertEqual(
             'The object with path "/plone/foo/bar" is not visible.'
             " Visible objects: ['/plone/foo']",
             str(cm.exception))

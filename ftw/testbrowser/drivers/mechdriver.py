@@ -8,10 +8,13 @@ from ftw.testbrowser.utils import copy_docs_from_interface
 from mechanize import Request
 from mechanize._urllib2_fork import HTTPRedirectHandler
 from requests.structures import CaseInsensitiveDict
-from zope.interface import implements
+from zope.interface import implementer
+
 import pkg_resources
-import urllib
-import urllib2
+import six
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 
 try:
@@ -24,12 +27,11 @@ else:
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class MechanizeDriver(object):
     """The mechanize driver uses the Mechanize browser with
     plone.testing integration for making the requests.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'mechanize library'
     WEBDAV_SUPPORT = False
 
@@ -63,7 +65,7 @@ class MechanizeDriver(object):
 
         try:
             self.response = self._get_mechbrowser().open(request)
-        except urllib2.HTTPError as response:
+        except six.moves.urllib.error.HTTPError as response:
             if response.reason.startswith(HTTPRedirectHandler.inf_msg):
                 raise RedirectLoopException(response.geturl())
 
@@ -142,7 +144,7 @@ class MechanizeDriver(object):
         if not data:
             return None
 
-        if isinstance(data, (str, unicode)):
+        if isinstance(data, (six.binary_type, six.text_type)):
             # We already have a payload, e.g. a MIME request.
             return data
 
@@ -151,7 +153,7 @@ class MechanizeDriver(object):
 
         normalized_data = []
         for name, value_or_values in data:
-            if isinstance(name, unicode):
+            if isinstance(name, six.text_type):
                 name = name.encode('utf-8')
 
             if isinstance(value_or_values, (list, tuple, set)):
@@ -160,12 +162,12 @@ class MechanizeDriver(object):
                 values = [value_or_values]
 
             for value in values:
-                if isinstance(value, unicode):
+                if isinstance(value, six.text_type):
                     value = value.encode('utf-8')
 
                 normalized_data.append((name, value))
 
-        return urllib.urlencode(normalized_data)
+        return six.moves.urllib.parse.urlencode(normalized_data)
 
     def _add_headers_to_request(self, request, headers):
         if headers is None:

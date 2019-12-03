@@ -21,7 +21,7 @@ class TestDexterityDataGridWidget(BrowserTestCase):
              'Low-fat': True, 'Reference': create(Builder('page'))},
         ]})
         browser.find('Submit').click()
-        self.assertEquals(
+        self.assertEqual(
             {u'cakes': [
                 {u'cake': u'cream-cheese-pound-cake',
                  u'low_fat': False,

@@ -13,5 +13,5 @@ class TestDateWidget(BrowserTestCase):
         browser.login(SITE_OWNER_NAME).visit(view='test-z3cform-shopping')
         browser.fill({'Day of payment': date(2015, 10, 22)})
         browser.find('Submit').click()
-        self.assertEquals({u'day_of_payment': u'2015-10-22'},
-                          browser.json)
+        self.assertEqual({u'day_of_payment': u'2015-10-22'},
+                         browser.json)

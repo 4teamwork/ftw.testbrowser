@@ -28,22 +28,22 @@ class TestWebdavRequests(BrowserTestCase):
     @browsing
     def test_options_request(self, browser):
         browser.webdav('OPTIONS')
-        self.assertEquals('1,2', browser.headers.get('DAV'))
+        self.assertEqual('1,2', browser.headers.get('DAV'))
 
     @skip_driver(LIB_MECHANIZE, 'Mechanize does not support webdav.')
     @browsing
     def test_propfind_request(self, browser):
         data = '\n'.join((
-                '<?xml version="1.0" encoding="UTF-8"?>',
-                '<A:propfind xmlns:A="DAV:">',
-                '  <A:prop>',
-                '    <A:displayname/>',
-                '  </A:prop>',
-                '</A:propfind>',
-                ))
+               '<?xml version="1.0" encoding="UTF-8"?>',
+               '<A:propfind xmlns:A="DAV:">',
+               '  <A:prop>',
+               '    <A:displayname/>',
+               '  </A:prop>',
+               '</A:propfind>',
+        ))
         browser.login().webdav('PROPFIND', data=data)
-        self.assertEquals('Plone site',
-                          browser.xpath('//d:displayname').first.text)
+        self.assertEqual('Plone site',
+                         browser.xpath('//d:displayname').first.text)
 
     @skip_driver(LIB_MECHANIZE, 'Mechanize does not support webdav.')
     @browsing
@@ -57,7 +57,7 @@ class TestWebdavRequests(BrowserTestCase):
             '  <D:href>Test Token</D:href>\n'
             '  </D:owner>\n'
             '</D:lockinfo>'
-            )
+        )
         browser.login(SITE_OWNER_NAME).open()
         document = create(Builder('document').titled(u'Foo'))
         browser.login(SITE_OWNER_NAME).webdav('LOCK', document, data=data)

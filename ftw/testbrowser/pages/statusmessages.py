@@ -1,6 +1,9 @@
 from ftw.testbrowser import browser as default_browser
 from ftw.testbrowser.utils import normalize_spaces
+from functools import reduce
+
 import re
+import six
 
 
 def messages(browser=default_browser):
@@ -70,7 +73,7 @@ def as_string(filter_=None, browser=default_browser):
 
     if filter_ is None:
         filter_ = ('info', 'warning', 'error')
-    elif isinstance(filter_, (str, unicode)):
+    elif isinstance(filter_, (str, six.text_type)):
         filter_ = (filter_,)
 
     result = []

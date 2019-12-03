@@ -20,7 +20,7 @@ class TestRequestsDriverImplementation(BrowserTestCase):
         with self.assertRaises(NameError) as cm:
             browser.append_request_header('Authorization', 'Basic foo:bar')
 
-        self.assertEquals(
+        self.assertEqual(
             'There is already a header "Authorization" and the requests driver'
             ' does not support using the same header multiple times.',
             str(cm.exception))

@@ -4,6 +4,8 @@ from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.utils import normalize_spaces
 
+import six
+
 
 def visible(browser=default_browser):
     """Returns ``True`` when the editbar is visible on the current page.
@@ -65,14 +67,15 @@ def menus(browser=default_browser):
     :returns: A list of the labels of the visible menus.
     :rtype: list of str
     """
-    return map(
-        lambda text: text.rstrip(u'\u2026'),  # Add new...
-        container(browser=browser).css(
+    return [
+        six.ensure_str(text.rstrip(u'\u2026'))
+        for text in container(browser=browser).css(
             # Plone 4
             '#contentActionMenus .actionMenuHeader > a > span:first-child, '
             # Plone 5
             'nav li[id^="plone-contentmenu-"] > a > span.plone-toolbar-title'
-        ).text)
+        ).text
+    ]
 
 
 @QueryInfo.build

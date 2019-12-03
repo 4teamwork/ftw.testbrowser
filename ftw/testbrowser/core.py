@@ -1,4 +1,6 @@
+from __future__ import print_function
 from Acquisition import aq_chain
+from cgi import parse_header
 from contextlib import contextmanager
 from copy import deepcopy
 from ftw.testbrowser.drivers import DRIVER_FACTORIES
@@ -23,23 +25,30 @@ from ftw.testbrowser.nodes import wrap_nodes
 from ftw.testbrowser.nodes import wrapped_nodes
 from ftw.testbrowser.parser import TestbrowserHTMLParser
 from ftw.testbrowser.queryinfo import QueryInfo
+from ftw.testbrowser.utils import basic_auth_encode
 from ftw.testbrowser.utils import normalize_spaces
+from functools import reduce
 from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter
 from operator import methodcaller
 from Products.CMFPlone.utils import getFSVersionTuple
-from StringIO import StringIO
+from six import BytesIO
+from six import StringIO
+from six.moves import filter
+from six.moves import map
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
+
 import json
 import lxml
 import lxml.html
 import os
 import pkg_resources
 import re
+import six
+import six.moves.urllib.parse
 import tempfile
-import urlparse
 
 
 try:
@@ -57,6 +66,7 @@ if PLONE5:
     from ftw.testbrowser.plone5 import disabled_resource_registries
 
 
+@implementer(IBrowser)
 class Browser(object):
     """The ``Browser`` is the top level object of ``ftw.testbrowser``.
     It represents the browser instance and is used for navigating and
@@ -89,8 +99,6 @@ class Browser(object):
       (Default: ``False``).
     :type exception_bubbling: ``bool``
     """
-
-    implements(IBrowser)
 
     def __init__(self):
         self.drivers = {}
@@ -130,7 +138,7 @@ class Browser(object):
             self.app = None
             self.next_app = None
 
-        map(methodcaller('reset'), self.drivers.values())
+        list(map(methodcaller('reset'), self.drivers.values()))
 
     def __enter__(self):
         if self._context_manager_active:
@@ -154,19 +162,16 @@ class Browser(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if (exc_type or exc_value):
             try:
-                source = self.contents
+                source = self.body
             except BlankPage:
                 pass
             else:
                 _, path = tempfile.mkstemp(suffix='.html',
                                            prefix='ftw.testbrowser-')
-                with open(path, 'w+') as file_:
-                    if isinstance(source, unicode):
-                        source = source.encode('utf-8')
-
+                with open(path, 'wb+') as file_:
                     file_.write(source)
 
-                print '\nftw.testbrowser dump:', path,
+                print('\nftw.testbrowser dump:', path, end=' ')
 
         self._context_manager_active = False
         self.reset()
@@ -377,11 +382,28 @@ class Browser(object):
         return self
 
     @property
-    def contents(self):
-        """The source of the current page (usually HTML).
-        """
+    def body(self):
+        """The binary response content"""
         self._verify_setup()
         return self.get_driver().get_response_body()
+
+    @property
+    def contents(self):
+        """The response body as native string.
+        """
+        body = self.body
+        content_type = self.get_driver().get_response_headers().get(
+            'Content-Type', 'text/html')
+        if content_type.startswith('text/'):
+            main, params = parse_header(content_type)
+            encoding = params.get('charset', 'utf8')
+            if six.PY3 and isinstance(body, bytes):
+                return body.decode(encoding)
+            if six.PY2 and isinstance(body, six.text_type):
+                return body.encode(encoding)
+            return body
+        else:
+            return body
 
     @property
     def json(self):
@@ -546,8 +568,7 @@ class Browser(object):
             username = username.getUserName()
 
         self.replace_request_header(
-            'Authorization', 'Basic {0}'.format(
-                ':'.join((username, password)).encode('base64').strip()))
+            'Authorization', basic_auth_encode(username, password))
         return self
 
     def logout(self):
@@ -779,8 +800,7 @@ class Browser(object):
         :rtype: list of strings
         """
         return reduce(list.__add__,
-                      map(attrgetter('field_labels'),
-                          self.forms.values()))
+                      map(attrgetter('field_labels'), self.forms.values()))
 
     @QueryInfo.build
     def click_on(self, text, within=None, query_info=None):
@@ -830,7 +850,7 @@ class Browser(object):
             raise ContextNotFound(
                 'No <base> tag and no <body data-base-url> found.')
 
-        path = urlparse.urlparse(url).path.rstrip('/')
+        path = six.moves.urllib.parse.urlparse(url).path.rstrip('/')
         portal = getSite()
         portal_path = '/'.join(portal.getPhysicalPath())
         if not path.startswith(portal_path):
@@ -842,7 +862,7 @@ class Browser(object):
         obj = portal.restrictedTraverse(relative_path)
 
         # Make sure it returns the context object not a traversable view.
-        return filter(IItem.providedBy, aq_chain(obj))[0]
+        return list(filter(IItem.providedBy, aq_chain(obj)))[0]
 
     def parse_as_html(self, html=None):
         """Parse the response document with the HTML parser.
@@ -855,7 +875,7 @@ class Browser(object):
         """
         def parse(html):
             return lxml.html.parse(html, TestbrowserHTMLParser(encoding=self.encoding))
-        return self._load_html(html or self.contents, parse)
+        return self._load_html(html or self.body, parse)
 
     def parse_as_xml(self, xml=None):
         """Parse the response document with the XML parser.
@@ -866,7 +886,7 @@ class Browser(object):
         :param xml: The XML to parse (default: current response).
         :type xml: string
         """
-        xml = self._correct_webdav_xml(xml or self.contents)
+        xml = self._correct_webdav_xml(xml or self.body)
         return self._load_html(xml, lxml.etree.parse)
 
     def parse(self, xml_or_html):
@@ -904,7 +924,7 @@ class Browser(object):
         try:
             self._log_exceptions = False
             yield
-        except HTTPError, exc:
+        except HTTPError as exc:
             if code is not None and code != exc.status_code:
                 raise AssertionError(
                     'Expected HTTP error with status code {}, got {}.'.format(
@@ -936,7 +956,7 @@ class Browser(object):
             # Expectation is met.
             return
 
-        except HTTPError, exc:
+        except HTTPError as exc:
             if exc.status_code == 401:
                 # Response is "401 Unauthorized", thus user is probably
                 # logged in but unauthorized anyway;
@@ -977,14 +997,11 @@ class Browser(object):
         _, path = tempfile.mkstemp(suffix='.html',
                                    prefix='ftw.testbrowser-')
         with open(path, 'w+') as file_:
-            source = self.contents
-            if isinstance(source, unicode):
-                source = source.encode('utf-8')
-
+            source = six.ensure_text(self.contents)
             file_.write(source)
 
         cmd = 'open {0}'.format(path)
-        print '> {0}'.format(cmd)
+        print('> {0}'.format(cmd))
         os.system(cmd)
 
     def _verify_setup(self):
@@ -1002,12 +1019,12 @@ class Browser(object):
             url = url_or_object
 
         if view is not None:
-            parts = list(urlparse.urlparse(url))
+            parts = list(six.moves.urllib.parse.urlparse(url))
             parts[2] = '/'.join((parts[2].rstrip('/'), view))
-            url = urlparse.urlunparse(parts)
+            url = six.moves.urllib.parse.urlunparse(parts)
 
         if self.base_url:
-            url = urlparse.urljoin(self.base_url, url)
+            url = six.moves.urllib.parse.urljoin(self.base_url, url)
 
         return url
 
@@ -1020,7 +1037,7 @@ class Browser(object):
         if isinstance(html, StringIO):
             html = html.getvalue()
 
-        if isinstance(html, basestring) and 'xmlns:d="DAV:"' in html:
+        if isinstance(html, six.string_types) and 'xmlns:d="DAV:"' in html:
             html = html.strip().replace(
                 '<D:href>', '<d:href>').replace('</D:href>', '</d:href>')
 
@@ -1032,8 +1049,11 @@ class Browser(object):
         if hasattr(html, 'seek'):
             html.seek(0)
 
-        if isinstance(html, basestring):
+        if isinstance(html, six.text_type):
             html = StringIO(html)
+
+        if isinstance(html, six.binary_type):
+            html = BytesIO(html)
 
         if len(html.read()) == 0:
             self.document = None

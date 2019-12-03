@@ -12,6 +12,7 @@ from ftw.testbrowser.tests import IS_PLONE_4
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.alldrivers import skip_driver
 from ftw.testbrowser.tests.helpers import register_view
+from ftw.testbrowser.utils import basic_auth_encode
 from plone.app.testing import applyProfile
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
@@ -19,7 +20,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import getFSVersionTuple
-from StringIO import StringIO
+from six import BytesIO
 from unittest import skipUnless
 from zExceptions import BadRequest
 from zope.component import getUtility
@@ -42,17 +43,17 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_get_request(self, browser):
         browser.open(self.portal.portal_url())
-        self.assertEquals(self.portal.portal_url(), browser.url)
+        self.assertEqual(self.portal.portal_url(), browser.url)
 
     @browsing
     def test_open_with_view_only(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(self.portal.portal_url() + '/login_form', browser.url)
+        self.assertEqual(self.portal.portal_url() + '/login_form', browser.url)
 
     @browsing
     def test_open_site_root_by_default(self, browser):
         browser.open()
-        self.assertEquals(self.portal.portal_url(), browser.url)
+        self.assertEqual(self.portal.portal_url(), browser.url)
 
     @browsing
     def test_post_request(self, browser):
@@ -68,7 +69,7 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_post_request_with_umlauts(self, browser):
         browser.open(view='test-form-result', data={u'Uml\xe4ute': u'Uml\xe4ute'})
-        self.assertEquals({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
+        self.assertEqual({u'Uml\xe4ute': u'Uml\xe4ute'}, browser.json)
 
     @skip_driver(LIB_REQUESTS, 'Exception bubbling is not supported.')
     @browsing
@@ -89,7 +90,7 @@ class TestBrowserRequests(BrowserTestCase):
             with self.assertRaises(ValueError) as cm:
                 browser.open(view='failing-view')
 
-            self.assertEquals('The value is wrong.', str(cm.exception))
+            self.assertEqual('The value is wrong.', str(cm.exception))
 
     @skip_driver(LIB_MECHANIZE, 'Exception bubbling is supported by mechanize.')
     @skip_driver(LIB_TRAVERSAL, 'Exception bubbling is supported by traversal.')
@@ -99,7 +100,7 @@ class TestBrowserRequests(BrowserTestCase):
         with self.assertRaises(ValueError) as cm:
             browser.open()
 
-        self.assertEquals(
+        self.assertEqual(
             'The requests driver does not support exception bubbling.',
             str(cm.exception))
 
@@ -107,27 +108,27 @@ class TestBrowserRequests(BrowserTestCase):
     def test_visit_object(self, browser):
         folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder)
-        self.assertEquals(self.portal.portal_url() + '/test-folder', browser.url)
+        self.assertEqual(self.portal.portal_url() + '/test-folder', browser.url)
 
     @browsing
     def test_visit_view_on_object(self, browser):
         folder = create(Builder('folder').titled(u'Test Folder'))
         browser.login().visit(folder, view='folder_contents')
-        self.assertEquals(
+        self.assertEqual(
             self.portal.portal_url() + '/test-folder/folder_contents',
             browser.url)
 
     @browsing
     def test_on_opens_a_page(self, browser):
         browser.on(view='login_form')
-        self.assertEquals('login_form', browser.url.split('/')[-1])
+        self.assertEqual('login_form', browser.url.split('/')[-1])
 
     @browsing
     def test_on_changes_page_when_necessary(self, browser):
         browser.open()
-        self.assertEquals('plone', browser.url.split('/')[-1])
+        self.assertEqual('plone', browser.url.split('/')[-1])
         browser.on(view='login_form')
-        self.assertEquals('login_form', browser.url.split('/')[-1])
+        self.assertEqual('login_form', browser.url.split('/')[-1])
 
     @browsing
     def test_on_does_not_reload_when_already_on_this_page(self, browser):
@@ -157,17 +158,17 @@ class TestBrowserRequests(BrowserTestCase):
                           '<html>'))
 
         browser.open_html(html)
-        self.assertEquals('The heading', browser.css('h1').first.normalized_text())
+        self.assertEqual('The heading', browser.css('h1').first.normalized_text())
 
     @browsing
     def test_loading_stream_html_without_request(self, browser):
-        html = StringIO()
-        html.write('<html>')
-        html.write('<h1>The heading</h1>')
-        html.write('<html>')
+        html = BytesIO()
+        html.write(b'<html>')
+        html.write(b'<h1>The heading</h1>')
+        html.write(b'<html>')
 
         browser.open_html(html)
-        self.assertEquals('The heading', browser.css('h1').first.normalized_text())
+        self.assertEqual('The heading', browser.css('h1').first.normalized_text())
 
     @browsing
     def test_open_html_sets_response_to_html_stream(self, browser):
@@ -182,13 +183,13 @@ class TestBrowserRequests(BrowserTestCase):
                           '<html>'))
 
         browser.open_html(html)
-        self.assertEquals(html, browser.contents)
+        self.assertEqual(html, browser.contents)
 
     @browsing
     def test_logout_works(self, browser):
         hugo = create(Builder('user').named('Hugo', 'Boss'))
         browser.login(hugo.getId()).open()
-        self.assertEquals('Boss Hugo', plone.logged_in())
+        self.assertEqual('Boss Hugo', plone.logged_in())
 
         browser.logout().open()
         self.assertFalse(plone.logged_in())
@@ -197,11 +198,11 @@ class TestBrowserRequests(BrowserTestCase):
     def test_relogin_works(self, browser):
         hugo = create(Builder('user').named('Hugo', 'Boss'))
         browser.login(hugo.getId()).open()
-        self.assertEquals('Boss Hugo', plone.logged_in())
+        self.assertEqual('Boss Hugo', plone.logged_in())
 
         john = create(Builder('user').named('John', 'Doe'))
         browser.login(john.getId()).open()
-        self.assertEquals('Doe John', plone.logged_in())
+        self.assertEqual('Doe John', plone.logged_in())
 
     @browsing
     def test_login_with_member_object_works(self, browser):
@@ -210,7 +211,7 @@ class TestBrowserRequests(BrowserTestCase):
         mtool = getToolByName(self.layer['portal'], 'portal_membership')
         member = mtool.getMemberById(TEST_USER_ID)
         browser.login(member).open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
     @browsing
     def test_login_with_user_object_works(self, browser):
@@ -219,27 +220,28 @@ class TestBrowserRequests(BrowserTestCase):
         acl_users = getToolByName(self.layer['portal'], 'acl_users')
         user = acl_users.getUserById(TEST_USER_ID)
         browser.login(user).open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
     @browsing
     def test_append_request_header(self, browser):
         browser.open()
         self.assertFalse(plone.logged_in())
 
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(TEST_USER_NAME, TEST_USER_PASSWORD))
         browser.open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         browser.open()  # reload
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
     @browsing
     def test_x_zope_handle_errors_header_is_forbidden(self, browser):
         with self.assertRaises(ValueError) as cm:
             browser.append_request_header('X-zope-handle-errors', 'False')
 
-        self.assertEquals(
+        self.assertEqual(
             'The testbrowser does no longer allow to set the request header '
             '\'X-zope-handle-errros\'; use the exception_bubbling flag instead.',
             str(cm.exception))
@@ -252,22 +254,25 @@ class TestBrowserRequests(BrowserTestCase):
         hugo = create(Builder('user').named('Hugo', 'Boss'))
         john = create(Builder('user').named('John', 'Doe'))
 
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((hugo.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(hugo.getId(), TEST_USER_PASSWORD))
         browser.open()
-        self.assertEquals('Boss Hugo', plone.logged_in())
+        self.assertEqual('Boss Hugo', plone.logged_in())
 
-        browser.replace_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((john.getId(), TEST_USER_PASSWORD)).encode('base64')))
+        browser.replace_request_header(
+            'Authorization',
+            basic_auth_encode(john.getId(), TEST_USER_PASSWORD))
         browser.open()
-        self.assertEquals('Doe John', plone.logged_in())
+        self.assertEqual('Doe John', plone.logged_in())
 
     @browsing
     def test_clear_request_header_with_header_selection(self, browser):
-        browser.append_request_header('Authorization', 'Basic {0}'.format(
-                ':'.join((TEST_USER_NAME, TEST_USER_PASSWORD)).encode('base64')))
+        browser.append_request_header(
+            'Authorization',
+            basic_auth_encode(TEST_USER_NAME, TEST_USER_PASSWORD))
         browser.open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         browser.clear_request_header('Authorization')
         browser.open()
@@ -298,8 +303,8 @@ class TestBrowserRequests(BrowserTestCase):
     def test_reload_when_not_viewing_a_page(self, browser):
         with self.assertRaises(BlankPage) as cm:
             browser.reload()
-        self.assertEquals('The browser is on a blank page. Cannot reload.',
-                          str(cm.exception))
+        self.assertEqual('The browser is on a blank page. Cannot reload.',
+                         str(cm.exception))
 
     @browsing
     def test_fill_and_submit_multi_select_form(self, browser):
@@ -341,43 +346,43 @@ class TestBrowserRequests(BrowserTestCase):
                        'text/html; charset=utf-8'))
 
         browser.open(self.json_view_url, data={'foo': 'bar'})
-        self.assertEquals('application/json', browser.contenttype)
+        self.assertEqual('application/json', browser.contenttype)
 
     @browsing
     def test_response_mimetype(self, browser):
         browser.open()
-        self.assertEquals('text/html', browser.mimetype)
+        self.assertEqual('text/html', browser.mimetype)
 
         browser.open(self.json_view_url, data={'foo': 'bar'})
-        self.assertEquals('application/json', browser.mimetype)
+        self.assertEqual('application/json', browser.mimetype)
 
     @browsing
     def test_response_encoding(self, browser):
         browser.open()
         # Plone 4: utf-8
         # Plone 5 UTF-8
-        self.assertEquals('utf-8', browser.encoding.lower())
+        self.assertEqual('utf-8', browser.encoding.lower())
 
         browser.open(self.json_view_url, data={'foo': 'bar'})
-        self.assertEquals(None, browser.encoding)
+        self.assertEqual(None, browser.encoding)
 
     @browsing
     def test_keeps_cookies_in_session(self, browser):
         browser.open(view='login_form')
-        self.assertEquals(0, len(browser.cookies))
+        self.assertEqual(0, len(browser.cookies))
 
         browser.fill({'Login Name': TEST_USER_NAME,
                       'Password': TEST_USER_PASSWORD}).submit()
         self.assertIn('__ac', browser.cookies)
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         browser.open()
         self.assertIn('__ac', browser.cookies)
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         browser.open()
         self.assertIn('__ac', browser.cookies)
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
     @browsing
     def test_login_and_logout(self, browser):
@@ -385,7 +390,7 @@ class TestBrowserRequests(BrowserTestCase):
         self.assertFalse(plone.logged_in())
 
         browser.login().open()
-        self.assertEquals(TEST_USER_ID, plone.logged_in())
+        self.assertEqual(TEST_USER_ID, plone.logged_in())
 
         browser.logout().open()
         self.assertFalse(plone.logged_in())
@@ -393,24 +398,24 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_redirects_are_followed_automatically(self, browser):
         browser.open(view='test-redirect-to-portal')
-        self.assertEquals(self.portal.absolute_url(), browser.url)
-        self.assertEquals(('listing_view', 'plone-site'),
-                          plone.view_and_portal_type())
+        self.assertEqual(self.portal.absolute_url(), browser.url)
+        self.assertEqual(('listing_view', 'plone-site'),
+                         plone.view_and_portal_type())
 
     @skip_driver(LIB_MECHANIZE, 'Changing redirect following behavior is not supported.')
     @browsing
     def test_redirect_following_can_be_prevented(self, browser):
         browser.allow_redirects = False
         browser.open(view='test-redirect-to-portal')
-        self.assertEquals('/'.join((self.portal.absolute_url(), 'test-redirect-to-portal')), browser.url)
-        self.assertEquals((None, None), plone.view_and_portal_type())
+        self.assertEqual('/'.join((self.portal.absolute_url(), 'test-redirect-to-portal')), browser.url)
+        self.assertEqual((None, None), plone.view_and_portal_type())
 
     @browsing
     def test_redirect_loops_are_interrupted(self, browser):
         with self.assertRaises(RedirectLoopException) as cm:
             browser.open(view='test-redirect-loop')
 
-        self.assertEquals(
+        self.assertEqual(
             'The server returned a redirect response that would lead'
             ' to an infinite redirect loop.\n'
             'URL: {}/test-redirect-loop'.format(self.portal.absolute_url()),
@@ -420,7 +425,7 @@ class TestBrowserRequests(BrowserTestCase):
     @browsing
     def test_decompresses_gzip_responses(self, browser):
         browser.login().open()
-        self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
+        self.assertEqual('<!DOCTYPE', browser.contents.strip()[:9])
 
         # Install plone.app.caching in order to enable compression:
         applyProfile(self.portal, 'plone.app.caching:default')
@@ -431,12 +436,12 @@ class TestBrowserRequests(BrowserTestCase):
 
         browser.reload()
         if browser.get_driver().LIBRARY_NAME != LIB_REQUESTS:
-            self.assertEquals(None, browser.headers.get('content-encoding'),
-                              'The content-encoding header should be removed'
-                              ' in order to indicate that the content is now'
-                              ' unzipped.')
+            self.assertEqual(None, browser.headers.get('content-encoding'),
+                             'The content-encoding header should be removed'
+                             ' in order to indicate that the content is now'
+                             ' unzipped.')
 
-        self.assertEquals('<!DOCTYPE', browser.contents.strip()[:9])
+        self.assertEqual('<!DOCTYPE', browser.contents.strip()[:9])
 
     @browsing
     def test_partial_template_encoding_utf8(self, browser):
@@ -445,9 +450,9 @@ class TestBrowserRequests(BrowserTestCase):
         The testbrowser must then adapt and use the correct encoding.
         """
         browser.open(view='test-partial?set_utf8_encoding=True')
-        self.assertEquals('utf-8', browser.encoding.lower())
-        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
-                          browser.css('#names li').text)
+        self.assertEqual('utf-8', browser.encoding.lower())
+        self.assertEqual([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+                         browser.css('#names li').text)
 
     @browsing
     def test_partial_template_encoding_latin9(self, browser):
@@ -462,9 +467,9 @@ class TestBrowserRequests(BrowserTestCase):
         if getFSVersionTuple() >= (5, 1, 6):
             default_encoding = 'utf-8'
 
-        self.assertEquals(default_encoding, browser.encoding.lower())
-        self.assertEquals([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
-                          browser.css('#names li').text)
+        self.assertEqual(default_encoding, browser.encoding.lower())
+        self.assertEqual([u'Bj\xf6rn', u'G\xfcnther', u'A\xefda'],
+                         browser.css('#names li').text)
 
     @browsing
     def test_send_authenticator(self, browser):
@@ -484,4 +489,4 @@ class TestBrowserRequests(BrowserTestCase):
 
             # But we can tell the browser to send the authenticator token:
             browser.open(view='protected-view', send_authenticator=True)
-            self.assertEquals('YAY', browser.contents)
+            self.assertEqual('YAY', browser.contents)

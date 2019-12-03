@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from ftw.testbrowser import browsing
 from ftw.testbrowser.exceptions import OptionsNotFound
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 """Tests the default choice collection widget.
@@ -135,7 +135,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': ['Apple', 'Banana']})
 
-        self.assertEquals(
+        self.assertEqual(
             [('form.widgets.fruits:list', '/fruits/apple'),
              ('form.widgets.fruits:list', '/fruits/banana')],
             browser.css('form').first.form_values())
@@ -152,7 +152,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': ['Banana', 'Apple']})
 
-        self.assertEquals(
+        self.assertEqual(
             [('form.widgets.fruits:list', '/fruits/banana'),
              ('form.widgets.fruits:list', '/fruits/apple')],
             browser.css('form').first.form_values())
@@ -165,7 +165,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': 'Apple'})
 
-        self.assertEquals(
+        self.assertEqual(
             [('form.widgets.fruits:list', '/fruits/apple')],
             browser.css('form').first.form_values())
 
@@ -181,7 +181,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.open_html(WIDGET_HTML)
         browser.fill({'Fruits': ['/fruits/apple', '/fruits/banana']})
 
-        self.assertEquals(
+        self.assertEqual(
             [('form.widgets.fruits:list', '/fruits/apple'),
              ('form.widgets.fruits:list', '/fruits/banana')],
             browser.css('form').first.form_values())
@@ -199,10 +199,10 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         with self.assertRaises(OptionsNotFound) as cm:
             browser.fill({'Fruits': ['Banana', 'Rhubarb', 'Watermelon']})
 
-        self.assertEquals('Could not find options [\'Rhubarb\']'
-                          ' for field "Fruits".'
-                          ' Options: "Apple", "Watermelon", "Banana"',
-                          str(cm.exception))
+        self.assertEqual('Could not find options [\'Rhubarb\']'
+                         ' for field "Fruits".'
+                         ' Options: "Apple", "Watermelon", "Banana"',
+                         str(cm.exception))
 
     @browsing
     def test_selecting_with_plone_42(self, browser):
@@ -210,7 +210,7 @@ class TestZ3cChoiceCollectionWidget(TestCase):
         browser.open_html(WIDGET_HTML.replace('data-fieldname', 'removed'))
         browser.fill({'Fruits': 'Apple'})
 
-        self.assertEquals(
+        self.assertEqual(
             [('form.widgets.fruits:list', '/fruits/apple')],
             browser.css('form').first.form_values())
 

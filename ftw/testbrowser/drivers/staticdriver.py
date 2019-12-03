@@ -1,16 +1,17 @@
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.interfaces import IDriver
 from ftw.testbrowser.utils import copy_docs_from_interface
-from zope.interface import implements
+from zope.interface import implementer
+
+import six
 
 
 @copy_docs_from_interface
+@implementer(IDriver)
 class StaticDriver(object):
     """The static driver can load static HTML without doing an actual request.
     It does not support making requests at all.
     """
-    implements(IDriver)
-
     LIBRARY_NAME = 'static driver'
     WEBDAV_SUPPORT = False
 
@@ -22,7 +23,10 @@ class StaticDriver(object):
         self.body = None
 
     def set_body(self, body):
-        self.body = body
+        if isinstance(body, six.text_type):
+            self.body = six.ensure_binary(body)
+        else:
+            self.body = body
 
     def make_request(self, method, url, data=None, headers=None,
                      referer_url=None):

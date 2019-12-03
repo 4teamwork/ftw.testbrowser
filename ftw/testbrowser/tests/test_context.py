@@ -22,13 +22,13 @@ class TestBrowserContext(BrowserTestCase):
     def test_context_can_be_retrieved_from_current_folder(self, browser):
         folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder)
-        self.assertEquals(folder, browser.context)
+        self.assertEqual(folder, browser.context)
 
     @browsing
     def test_context_when_on_a_view(self, browser):
         folder = create(Builder('folder').titled(u'The Folder'))
         browser.login().visit(folder, view='folder_contents')
-        self.assertEquals(folder, browser.context)
+        self.assertEqual(folder, browser.context)
 
     @skipUnless(IS_PLONE_4, 'Plone 5 has an unaffected implementation.')
     @browsing
@@ -41,15 +41,15 @@ class TestBrowserContext(BrowserTestCase):
         statusmessages.assert_no_error_messages()
         self.sync_transaction()
 
-        self.assertEquals(self.portal.get('page'), browser.context)
+        self.assertEqual(self.portal.get('page'), browser.context)
 
     @browsing
     def test_execption_when_not_viewing_any_page(self, browser):
         with self.assertRaises(ContextNotFound) as cm:
             browser.context
 
-        self.assertEquals('Not viewing any page.',
-                          str(cm.exception))
+        self.assertEqual('Not viewing any page.',
+                         str(cm.exception))
 
     @browsing
     def test_exception_when_page_has_no_context_information(self, browser):
@@ -61,8 +61,8 @@ class TestBrowserContext(BrowserTestCase):
         with self.assertRaises(ContextNotFound) as cm:
             browser.context
 
-        self.assertEquals('No <base> tag and no <body data-base-url> found.',
-                          str(cm.exception))
+        self.assertEqual('No <base> tag and no <body data-base-url> found.',
+                         str(cm.exception))
 
     @browsing
     def test_path_has_to_be_within_current_plone_site(self, browser):
@@ -74,7 +74,7 @@ class TestBrowserContext(BrowserTestCase):
         with self.assertRaises(ContextNotFound) as cm:
             browser.context
 
-        self.assertEquals(
+        self.assertEqual(
             'Expected URL path to start with the Plone site'
             ' path "/plone" but it is "/foo/bar"',
             str(cm.exception))

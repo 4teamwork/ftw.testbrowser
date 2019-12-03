@@ -2,6 +2,7 @@ from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testbrowser.drivers.requestsdriver import RequestsDriver
 from ftw.testbrowser.drivers.staticdriver import StaticDriver
 
+
 #: Constant for choosing the requests library (actual requests)
 LIB_REQUESTS = RequestsDriver.LIBRARY_NAME
 

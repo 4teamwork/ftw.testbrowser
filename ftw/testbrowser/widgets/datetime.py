@@ -1,5 +1,6 @@
 from ftw.testbrowser.widgets.base import PloneWidget
 from ftw.testbrowser.widgets.base import widget
+
 import json
 
 

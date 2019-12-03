@@ -16,6 +16,6 @@ class TestDexterityPageObject(BrowserTestCase):
         factoriesmenu.add('Folder', browser=browser)
         browser.find('Save').click()
 
-        self.assertEquals(browser.previous_url, browser.url)
-        self.assertEquals({u'Title': ['Required input is missing.']},
-                          dexterity.erroneous_fields(browser=browser))
+        self.assertEqual(browser.previous_url, browser.url)
+        self.assertEqual({u'Title': ['Required input is missing.']},
+                         dexterity.erroneous_fields(browser=browser))

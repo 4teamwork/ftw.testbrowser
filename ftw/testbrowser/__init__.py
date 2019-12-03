@@ -1,7 +1,7 @@
 from ftw.testbrowser.core import Browser
-from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
+from ftw.testbrowser.core import LIB_TRAVERSAL
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
 from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPServerError
@@ -23,7 +23,7 @@ def browsing(func):
 
         from ftw.testbrowser import browsing
         from plone.app.testing import PLONE_FUNCTIONAL_TESTING
-        from unittest2 import TestCase
+        from unittest import TestCase
 
         class TestSomething(TestCase):
             layer = PLONE_FUNCTIONAL_TESTING
@@ -31,8 +31,8 @@ def browsing(func):
             @browsing
             def test_login_form(self, browser):
                 browser.open(view='login_form')
-                self.assertEquals('http://nohost/plone/login_form',
-                                  browser.url)
+                self.assertEqual('http://nohost/plone/login_form',
+                                 browser.url)
     """
 
     def test_function(self, *args, **kwargs):

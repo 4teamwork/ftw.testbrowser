@@ -1,4 +1,6 @@
 from functools import wraps
+from six.moves import map
+
 import inspect
 
 
@@ -100,6 +102,6 @@ class QueryInfo(object):
             context,
             self.function.__name__,
             inspect.formatargspec(
-                map(repr, positional_arguments) + keyword_names,
+                list(map(repr, positional_arguments)) + keyword_names,
                 None, None,
                 keyword_values))
