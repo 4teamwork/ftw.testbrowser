@@ -20,9 +20,9 @@ if not HAS_ZOPE4:
 
     #: Constant for choosing the mechanize library (interally dispatched requests)
     LIB_TRAVERSAL = TraversalDriver.LIBRARY_NAME
-
     #: Constant for choosing the mechanize library (interally dispatched requests)
     LIB_MECHANIZE = MechanizeDriver.LIBRARY_NAME
+    LIB_WEBTEST = None
 
     DRIVER_FACTORIES.update({
         TraversalDriver.LIBRARY_NAME: TraversalDriver,
@@ -30,5 +30,12 @@ if not HAS_ZOPE4:
     })
 
 else:
+    from ftw.testbrowser.drivers.webtest import WebtestDriver
+
+    LIB_WEBTEST = WebtestDriver.LIBRARY_NAME
     LIB_TRAVERSAL = None
     LIB_MECHANIZE = None
+
+    DRIVER_FACTORIES.update({
+        WebtestDriver.LIBRARY_NAME: WebtestDriver,
+    })

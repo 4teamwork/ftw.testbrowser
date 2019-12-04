@@ -8,6 +8,7 @@ from ftw.testbrowser.drivers import LIB_MECHANIZE
 from ftw.testbrowser.drivers import LIB_REQUESTS
 from ftw.testbrowser.drivers import LIB_STATIC
 from ftw.testbrowser.drivers import LIB_TRAVERSAL  # noqa
+from ftw.testbrowser.drivers import LIB_WEBTEST  # noqa
 from ftw.testbrowser.exceptions import AmbiguousFormFields
 from ftw.testbrowser.exceptions import BlankPage
 from ftw.testbrowser.exceptions import BrowserNotSetUpException
@@ -149,8 +150,10 @@ class Browser(object):
         if self.request_library is None:
             if self.default_driver is not None:
                 self.request_library = self.default_driver
-            elif self.next_app is None or LIB_MECHANIZE is None:
+            elif self.next_app is None:
                 self.request_library = LIB_REQUESTS
+            elif LIB_WEBTEST is not None:
+                self.request_library = LIB_WEBTEST
             else:
                 self.request_library = LIB_MECHANIZE
 

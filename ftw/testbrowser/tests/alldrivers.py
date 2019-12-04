@@ -1,10 +1,12 @@
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
+from ftw.testbrowser.core import LIB_WEBTEST
 from ftw.testbrowser.testing import MECHANIZE_TESTING
 from ftw.testbrowser.testing import REQUESTS_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_INTEGRATION_TESTING
 from ftw.testbrowser.testing import TRAVERSAL_TESTING
+from ftw.testbrowser.testing import WEBTEST_TESTING
 from unittest import skip
 
 import six
@@ -27,6 +29,11 @@ def all_drivers(testcase):
         drivers.extend([
             ('Traversal', TRAVERSAL_TESTING, LIB_TRAVERSAL),
             ('TraversalIntegration', TRAVERSAL_INTEGRATION_TESTING, LIB_TRAVERSAL),
+        ])
+
+    if LIB_WEBTEST is not None:
+        drivers.extend([
+            ('Webtest', WEBTEST_TESTING, LIB_WEBTEST),
         ])
 
     testcase._testbrowser_abstract_testclass = True

@@ -2,6 +2,7 @@ from ftw.testbrowser.core import Browser
 from ftw.testbrowser.core import LIB_MECHANIZE
 from ftw.testbrowser.core import LIB_REQUESTS
 from ftw.testbrowser.core import LIB_TRAVERSAL
+from ftw.testbrowser.core import LIB_WEBTEST
 from ftw.testbrowser.drivers.layers import DefaultDriverFixture
 from ftw.testbrowser.exceptions import HTTPClientError
 from ftw.testbrowser.exceptions import HTTPServerError
@@ -52,3 +53,6 @@ MECHANIZE_BROWSER_FIXTURE = DefaultDriverFixture(LIB_MECHANIZE)
 
 #: A plone.testing layer which sets the default driver to Requests.
 REQUESTS_BROWSER_FIXTURE = DefaultDriverFixture(LIB_REQUESTS)
+
+#: A plone.testing layer which sets the default driver to Webtest.
+WEBTEST_BROWSER_FIXTURE = DefaultDriverFixture(LIB_WEBTEST)

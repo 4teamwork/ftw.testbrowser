@@ -5,6 +5,7 @@ from ftw.builder.testing import set_builder_session_factory
 from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
 from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
 from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+from ftw.testbrowser import WEBTEST_BROWSER_FIXTURE
 from ftw.testbrowser.compat import HAS_ZOPE4
 from ftw.testing import FTWIntegrationTesting
 from plone.app.testing import applyProfile
@@ -81,4 +82,15 @@ REQUESTS_TESTING = FunctionalTesting(
            REQUESTS_BROWSER_FIXTURE),
     name='ftw.testbrowser:functional:requests')
 
-DEFAULT_TESTING = MECHANIZE_TESTING
+WEBTEST_TESTING = FunctionalTesting(
+    bases=(BROWSER_FIXTURE,
+           set_builder_session_factory(functional_session_factory),
+           PLONE_ZSERVER,
+           WEBTEST_BROWSER_FIXTURE),
+    name='ftw.testbrowser:functional:webtest')
+
+
+if HAS_ZOPE4:
+    DEFAULT_TESTING = WEBTEST_TESTING
+else:
+    DEFAULT_TESTING = MECHANIZE_TESTING
