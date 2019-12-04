@@ -50,8 +50,14 @@ a new browser and to set it up manually:
 Choosing the default driver
 ---------------------------
 
-The default driver is chosen automatically, depending on whether the browser is
-set up with a zope app (=> ``LIB_MECHANIZE``) or not (=> ``LIB_REQUESTS``).
+The default driver is chosen automatically, depending on the Zope version and
+whether the browser is setup with a Zope app or not. Without a Zope app the
+default driver is ``LIB_REQUESTS``. With Zope 4 the default is ``LIB_WEBTEST``
+and with Zope 2 it's ``LIB_MECHANIZE``.
+
+``LIB_WEBTEST`` is only available with Zope 4 (Plone 5.2 and later) while
+``LIB_MECHANIZE`` and ``LIB_TRAVERSAL`` are only available with Zope 2.
+
 The default driver can be changed on the browser instance, overriding the
 automatic driver selection:
 
@@ -61,10 +67,14 @@ automatic driver selection:
     from ftw.testbrowser.core import LIB_MECHANIZE
     from ftw.testbrowser.core import LIB_REQUESTS
     from ftw.testbrowser.core import LIB_TRAVERSAL
+    from ftw.testbrowser.core import LIB_WEBTEST
 
     browser = Browser()
     # always use mechanize:
     browser.default_driver = LIB_MECHANIZE
+
+    # or always use webtest:
+    browser.default_driver = LIB_WEBTEST
 
     # or always use requests:
     browser.default_driver = LIB_REQUESTS
@@ -81,6 +91,7 @@ chosen by using a standard ``plone.testing`` fixture:
     from ftw.testbrowser import MECHANIZE_BROWSER_FIXTURE
     from ftw.testbrowser import REQUESTS_BROWSER_FIXTURE
     from ftw.testbrowser import TRAVERSAL_BROWSER_FIXTURE
+    from ftw.testbrowser import WEBTEST_BROWSER_FIXTURE
     from plone.app.testing import PLONE_FIXTURE
     from plone.app.testing import FunctionalTesting
 
@@ -100,7 +111,10 @@ chosen by using a standard ``plone.testing`` fixture:
                TRAVERSAL_BROWSER_FIXTURE),
         name='functional:traversal')
 
-
+    MY_FUNCTIONAL_TESTING_WITH_WEBTEST = FunctionalTesting(
+        bases=(PLONE_FIXTURE,
+               WEBTEST_BROWSER_FIXTURE),
+        name='functional:webtest')
 
 
 Visit pages
