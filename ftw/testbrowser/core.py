@@ -29,6 +29,7 @@ from ftw.testbrowser.queryinfo import QueryInfo
 from ftw.testbrowser.utils import basic_auth_encode
 from ftw.testbrowser.utils import normalize_spaces
 from functools import reduce
+from io import open
 from lxml.cssselect import CSSSelector
 from OFS.interfaces import IItem
 from operator import attrgetter

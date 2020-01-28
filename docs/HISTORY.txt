@@ -5,7 +5,7 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Use open from io because of default mode changing. [busykoala]
 
 
 2.1.0 (2019-12-04)
