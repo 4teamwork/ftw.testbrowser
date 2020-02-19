@@ -5,7 +5,10 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Since the default mode changed in python3
+  [*[1](https://portingguide.readthedocs.io/en/latest/strings.html#file-i-o)] we should
+  use `from io import open` to make it compatible with both versions in `core.py`.
+  This is relevant for e.g. `browser.debug()` [busykoala]
 
 
 2.1.0 (2019-12-04)
