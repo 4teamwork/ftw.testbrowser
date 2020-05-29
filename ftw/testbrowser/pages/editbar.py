@@ -102,7 +102,7 @@ def menu(label, browser=default_browser, query_info=None):
 
     else:
         for menu in container(browser=browser).css('nav li[id^="plone-contentmenu-"]'):
-            for span in menu.css('a > span.plone-toolbar-title'):
+            for span in menu.css('a span.plone-toolbar-title'):
                 if normalize_spaces(span.text_content()).rstrip(u'\u2026') == label:
                     return menu
 
