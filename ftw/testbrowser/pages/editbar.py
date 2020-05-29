@@ -73,7 +73,7 @@ def menus(browser=default_browser):
             # Plone 4
             '#contentActionMenus .actionMenuHeader > a > span:first-child, '
             # Plone 5
-            'nav li[id^="plone-contentmenu-"] > a > span.plone-toolbar-title'
+            'nav li[id^="plone-contentmenu-"] > a span.plone-toolbar-title'
         ).text
     ]
 
