@@ -65,7 +65,7 @@ class TestEditBar(BrowserTestCase):
         self.grant('Manager')
         browser.login().open(self.folder)
         if IS_PLONE_4:
-            self.assertEqual([u'Add new', 'Display'],
+            self.assertEqual([u'State:', 'Add new', 'Display', 'Actions'],
                              editbar.menus(browser=browser))
         else:
             self.assertEqual([u'Add new', 'State:', 'Actions', 'Display', 'Manage portlets'],
@@ -97,7 +97,7 @@ class TestEditBar(BrowserTestCase):
             self.assertEqual(
                 "Empty result set: editbar.menu('Shapes',"
                 " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: ['Add new', 'Display'].",
+                "\nVisible menus: ['State:', 'Add new', 'Display', 'Actions'].",
                 str(cm.exception))
         else:
             self.assertEqual(
@@ -148,7 +148,7 @@ class TestEditBar(BrowserTestCase):
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: ['Add new', 'Display'].",
+                "\nVisible menus: ['State:', 'Add new', 'Display', 'Actions'].",
                 str(cm.exception))
         else:
             self.assertEqual(
