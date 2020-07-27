@@ -48,6 +48,7 @@ class BrowserLayer(PloneSandboxLayer):
         z2.installProduct(app, 'Products.DateRecurringIndex')
 
     def setUpPloneSite(self, portal):
+        applyProfile(portal, 'Products.CMFPlone:testfixture')
         applyProfile(portal, 'ftw.testbrowser.tests:dxtype')
         applyProfile(portal, 'plone.app.contenttypes:default')
         applyProfile(portal, 'collective.z3cform.datagridfield:default')

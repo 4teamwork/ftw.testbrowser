@@ -68,7 +68,7 @@ class TestEditBar(BrowserTestCase):
             self.assertEqual([u'Add new', 'Display'],
                              editbar.menus(browser=browser))
         else:
-            self.assertEqual([u'Add new', 'Actions', 'Display', 'Manage portlets'],
+            self.assertEqual([u'Add new', 'State:', 'Actions', 'Display', 'Manage portlets'],
                              editbar.menus(browser=browser))
 
     @nondefault_browsing
@@ -83,6 +83,8 @@ class TestEditBar(BrowserTestCase):
                              editbar.menu('Display', browser=browser).attrib['id'])
             self.assertEqual('plone-contentmenu-factories',
                              editbar.menu('Add new', browser=browser).attrib['id'])
+            self.assertEqual('plone-contentmenu-workflow',
+                             editbar.menu('State:', browser=browser).attrib['id'])
 
     @nondefault_browsing
     def test_menu_not_found(self, browser):
@@ -101,7 +103,7 @@ class TestEditBar(BrowserTestCase):
             self.assertEqual(
                 "Empty result set: editbar.menu('Shapes',"
                 " browser=<ftw.browser.core.Browser instance>) did not match any nodes."
-                "\nVisible menus: ['Add new', 'Actions', 'Display', 'Manage portlets'].",
+                "\nVisible menus: ['Add new', 'State:', 'Actions', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing
@@ -153,7 +155,7 @@ class TestEditBar(BrowserTestCase):
                 "Empty result set: editbar.menu_option('Shapes', 'Square',"
                 " browser=<ftw.browser.core.Browser instance>)"
                 " did not match any nodes."
-                "\nVisible menus: ['Add new', 'Actions', 'Display', 'Manage portlets'].",
+                "\nVisible menus: ['Add new', 'State:', 'Actions', 'Display', 'Manage portlets'].",
                 str(cm.exception))
 
     @nondefault_browsing
