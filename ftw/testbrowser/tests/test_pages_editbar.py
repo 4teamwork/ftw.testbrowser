@@ -8,6 +8,7 @@ from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import nondefault_browsing
 
 import re
+import six
 
 
 @all_drivers
@@ -133,7 +134,8 @@ class TestEditBar(BrowserTestCase):
             " browser=<ftw.browser.core.Browser instance>)"
             " did not match any nodes."
             "\nOptions in menu 'Add new': ['Collection', 'DXType', 'Event',"
-            " 'File', 'Folder', 'Image', 'Link', 'News Item', 'Page', u'Restrictions\u2026']",
+            " 'File', 'Folder', 'Image', 'Link', 'News Item', 'Page', " +
+            ("u" if six.PY2 else "") + "'Restrictions\u2026']",
             str(cm.exception))
 
     @nondefault_browsing
