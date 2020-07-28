@@ -1,4 +1,4 @@
-Plone == 4.3.15
+Plone == 4.3.16
 plone.reload == 2.0.2
 collective.z3cinspector == 1.1
 plone.app.dexterity == 2.0.18
