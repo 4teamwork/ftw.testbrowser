@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.1.2 (unreleased)
+2.1.2 (2020-07-28)
 ------------------
 
 - editbar.menu and editbar.menus can now find workflow contentmenu in Plone5. [djowett-ftw]
