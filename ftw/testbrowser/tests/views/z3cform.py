@@ -1,5 +1,5 @@
-from collective.z3cform.datagridfield import DataGridFieldFactory
-from collective.z3cform.datagridfield import DictRow
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.row import DictRow
 from datetime import date
 from datetime import datetime
 from OFS.interfaces import IItem
