@@ -57,7 +57,9 @@ def document_description(browser=default_browser):
     """Returns the whitespace-normalized document description of the
     current page or None.
     """
-    nodes = browser.css('.documentDescription')
+    # Plone 4, 5: .documentDescription
+    # Plone 6: header .lead
+    nodes = browser.css('.documentDescription, header .lead')
     if len(nodes) == 0:
         return None
     return normalize_spaces(nodes.first.text_content())
