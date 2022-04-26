@@ -47,7 +47,9 @@ def view_and_portal_type(browser=default_browser):
 def first_heading(browser=default_browser):
     """Returns the whitespace-normalized first heading of the current page.
     """
-    first_heading = browser.css('.documentFirstHeading').first
+    # Plone 4, 5: .documentFirstHeading
+    # Plone 6: header h1
+    first_heading = browser.css('.documentFirstHeading, header h1').first
     return normalize_spaces(first_heading.text_content())
 
 
