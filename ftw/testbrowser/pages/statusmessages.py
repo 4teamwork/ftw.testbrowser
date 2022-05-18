@@ -13,7 +13,11 @@ def messages(browser=default_browser):
 
     messages = {'info': [],
                 'warning': [],
-                'error': []}
+                'error': [],
+                'statusmessage-error': [],
+                'statusmessage-info': [],
+                'statusmessage-warning': [],
+                }
 
     for message in browser.css('.portalMessage'):
         type_classes = (set(message.classes) & set(messages.keys()))
@@ -37,6 +41,22 @@ def messages(browser=default_browser):
             #          </div>
             type_text = message.css('strong').first.text
             text = re.sub(r'^{} *'.format(re.escape(type_text)), '', message.text)
+        elif 'statusmessage' in message.classes:
+            # Plone 6: <div class="portalMessage statusmessage info">
+            #              <svg></svg>
+            #              Message
+            #               <div class="field error">
+            #                   <ul>
+            #                       <li>
+            #                           <div class="invalid-feedback">...</div>
+            #                       </li>
+            #                   </ul>
+            #               </div>
+            #          </div>
+            type_text = message.text.replace(
+                message.css('svg').first.text, '').replace(
+                message.css('.invalid-feedback').first.text, '')
+            text = type_text.strip()
 
         if not text:
             # message is empty - skip it
@@ -92,7 +112,7 @@ def assert_message(text, browser=default_browser):
     all_messages = reduce(list.__add__, messages(browser=browser).values())
     if text not in all_messages:
         raise AssertionError('No status message "%s". Current messages: %s' % (
-                text, as_string(browser=browser)))
+            text, as_string(browser=browser)))
     return True
 
 
@@ -111,5 +131,5 @@ def assert_no_error_messages(browser=default_browser):
     """
     if len(error_messages(browser=browser)) > 0:
         raise AssertionError('Unexpected "error" status messages: %s' % (
-                as_string('error', browser=browser)))
+            as_string('error', browser=browser)))
     return True
