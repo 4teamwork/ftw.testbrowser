@@ -8,7 +8,7 @@ def menu(browser=default_browser):
     nodes = browser.css('#plone-contentmenu-factories')
 
     # plone 6  - remove svg icon from menu
-    for svg_element in browser.css('#collapse-plone-contentmenu-factories > ul svg'):
+    for svg_element in browser.css('ul svg'):
         svg_element.node.drop_tree()
 
     if len(nodes) == 0:
@@ -39,9 +39,8 @@ def add(type_name, browser=default_browser):
             type_name))
 
     # Plone 4: .actionMenuContent
-    # Plone 5: >ul
-    # Plone 6: #collapse-plone-contentmenu-factories > ul
-    selector = '.actionMenuContent, >ul, #collapse-plone-contentmenu-factories > ul'
+    # Plone 5/6: ul
+    selector = '.actionMenuContent, ul'
 
     links = menu(browser=browser).css(selector).find(type_name)
     if len(links) == 0:
@@ -61,7 +60,6 @@ def addable_types(browser=default_browser):
         raise ValueError('Factories menu is not visible.')
 
     # Plone 4: .actionMenuContent
-    # Plone 5: >ul
-    # Plone 6: #collapse-plone-contentmenu-factories > ul
-    selector = '.actionMenuContent a, >ul a, #collapse-plone-contentmenu-factories > ul a'
+    # Plone 5/6: ul
+    selector = '.actionMenuContent a, ul a'
     return menu(browser=browser).css(selector).text
