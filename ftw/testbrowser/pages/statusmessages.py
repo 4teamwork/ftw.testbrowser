@@ -70,19 +70,19 @@ def messages(browser=default_browser):
 def info_messages(browser=default_browser):
     """Returns all "info" statusmessages.
     """
-    return messages(browser=browser)['info']
+    return messages(browser=browser)['info'] or messages(browser=browser)['statusmessage-info']
 
 
 def warning_messages(browser=default_browser):
     """Returns all "warning" statusmessages.
     """
-    return messages(browser=browser)['warning']
+    return messages(browser=browser)['warning'] or messages(browser=browser)['statusmessage-warning']
 
 
 def error_messages(browser=default_browser):
     """Returns all "error" statusmessages.
     """
-    return messages(browser=browser)['error']
+    return messages(browser=browser)['error'] or messages(browser=browser)['statusmessage-error']
 
 
 def as_string(filter_=None, browser=default_browser):
@@ -92,7 +92,9 @@ def as_string(filter_=None, browser=default_browser):
     """
 
     if filter_ is None:
-        filter_ = ('info', 'warning', 'error')
+        filter_ = ('info', 'warning', 'error',
+                   'statusmessage-error', 'statusmessage-info',
+                   'statusmessage-warning')
     elif isinstance(filter_, (str, six.text_type)):
         filter_ = (filter_,)
 
