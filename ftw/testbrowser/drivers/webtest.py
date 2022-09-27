@@ -105,6 +105,8 @@ class WebtestDriver(object):
         return self.response.body
 
     def get_url(self):
+        if self.current_url is not None:
+            return self.current_url.replace('http://nohost:80', 'http://nohost')
         return self.current_url
 
     def get_response_headers(self):

@@ -63,8 +63,9 @@ else:
     from plone.app.testing import TEST_USER_PASSWORD
 
 PLONE5 = getFSVersionTuple() >= (5, 0)
+PLONE6 = getFSVersionTuple() >= (6, 0)
 
-if PLONE5:
+if PLONE5 and not PLONE6:
     from ftw.testbrowser.plone5 import disabled_resource_registries
 
 
@@ -1070,7 +1071,7 @@ class Browser(object):
 
     @contextmanager
     def _disabled_resource_registries(self):
-        if not PLONE5 or not self.disable_resource_registries:
+        if PLONE6 or not PLONE5 or not self.disable_resource_registries:
             yield
             return
 

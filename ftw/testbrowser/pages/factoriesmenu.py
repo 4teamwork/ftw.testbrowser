@@ -6,6 +6,11 @@ def menu(browser=default_browser):
     not visible.
     """
     nodes = browser.css('#plone-contentmenu-factories')
+
+    # plone 6  - remove svg icon from menu
+    for svg_element in browser.css('ul svg'):
+        svg_element.node.drop_tree()
+
     if len(nodes) == 0:
         return None
     else:
@@ -31,15 +36,17 @@ def add(type_name, browser=default_browser):
     """
     if not visible(browser=browser):
         raise ValueError('Cannot add "%s": no factories menu visible.' % (
-                type_name))
+            type_name))
 
     # Plone 4: .actionMenuContent
-    # Plone 5: >ul
-    links = menu(browser=browser).css('.actionMenuContent, >ul').find(type_name)
+    # Plone 5/6: ul
+    selector = '.actionMenuContent, ul'
+
+    links = menu(browser=browser).css(selector).find(type_name)
     if len(links) == 0:
         raise ValueError('The type "%s" is not addable. Addable types: %s' % (
-                type_name,
-                ', '.join(addable_types(browser=browser))))
+            type_name,
+            ', '.join(addable_types(browser=browser))))
 
     links.first.click()
 
@@ -53,5 +60,6 @@ def addable_types(browser=default_browser):
         raise ValueError('Factories menu is not visible.')
 
     # Plone 4: .actionMenuContent
-    # Plone 5: >ul
-    return menu(browser=browser).css('.actionMenuContent a, >ul a').text
+    # Plone 5/6: ul
+    selector = '.actionMenuContent a, ul a'
+    return menu(browser=browser).css(selector).text
