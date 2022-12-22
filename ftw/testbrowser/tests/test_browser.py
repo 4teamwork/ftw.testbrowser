@@ -9,6 +9,7 @@ from ftw.testbrowser.exceptions import BrowserNotSetUpException
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.tests import BrowserTestCase
 from ftw.testbrowser.tests import IS_PLONE_4
+from ftw.testbrowser.tests import PLONE_VERSION
 from ftw.testbrowser.tests.alldrivers import all_drivers
 from ftw.testbrowser.tests.helpers import capture_streams
 from ftw.testbrowser.tests.helpers import register_view
@@ -24,6 +25,8 @@ from zope.publisher.browser import BrowserView
 import six
 
 
+HTTP_ONLY = 'HTTPOnly' if PLONE_VERSION < (5, 2, 0) else 'HttpOnly'
+
 AC_COOKIE_INFO = {'comment': None,
                   # 'domain': ... may be 'localhost.local' or '0.0.0.0'
                   'name': '__ac',
@@ -31,7 +34,7 @@ AC_COOKIE_INFO = {'comment': None,
                   'expires': None,
                   # 'value': ...,  The value changes.
                   'domain_specified': False,
-                  '_rest': {'HTTPOnly': None},
+                  '_rest': {HTTP_ONLY: None},
                   'version': 0,
                   'port_specified': False,
                   'rfc2109': False,
