@@ -5,7 +5,7 @@ plone.app.dexterity == 2.0.18
 plone.formwidget.autocomplete == 1.2.11
 plone.z3cform == 0.8.1
 z3c.formwidget.query == 0.13
-setuptools == 33.1.1
+setuptools == 65.5.1
 z3c.form == 3.2.11
 zope.publisher == 3.12.6
 zope.schema == 4.2.2
